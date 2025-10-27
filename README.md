@@ -43,5 +43,47 @@ cd skincare-allergy-filter
 
 3. Create a virtual environment:
 ```bash
-cd skincare-allergy-filter
+python -m venv .venv
 ```
+
+4. Activate the virtual environment:
+
+    - **Windows:**
+```bash
+.venv\Scripts\activate
+```
+
+    - **macOS/Linux:**
+```bash
+source .venv/bin/activate
+```
+
+5. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+6. Apply migrations:
+```bash
+pip install -r requirements.txt
+```
+
+7. Run the development server:
+```bash
+python manage.py runserver
+```
+
+8. Open your browser and visit http://localhost:8000
+
+---
+
+##Usage
+1. Enter your personal allergies.
+2. Input the ingredients of a skincare product.
+3. Click "Check Safety".
+4. View the results indicating whether the product is safe.
+
+---
+
+## Screenshots/Demo
+Here’s an example of how the app looks:
