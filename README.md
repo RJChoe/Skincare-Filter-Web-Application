@@ -87,3 +87,13 @@ python manage.py runserver
 
 ## Screenshots/Demo
 Here’s an example of how the app looks:
+Allergy Input Page
+![Website requesting User's Allergy Input](link to image)
+
+Ingredients Input Page
+![Website requesting input of skincare product's ingredients](link to image)
+
+Result Page
+![Website with the Result Page. Green background for "SAFE" & Red background for "UNSAFE".](link to image)
+
+((Replace the above images with actual screenshots from your project in a screenshots/ folder.))
