@@ -33,13 +33,16 @@ How to install and set up your project:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/skincare-allergy-filter.git
+   git clone https://github.com/RJChoe/filter-project.git
    ```
 
 2. Navigate to the project folder:
 ```bash
-cd skincare-allergy-filter
+cd filter-project
 ```
+
+
+(Remember to .gitignore .venv prior to setting up)
 
 3. Create a virtual environment:
 ```bash
