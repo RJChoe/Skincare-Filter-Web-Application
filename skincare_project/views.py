@@ -11,5 +11,5 @@ def user(request):
 
 def product(request):
     #return HttpResponse("Product Ingredient Input Page")
-    return render
+    return render(request, 'product.html')
 
