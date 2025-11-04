@@ -1,0 +1,21 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing:border-box;
+}
+
+body {
+    min-height: 100vh;           /* Always fills the viewport height */
+    display: grid;               /* Enable grid layout */
+    place-items: center;         /* Centers content horizontally and vertically */
+    font-size: 3rem
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+h1 {
+    text-align: center
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
