@@ -21,8 +21,8 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
-    path('', include('user.urls')),  # This will include /users/ from the user app
-    path('product', views.product, name='product'),
+    path('users/', include(('user.urls', 'user'), namespace='user')),
+    path('product/', views.product, name='product'),
 ]
 
 #TO DO:
@@ -30,4 +30,4 @@ urlpatterns = [
 #For example, change path('', views.home) to path('', views.home, name='home').
 
 #Use named URLs in templates instead of hard-coded paths (e.g., change <a href="/user"> to <a href="{% url 'user' %}">) after you give that route a name.
-#Add a small test that asserts reverse('home') == '/' if you set name='home' in your URLconf.
+#Add a small test that asserts reverse('home') == '/' if you set name='home' in your URLconf.,
