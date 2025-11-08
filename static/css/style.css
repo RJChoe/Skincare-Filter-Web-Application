@@ -4,6 +4,105 @@
     box-sizing:border-box;
 }
 
+/* Navigation bar */
+.navbar {
+    width: 100%;
+    background: linear-gradient(90deg, #0f172a 0%, #334155 100%);
+    color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(2,6,23,0.15);
+}
+
+.navbar .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Brand / logo */
+.navbar .brand {
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: 0.4px;
+}
+
+/* Link list */
+.navbar .nav-links {
+    display: flex;
+    gap: 0.75rem;
+    list-style: none;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar .nav-links a {
+    color: inherit;
+    text-decoration: none;
+    padding: 0.45rem 0.65rem;
+    border-radius: 6px;
+    transition: background-color 140ms ease, transform 120ms ease;
+    font-weight: 600;
+    display: inline-block;
+    line-height: 1;
+}
+
+.navbar .nav-links a:hover,
+.navbar .nav-links a:focus {
+    background: rgba(255,255,255,0.08);
+    transform: translateY(-1px);
+    outline: none;
+}
+
+/* Call-to-action link */
+.navbar .nav-links .cta {
+    background: #fff;
+    color: #0f172a;
+    padding: 0.45rem 0.8rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(2,6,23,0.12);
+}
+
+/* Mobile: hide links, show toggle */
+.navbar .menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 1.2rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .navbar .nav-links {
+        display: none; /* you can toggle this with JS when menu is open */
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: linear-gradient(180deg, #0f172a, #0b1220);
+        padding: 0.5rem;
+        border-radius: 8px;
+        flex-direction: column;
+        width: calc(100% - 2rem);
+        margin: 0.5rem;
+    }
+
+    .navbar .menu-toggle { display: inline-flex; align-items:center; gap:.5rem; }
+    .navbar .container { padding: 0.5rem; }
+}
+
+main {
+    flex-grow: 1;
+    display: grid;
+    place-content: center;
+    padding: 2rem;
+}
+
 body {
     min-height: 100vh;           /* Always fills the viewport height */
     display: grid;               /* Enable grid layout */
