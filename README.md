@@ -38,53 +38,143 @@ Diagram flow of data through application
 ## Installation
 How to install and set up your project:
 
+Note: Unless explicitly labeled, commands are shell-agnostic and work in Windows PowerShell, CMD, and Unix shells. Use the Windows-specific blocks where provided.
+
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/RJChoe/filter-project.git
-   ```
+     - Windows (PowerShell):
+         ```powershell
+         git clone https://github.com/RJChoe/filter-project.git
+         ```
+
+     - macOS/Linux:
+         ```bash
+         git clone https://github.com/RJChoe/filter-project.git
+         ```
 
 2. Navigate to the project folder:
-   ```bash
-   cd filter-project
-      ```
+     - Windows (PowerShell):
+         ```powershell
+         cd filter-project
+         ```
+
+     - macOS/Linux:
+         ```bash
+         cd filter-project
+         ```
 
 
 (Remember to .gitignore .venv prior to setting up)
 
 3. Create a virtual environment:
-    ```bash
-    python -m venv .venv
-    ```
+     - Windows (PowerShell):
+         ```powershell
+         python -m venv .venv
+         ```
+
+     - macOS/Linux:
+         ```bash
+         python -m venv .venv
+         ```
 
 4. Activate the virtual environment:
+     - Windows (PowerShell):
+         ```powershell
+         .\.venv\Scripts\Activate
+         ```
 
-    - **Windows:**
-        ```bash
-        .venv\Scripts\activate
-        ```
+     - Windows (CMD):
+         ```bat
+         .\.venv\Scripts\activate.bat
+         ```
 
-
-    - **macOS/Linux:**
-        ```bash
-        source .venv/bin/activate
-        ```
+     - macOS/Linux:
+         ```bash
+         source .venv/bin/activate
+         ```
 
 5. Install dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
+     - Windows (PowerShell):
+         ```powershell
+         pip install -r requirements.txt
+         ```
+
+     - macOS/Linux:
+         ```bash
+         pip install -r requirements.txt
+         ```
 
 6. Apply migrations:
-    ```bash
-    pip install -r requirements.txt
-    ```
+     - Windows (PowerShell):
+         ```powershell
+         python manage.py makemigrations allergies user
+         python manage.py migrate
+         ```
+
+     - macOS/Linux:
+         ```bash
+         python manage.py makemigrations allergies user
+         python manage.py migrate
+         ```
 
 7. Run the development server:
-    ```bash
-    python manage.py runserver
-    ```
+     - Windows (PowerShell):
+         ```powershell
+         python manage.py runserver
+         ```
+
+     - macOS/Linux:
+         ```bash
+         python manage.py runserver
+         ```
 
 8. Open your browser and visit http://localhost:8000
+
+---
+
+## Verify Setup
+Quick checks to confirm your environment:
+
+ - Windows (PowerShell):
+     ```powershell
+     python -V
+     python -c "import django; print(django.get_version())"
+     ```
+
+ - macOS/Linux:
+     ```bash
+     python -V
+     python -c "import django; print(django.get_version())"
+     ```
+
+---
+
+## Troubleshooting
+Common setup issues and quick fixes:
+
+- Activation policy error (PowerShell): If you see "running scripts is disabled on this system":
+    ```powershell
+    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+    .\.venv\Scripts\Activate
+    ```
+
+- Python not found on Windows: Use the `py` launcher.
+    ```powershell
+    py -V
+    py -m venv .venv
+    py -m pip install -r requirements.txt
+    ```
+
+- Migrations/app errors: Ensure apps are installed and migrations ran.
+    ```powershell
+    python manage.py showmigrations
+    python manage.py makemigrations allergies user
+    python manage.py migrate
+    ```
+
+- Port already in use: Run on a different port.
+    ```powershell
+    python manage.py runserver 8001
+    ```
 
 ---
 
