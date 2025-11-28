@@ -58,7 +58,6 @@ CONTACT_ALLERGENS = [
 
 DUST_ALLERGENS = [
     ("dust_mite", "Dust Mite"),
-    ("pollen", "Pollen"),
     ("mold_spores", "Mold Spores"),
     ("pet_dander", "Pet Dander"),
 ]
@@ -94,6 +93,26 @@ OTHER_ALLERGENS = [
     ("tocopherol", "Tocopherol (Vitamin E)"),
     ("alcohol_denat", "Alcohol Denat"),
     ("isopropyl_alcohol", "Isopropyl Alcohol"),
+]
+
+# Pollen Allergens
+POLLEN_ALLERGENS = [
+    ("birch_pollen", "Birch Pollen"),
+    ("chrysanthemum","Chrysanthemum"),
+    ("goldenrod","Goldenrod"),
+    ("grass_pollen", "Grass Pollen"),
+    ("humulus_japonicus","Humulus Japonicus"),
+    ("lamb's_quarters","Lamb's Quarters"),
+    ("mulberry","Mulberry"),
+    ("locust","Locust"),
+    ("oak_pollen", "Oak Pollen"),
+    ("pine","Pine"),
+    ("plane_tree","Plane Tree"),
+    ("ragweed", "Ragweed Pollen"),
+    ("rape","Rape"),
+    ("spruce","Spruce"),
+    ("tree_pollen", "Tree Pollen"),
+    ("queen_palm","Queen Palm"),
 ]
 
 # Preservatives
@@ -169,6 +188,7 @@ FORM_ALLERGIES_CHOICES = [
     
     # This item will be classified as 'inhalant' in the database
     (CATEGORY_INHALANT, "Environmental Inhalants", DUST_ALLERGENS),
+    (CATEGORY_INHALANT, "Pollen Allergens", POLLEN_ALLERGENS),
     
     (CATEGORY_OTHER, "Other General Contact", OTHER_ALLERGENS),
 ]
