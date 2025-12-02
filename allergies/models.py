@@ -3,10 +3,10 @@ from django.contrib.auth.models import User
 from .constants.choices import CATEGORY_CHOICES, CATEGORY_OTHER
 
 ##CATEGORY_CHOICES define single field on Django model
-## use: category field on Allergy model
+## use: category field on AllergenExposure model
 ## structure: flat list of 2-tuples (database_key, human_label)
 ## database value: database_key (e.g., 'food', 'fragrance', 'other') saved to database
-## purpose: categorize Allergy model objects themselves
+## purpose: categorize AllergenExposure model objects themselves
 
 # Allergy model
 # User model (Django's built-in User)
@@ -47,7 +47,10 @@ class AllergenExposure(models.Model):
         ordering = ['category', 'allergen_name']
 
     def __str__(self):
-        return self.allergen_name
+        if self.allergen_name:
+            return f"{self.get_category_display()} - {self.get_allergen_name_display()}"
+        else:
+            return f"{self.get_category_display()}"
 
 class UserAllergy(models.Model):
     """
@@ -58,8 +61,8 @@ class UserAllergy(models.Model):
         on_delete=models.CASCADE,
         related_name='user_allergies'
     )
-    allergy = models.ForeignKey(
-        Allergy,
+    allergen_exposure = models.ForeignKey(
+        AllergenExposure,
         on_delete=models.CASCADE,
         related_name='affected_users'
     )
@@ -72,4 +75,4 @@ class UserAllergy(models.Model):
         ordering = ['-added_at']
 
     def __str__(self):
-        return f"{self.user.username} - {self.allergy.name}"
+        return f"{self.user.username} - {self.allergen_exposure.allergen_name}"
