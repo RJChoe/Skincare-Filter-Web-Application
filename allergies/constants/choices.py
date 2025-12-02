@@ -1,5 +1,5 @@
 # --- Category Definitions ---
-# Category Keys (Generic, Database values)
+# Category Keys (Generic Database values)
 CATEGORY_FOOD = 'food'
 CATEGORY_CONTACT = 'contact'
 CATEGORY_INHALANT = 'inhalant'
