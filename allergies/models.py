@@ -7,13 +7,22 @@ from .constants.choices import CATEGORY_CHOICES, CATEGORY_OTHER
 ## structure: flat list of 2-tuples (database_key, human_label)
 ## database value: database_key (e.g., 'food', 'fragrance', 'other') saved to database
 ## purpose: categorize Allergy model objects themselves
+
+# Allergy model
+# User model (Django's built-in User)
+# UserAllergy model to link users to their allergies)
 class Allergy(models.Model):
     """
     Pre-defined list of common allergens/ingredients.
     Admins can manage this list, users select from it.
     """
     
-    name = models.CharField(max_length=200, unique=True)
+    name = models.CharField(
+        max_length=100,
+        choices=CATEGORY_CHOICES,
+        help_text="Name of the allergen/ingredient"
+    )
+    
     category = models.CharField(
         max_length=50, 
         choices=CATEGORY_CHOICES,

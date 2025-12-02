@@ -1,11 +1,11 @@
 # --- Category Definitions ---
-# Catehory Keys (Borad, Database values)
+# Category Keys (Generic, Database values)
 CATEGORY_FOOD = 'food'
 CATEGORY_CONTACT = 'contact'
 CATEGORY_INHALANT = 'inhalant'
 CATEGORY_OTHER = 'other'
 
-# --- 2. Category Choices (For the Model field) ---
+# --- Category Choices (For the Model field) ---
 CATEGORY_CHOICES = [
     (CATEGORY_FOOD, 'Food Allergens'),
     (CATEGORY_CONTACT, 'Contact/Topical Allergens'),
@@ -169,8 +169,8 @@ SURFACTANT_ALLERGENS = [
 # Assuming you have defined the Category Keys (GENERIC_CONTACT, etc.)
 # and the Specific Allergen Lists (FRAGRANCE_ALLERGENS, etc.)
 
-# --- 3. Form Grouping for OptGroups (3-tuples) ---
-# Structure: (generic_key, optgroup_label, choices_list)
+# --- Form Grouping for OptGroups (3-tuples) ---
+# Structure: (category_key, optgroup_label, choices_list)
 FORM_ALLERGIES_CHOICES = [
     # All of these items will be classified as 'contact' in the database
     (CATEGORY_CONTACT, "Acids & Exfoliants", ACID_ALLERGENS),
@@ -192,3 +192,22 @@ FORM_ALLERGIES_CHOICES = [
     
     (CATEGORY_OTHER, "Other General Contact", OTHER_ALLERGENS),
 ]
+
+# --- Inverse Map (Category -> Specific Choices) ---
+# Maps category_key -> list of (specific_key, specific_label)
+
+def build_category_to_allergens_map(form_allergies_choices):
+    category_allergen_map = {}
+    for category_key, optgroup_label, choice_list in form_allergies_choices:
+        # Use .setdefault() to ensure the list exists before extending it
+        category_allergen_map.setdefault(category_key, []).extend(choice_list)
+    return category_allergen_map
+
+CATEGORY_TO_ALLERGENS_MAP = build_category_to_allergens_map(FORM_ALLERGIES_CHOICES)
+
+# Now, CATEGORY_TO_ALLERGENS_MAP looks like:
+# {
+#    'contact': [('glycolic_acid', 'Glycolic Acid'), ('tea_tree_oil', 'Tea Tree Oil'), ...],
+#    'food': [('peanut', 'Peanut'), ('tree_nut', 'Tree Nut (General)'), ...],
+#    ...
+# }
