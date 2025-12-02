@@ -87,3 +87,5 @@ yarn.lock
 *.seed
 docker-compose.override.yml
 
+#private develpment notes
+_private_notes/
