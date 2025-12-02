@@ -6,4 +6,16 @@ Allergies List
 
 {% block content %}
     <h1>Allergies List</h1>
+    {% for generic_key, group_label, allergen_list in FORM_ALLERGIES_CHOICES %}
+    <h2>{{ group_label }}</h2>
+        <ul>
+        {% for allergen in allergen_list %}
+            <li>{{ allergen }}</li>
+        {% endfor %}
+        </ul>
+        {% for allergen in allergen_list %}
+            <li>{{ allergen }}</li>
+        {% endfor %}
+    </ul>
+{% endfor %}
 {% endblock %}

@@ -129,8 +129,7 @@ PRESERVATIVE_ALLERGENS = [
 ]
 
 # Proteins and extracts
-PROTEIN_ALLERGENS = [
-    ("lanolin", "Lanolin (Wool Alcohol)"),
+PROTEIN_ALLERGENS = [,
     ("collagen", "Collagen"),
     ("keratin", "Keratin"),
     ("silk_protein", "Silk Protein"),
