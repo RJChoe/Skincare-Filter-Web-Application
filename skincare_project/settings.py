@@ -38,7 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'allergies.apps.AllergiesConfig',
+    'allergies',
+    #'user', ## Not needed until custom user model is created
+    #'products', ## Future app for skincare products
+
 ]
 
 MIDDLEWARE = [

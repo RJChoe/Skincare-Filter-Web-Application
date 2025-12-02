@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from .constants.choices import CATEGORY_CHOICES, CATEGORY_OTHER
 
-##CATEGORY_CHOICES define dingle field on Django model
+##CATEGORY_CHOICES define single field on Django model
 ## use: category field on Allergy model
 ## structure: flat list of 2-tuples (database_key, human_label)
 ## database value: database_key (e.g., 'food', 'fragrance', 'other') saved to database
@@ -19,17 +19,20 @@ class Allergy(models.Model):
         choices=CATEGORY_CHOICES,
         default=CATEGORY_OTHER,
     )
-    #probably not useful
+    #probably not useful#
     #description = models.TextField(
     #    blank=True, 
     #    null=True,
     #    help_text="Optional description of the allergen"
     #)
-    common_names = models.TextField(
-        blank=True, 
-        null=True,
-        help_text="Comma-separated list of alternative names for this allergen (e.g., 'milk, lactose, casein')"
-    )
+    
+    #probably not useful#
+    #common_names = models.TextField(
+    #    blank=True, 
+    #    null=True,
+    #    help_text="Comma-separated list of alternative names for this allergen (e.g., 'milk, lactose, casein')"
+    #)
+    
     is_active = models.BooleanField(
         default=True,
         help_text="Inactive allergies won't be shown in user selection"
