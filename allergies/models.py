@@ -60,28 +60,3 @@ class AllergenExposure(models.Model):
             return f"{self.get_category_display()} - {allergen_label}"
         else:
             return f"{self.get_category_display()}"
-
-class UserAllergy(models.Model):
-    """
-    Links users to their selected allergies from the pre-defined list.
-    """
-    user = models.ForeignKey(
-        User, 
-        on_delete=models.CASCADE,
-        related_name='user_allergies'
-    )
-    allergen_exposure = models.ForeignKey(
-        AllergenExposure,
-        on_delete=models.CASCADE,
-        related_name='affected_users'
-    )
-    added_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = "User Allergy"
-        verbose_name_plural = "User Allergies"
-        unique_together = ['user', 'allergen_exposure']
-        ordering = ['-added_at']
-
-    def __str__(self):
-        return f"{self.user.username} - {self.allergen_exposure.allergen_name}"
