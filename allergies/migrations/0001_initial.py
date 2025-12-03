@@ -15,13 +15,11 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Allergy',
+            name='AllergenExposure',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200, unique=True)),
+                ('allergen_name', models.CharField(blank=True, help_text='Specific allergen (choices filtered via category)', max_length=50, null=True)),
                 ('category', models.CharField(choices=[('Fragrances', [('linalool', 'Linalool'), ('limonene', 'Limonene'), ('geraniol', 'Geraniol'), ('citronellol', 'Citronellol'), ('eugenol', 'Eugenol'), ('cinnamal', 'Cinnamal'), ('benzyl_alcohol', 'Benzyl Alcohol'), ('benzyl_benzoate', 'Benzyl Benzoate'), ('benzyl_salicylate', 'Benzyl Salicylate'), ('coumarin', 'Coumarin'), ('farnesol', 'Farnesol'), ('citral', 'Citral')]), ('Preservatives', [('parabens', 'Parabens (Methylparaben, Propylparaben, etc.)'), ('formaldehyde', 'Formaldehyde'), ('formaldehyde_releasers', 'Formaldehyde Releasers'), ('methylisothiazolinone', 'Methylisothiazolinone (MI)'), ('methylchloroisothiazolinone', 'Methylchloroisothiazolinone (MCI)'), ('phenoxyethanol', 'Phenoxyethanol'), ('benzalkonium_chloride', 'Benzalkonium Chloride'), ('bronopol', 'Bronopol'), ('iodopropynyl_butylcarbamate', 'Iodopropynyl Butylcarbamate')]), ('Botanicals & Essential Oils', [('tea_tree_oil', 'Tea Tree Oil'), ('lavender_oil', 'Lavender Oil'), ('peppermint_oil', 'Peppermint Oil'), ('eucalyptus_oil', 'Eucalyptus Oil'), ('rose_oil', 'Rose Oil'), ('chamomile', 'Chamomile'), ('ylang_ylang', 'Ylang Ylang'), ('sandalwood', 'Sandalwood'), ('bergamot', 'Bergamot Oil'), ('lemongrass', 'Lemongrass Oil')]), ('Surfactants & Emulsifiers', [('sls', 'Sodium Lauryl Sulfate (SLS)'), ('sles', 'Sodium Laureth Sulfate (SLES)'), ('cocamidopropyl_betaine', 'Cocamidopropyl Betaine'), ('peg_compounds', 'PEG Compounds (Polyethylene Glycol)'), ('polysorbates', 'Polysorbates'), ('sodium_lauroyl_sarcosinate', 'Sodium Lauroyl Sarcosinate')]), ('Sunscreen Ingredients', [('oxybenzone', 'Oxybenzone (Benzophenone-3)'), ('octinoxate', 'Octinoxate (Octyl Methoxycinnamate)'), ('avobenzone', 'Avobenzone'), ('octocrylene', 'Octocrylene'), ('homosalate', 'Homosalate'), ('titanium_dioxide', 'Titanium Dioxide'), ('zinc_oxide', 'Zinc Oxide')]), ('Acids & Exfoliants', [('glycolic_acid', 'Glycolic Acid'), ('salicylic_acid', 'Salicylic Acid'), ('lactic_acid', 'Lactic Acid'), ('citric_acid', 'Citric Acid'), ('benzoic_acid', 'Benzoic Acid'), ('sorbic_acid', 'Sorbic Acid')]), ('Colorants & Dyes', [('ci_dyes', 'CI Dyes (Color Index)'), ('fd_c_dyes', 'FD&C Dyes'), ('carmine', 'Carmine (CI 75470)'), ('iron_oxides', 'Iron Oxides'), ('mica', 'Mica')]), ('Proteins & Extracts', [('lanolin', 'Lanolin (Wool Alcohol)'), ('collagen', 'Collagen'), ('keratin', 'Keratin'), ('silk_protein', 'Silk Protein'), ('wheat_protein', 'Wheat Protein'), ('soy_protein', 'Soy Protein'), ('beeswax', 'Beeswax'), ('propolis', 'Propolis'), ('royal_jelly', 'Royal Jelly')]), ('Other Ingredients', [('retinol', 'Retinol/Retinoids'), ('vitamin_c', 'Vitamin C (L-Ascorbic Acid)'), ('niacinamide', 'Niacinamide'), ('propylene_glycol', 'Propylene Glycol'), ('butylene_glycol', 'Butylene Glycol'), ('dimethicone', 'Dimethicone'), ('tocopherol', 'Tocopherol (Vitamin E)'), ('alcohol_denat', 'Alcohol Denat'), ('isopropyl_alcohol', 'Isopropyl Alcohol')])], default='other', max_length=50)),
-                ('description', models.TextField(blank=True, help_text='Optional description of the allergen', null=True)),
-                ('common_names', models.TextField(blank=True, help_text="Comma-separated list of alternative names for this allergen (e.g., 'milk, lactose, casein')", null=True)),
                 ('is_active', models.BooleanField(default=True, help_text="Inactive allergies won't be shown in user selection")),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
@@ -29,7 +27,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'Allergy',
                 'verbose_name_plural': 'Allergies',
-                'ordering': ['category', 'name'],
+                'ordering': ['category', 'allergen_name'],
             },
         ),
         migrations.CreateModel(
@@ -37,14 +35,14 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('added_at', models.DateTimeField(auto_now_add=True)),
-                ('allergy', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='affected_users', to='allergies.allergy')),
+                ('allergen_exposure', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='affected_users', to='allergies.allergenexposure')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_allergies', to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'verbose_name': 'User Allergy',
                 'verbose_name_plural': 'User Allergies',
                 'ordering': ['-added_at'],
-                'unique_together': {('user', 'allergy')},
+                'unique_together': {('user', 'allergen_exposure')},
             },
         ),
     ]

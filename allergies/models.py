@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
-from .constants.choices import CATEGORY_CHOICES, CATEGORY_OTHER
+from .constants.choices import (
+CATEGORY_CHOICES,
+CATEGORY_OTHER,
+CATEGORY_TO_ALLERGENS_MAP,
+)
 
 ##CATEGORY_CHOICES define single field on Django model
 ## use: category field on AllergenExposure model
@@ -48,7 +52,9 @@ class AllergenExposure(models.Model):
 
     def __str__(self):
         if self.allergen_name:
-            return f"{self.get_category_display()} - {self.get_allergen_name_display()}"
+            label_map = dict(CATEGORY_TO_ALLERGENS_MAP.get(self.category, []))
+            allergen_label = label_map.get(self.allergen_name, self.allergen_name)
+            return f"{self.get_category_display()} - {allergen_label}"
         else:
             return f"{self.get_category_display()}"
 
@@ -71,7 +77,7 @@ class UserAllergy(models.Model):
     class Meta:
         verbose_name = "User Allergy"
         verbose_name_plural = "User Allergies"
-        unique_together = ['user', 'allergy']
+        unique_together = ['user', 'allergen_exposure']
         ordering = ['-added_at']
 
     def __str__(self):
