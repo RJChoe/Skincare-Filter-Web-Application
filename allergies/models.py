@@ -105,3 +105,5 @@ class UserAllergy(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.allergen}"
+    
+    # models.py. Keep running python [manage.py](http://_vscodecontentref_/3) check to validate model syntax and imports as you go.
