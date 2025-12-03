@@ -1,5 +1,5 @@
 import pytest
-from allergies.models import AllergenExposure
+from allergies.models import Allergen
 from allergies.constants.choices import (
 CATEGORY_TO_ALLERGENS_MAP,
 CATEGORY_CONTACT,
@@ -10,7 +10,7 @@ CATEGORY_FOOD,
 @pytest.fixture
 def allergen_contact(db):
     """Fixture for contact allergen. Assumes 'sls' key maps to 'Sodium Lauryl Sulfate (SLS)' label."""
-    return AllergenExposure.objects.create(
+    return Allergen.objects.create(
         category=CATEGORY_CONTACT,
         allergen_name='sls'
     )
@@ -19,12 +19,12 @@ def allergen_contact(db):
 @pytest.fixture
 def allergen_food(db):
     """Fixture for food allergen. Using 'peanut' to match constant test."""
-    return AllergenExposure.objects.create(
+    return Allergen.objects.create(
         category=CATEGORY_FOOD,
         allergen_name='peanut'
     )
 
-class TestAllergenExposureModel:
+class TestAllergenModel:
     
     # Assumption: The AllergenExposure.__str__ method is implemented like this:
     # def __str__(self):

@@ -39,10 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'allergies',
-    #'user', ## Not needed until custom user model is created
+    'users',
     #'products', ## Future app for skincare products
 
 ]
+# Set the custom user model reference
+AUTH_USER_MODEL = 'users.CustomUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
