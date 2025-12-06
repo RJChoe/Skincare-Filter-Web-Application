@@ -13,6 +13,20 @@ CATEGORY_CHOICES = [
     (CATEGORY_OTHER, 'Other Allergens'), # <-- Category label (displayed via self.get_category_display())
 ]
 
+# --- Severity Level Choices (For UserAllergy Model) ---
+SEVERITY_CHOICES = [
+    ('mild', 'Mild'),
+    ('moderate', 'Moderate'),
+    ('severe', 'Severe / Anaphylactic'),
+]
+
+# --- Source Information Choices (For UserAllergy Model) ---
+SOURCE_INFO_CHOICES = [
+    ('self_reported', 'Self Reported'),
+    ('tested', 'Clinically Tested'),
+    ('family_history', 'Family History'),
+]
+
 # --- choices/specific allergen lists (Key-Value Pairs for the database) ---
 ## alphabetical ##
 
