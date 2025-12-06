@@ -12,7 +12,7 @@ def allergen_contact(db):
     """Fixture for contact allergen. Assumes 'sls' key maps to 'Sodium Lauryl Sulfate (SLS)' label."""
     return Allergen.objects.create(
         category=CATEGORY_CONTACT,
-        allergen_name='sls'
+        allergen_key='sls'
     )
 
 
@@ -21,7 +21,7 @@ def allergen_food(db):
     """Fixture for food allergen. Using 'peanut' to match constant test."""
     return Allergen.objects.create(
         category=CATEGORY_FOOD,
-        allergen_name='peanut'
+        allergen_key='peanut'
     )
 
 class TestAllergenModel:

@@ -4,6 +4,8 @@ from .constants.choices import (
 CATEGORY_CHOICES,
 CATEGORY_OTHER,
 FLAT_ALLERGEN_LABEL_MAP,
+SEVERITY_CHOICES,
+SOURCE_INFO_CHOICES,
 )
 
 ##CATEGORY_CHOICES define single field on Django model
@@ -44,6 +46,7 @@ class Allergen(models.Model):
     
     is_active = models.BooleanField(
         default=True,
+        db_index=True,
         help_text="Inactive allergies won't be shown in user selection",
     )
     created_at = models.DateTimeField(auto_now_add=True)
@@ -52,13 +55,16 @@ class Allergen(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['category', 'allergen_name'],
+                fields=['category', 'allergen_key'],
                 name='uniq_category_allergen',
             ),
         ]
+        indexes = [
+            models.Index(fields=['category', 'is_active'], name='allergen_cat_active_idx'),
+        ]
         verbose_name = "Allergen"
         verbose_name_plural = "Allergens"
-        ordering = ['category', 'allergen_name']
+        ordering = ['category', 'allergen_key']
         
     def __str__(self):
         # Display as "Category: Allergen Label"
@@ -90,7 +96,61 @@ class UserAllergy(models.Model):
         related_name='allergen_users',
         help_text='The allergen this user is allergic to',
     )
-    noted_at = models.DateTimeField(auto_now_add=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    severity_level = models.CharField(
+        max_length=20,
+        choices=SEVERITY_CHOICES,
+        blank=True,
+        null=True,
+        help_text='Optional severity level of the allergy',
+    )
+    
+    is_confirmed = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text='Clinically confirmed: True/False',
+    
+    )
+    
+    symptom_onset_date = models.DateField(
+        blank=True,
+        null=True,
+        help_text='Date when symptoms first appeared',
+    )
+    # The default form widget for this field is a DateInput.
+    # The admin adds a JavaScript calendar, and a shortcut for “Today”.
+    # Includes an additional invalid_date error message key.
+    
+    source_info = models.CharField(
+        max_length=20,
+        choices=SOURCE_INFO_CHOICES,
+        blank=True,
+        null=True,
+        help_text='Source of allergy information',
+    )
+    
+    user_reaction_details = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Detailed past reaction information in JSON format',
+    )
+    
+    is_active = models.BooleanField(
+        default=True,
+        db_index=True,
+        help_text="Inactive user allergies won't be considered in assessments",
+    )
+    
+    admin_notes = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Administrative notes in JSON format',
+    )
+    # internal tracking, verification, follow-up notes, etc.
 
     class Meta:
         constraints = [
@@ -99,19 +159,28 @@ class UserAllergy(models.Model):
                 name='uniq_user_allergen',
             ),
         ]
+        indexes = [
+            models.Index(fields=['user', 'is_active'], name='userallergy_user_active_idx'),
+            models.Index(fields=['allergen', 'is_active'], name='userallergy_allergen_active_idx'),
+            models.Index(fields=['is_confirmed', 'is_active'], name='userallergy_confirmed_active_idx'),
+        ]
         verbose_name = "User Allergy"
         verbose_name_plural = "User Allergies"
-        ordering = ['user', 'allergen__category', 'allergen__allergen_name']
+        ordering = ['user', 'allergen__category', 'allergen__allergen_key']
         # double-underscore (__) to follow the Foreign Key relationship
         # and order by fields in the linked Allergen model
 
     def __str__(self):
-        return f"{self.user.username} - {self.allergen.allergen_name}"
-    # self.allergen.allergen_name calls exact data needed from the related table
+        return f"{self.user.username} - {self.allergen}"
     
+    # double check that i want this behavior
     def clean(self):
         from django.core.exceptions import ValidationError
         if self.allergen and not self.allergen.is_active:
             raise ValidationError("Cannot link to an inactive allergen.")
-   
-    # models.py. Keep running python [manage.py](http://_vscodecontentref_/3) check to validate model syntax and imports as you go.
+    
+    # double check that i want this behavior
+    def save(self, *args, **kwargs):
+        """Override save to ensure validation always runs."""
+        self.full_clean()
+        super().save(*args, **kwargs)
