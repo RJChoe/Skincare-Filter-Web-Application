@@ -1,4 +1,4 @@
-from django.conf import settings
+from django.conf import settings #links CustomUser model
 from django.db import models
 from .constants.choices import (
 CATEGORY_CHOICES,
@@ -17,7 +17,7 @@ FLAT_ALLERGEN_LABEL_MAP,
 # UserAllergy model to link users to their allergies)
 class Allergen(models.Model):
     """
-    Pre-defined list of common allergens/ingredients.
+    Pre-defined catalog of allergens/ingredients.
     Admins can manage this list, users select from it.
     """
     # Primary Selection: The broad category (User selects this first)   
@@ -31,7 +31,7 @@ class Allergen(models.Model):
     
     # Secondary Selection: The specific allergen/ingredient KEY
     # selected based on the category chosen above
-    allergen_name = models.CharField(
+    allergen_key = models.CharField(
         max_length=50,
         choices=[],
         # leave choices=[] because the choices are category-dependent 
@@ -64,8 +64,8 @@ class Allergen(models.Model):
         # Display as "Category: Allergen Label"
         category_display = self.get_category_display()
         
-        if self.allergen_name:
-            allergen_label = FLAT_ALLERGEN_LABEL_MAP.get(self.allergen_name, self.allergen_name)
+        if self.allergen_key:
+            allergen_label = FLAT_ALLERGEN_LABEL_MAP.get(self.allergen_key, self.allergen_key)
 
             return f"{category_display}: {allergen_label}"
         else:
@@ -73,21 +73,21 @@ class Allergen(models.Model):
 
 class UserAllergy(models.Model):
     """
-    Links a user to an allergen they are allergic to.
-    Represents a user's specific allergy.
+    Junction model linking a CustomUser to an Allergen from the catalog.
+    Represents a user's specific allergy selection.
     1-to-Many relationship: One user can have many allergens.
     """
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, # <-- correct link to custom user model
         on_delete=models.CASCADE,
-        related_name='user_allergens', #(or 'allergens' if you expose a M2M-like API), matching project conventions.
+        related_name='user_allergies',
         help_text='The user who has this allergy',
     )
     
     allergen = models.ForeignKey(
         Allergen,
         on_delete=models.CASCADE,
-        related_name='affected_users',
+        related_name='allergen_users',
         help_text='The allergen this user is allergic to',
     )
     noted_at = models.DateTimeField(auto_now_add=True)
@@ -101,9 +101,17 @@ class UserAllergy(models.Model):
         ]
         verbose_name = "User Allergy"
         verbose_name_plural = "User Allergies"
-        ordering = ['user', 'allergen']
+        ordering = ['user', 'allergen__category', 'allergen__allergen_name']
+        # double-underscore (__) to follow the Foreign Key relationship
+        # and order by fields in the linked Allergen model
 
     def __str__(self):
-        return f"{self.user.username} - {self.allergen}"
+        return f"{self.user.username} - {self.allergen.allergen_name}"
+    # self.allergen.allergen_name calls exact data needed from the related table
     
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.allergen and not self.allergen.is_active:
+            raise ValidationError("Cannot link to an inactive allergen.")
+   
     # models.py. Keep running python [manage.py](http://_vscodecontentref_/3) check to validate model syntax and imports as you go.
