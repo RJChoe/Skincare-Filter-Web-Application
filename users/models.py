@@ -14,7 +14,7 @@ class CustomUser(AbstractUser):
     # !! when replacing the default User model in Django
     groups = models.ManyToManyField(
         'auth.Group',
-        related_name='custom_user_set',
+        related_name='custom_user_groups_set',
         blank=True,
         help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
         verbose_name='groups',
