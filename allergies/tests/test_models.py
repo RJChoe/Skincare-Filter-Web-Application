@@ -55,3 +55,9 @@ class TestAllergenModel:
         # Ensure the list is not empty
         assert len(contact_allergens) > 1, "Contact allergens map is empty or too small."
         assert len(food_allergens) > 1, "Food allergens map is empty or too small."
+        
+# TODO : 
+# create tests for UserAllergy model linking users to allergens
+
+# Add more tests for edge cases, such as invalid category/allergen combinations,
+# uniqueness constraints, and inactive allergens if needed.
