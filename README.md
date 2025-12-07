@@ -148,6 +148,51 @@ Quick checks to confirm your environment:
 
 ---
 
+## Testing & Code Coverage
+
+### Running Tests
+Execute the test suite:
+
+- Windows (PowerShell):
+    ```powershell
+    python -m pytest
+    ```
+
+- macOS/Linux:
+    ```bash
+    python -m pytest
+    ```
+
+### Code Coverage
+Measure test coverage to ensure your code is well-tested. Coverage helps identify untested lines and ensures reliability.
+
+Run tests with coverage reporting:
+
+- Windows (PowerShell):
+    ```powershell
+    python -m pytest --cov=allergies --cov=users --cov-report=html --cov-report=term-missing
+    ```
+
+- macOS/Linux:
+    ```bash
+    python -m pytest --cov=allergies --cov=users --cov-report=html --cov-report=term-missing
+    ```
+
+This generates:
+- **Terminal output** showing coverage percentage and which lines aren't covered
+- **HTML report** in `htmlcov/index.html` for detailed, line-by-line browsing
+
+#### Coverage Targets
+| Phase | Target | When |
+|-------|--------|------|
+| Phase 1 | 50% | Foundation testing |
+| Phase 2 | 70% | Views + users tests added |
+| Phase 3 | 85% | Project maturity |
+
+The coverage configuration is managed in `.coveragerc` and `pytest.ini`. See those files for customization.
+
+
+-------
 ## Troubleshooting
 Common setup issues and quick fixes:
 
