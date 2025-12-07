@@ -50,10 +50,6 @@ class UserAllergyAdmin(admin.ModelAdmin):
     )
     # date_hierarchy adds a date drilldown navigation bar at the top of the admin list page
     date_hierarchy = 'noted_at'
-    
-# Register your models with the custom admin classes
-admin.site.register(Allergen, AllergenAdmin)
-admin.site.register(UserAllergy, UserAllergyAdmin)
 
 # call above links your database models to the built-in admin interface
 # using your specific display rules (list_display, list_filter, etc.)

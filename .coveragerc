@@ -1,0 +1,38 @@
+[run]
+# Specifies source packages
+source = allergies,users
+omit = 
+    */migrations/*
+    */tests/*
+    setup.py
+    */venv/*
+    */__pycache__/*
+
+[report]
+# Excludes common non-testable lines
+# (abstract methods, debug-only code, etc.)
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    def __str__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    @abstractmethod
+    @abc.abstractmethod
+    class .*\(Protocol\):
+    if 0:
+    if False:
+    if settings.DEBUG
+
+precision = 2
+
+# Outputs HTML reports to htmlcov/ directory
+[html]
+directory = htmlcov
+
+[paths]
+source =
+    .
+    */site-packages
