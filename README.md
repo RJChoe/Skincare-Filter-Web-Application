@@ -36,7 +36,7 @@ Diagram flow of data through application
 
 ## Tech Stack
 - **Framework:** Python Django 5.2 (handles both frontend and backend)  
-- **Database:** SQLite (default) or any Django-supported database
+- **Database:** SQLite (development) & PostgreSQL (production)
 - **Python:** 3.9+ (required for Django 5.2 LTS support)
 
 ---
@@ -112,13 +112,13 @@ Note: Unless explicitly labeled, commands are shell-agnostic and work in Windows
 6. Apply migrations:
      - Windows (PowerShell):
          ```powershell
-         python manage.py makemigrations allergies user
+         python manage.py makemigrations allergies users
          python manage.py migrate
          ```
 
      - macOS/Linux:
          ```bash
-         python manage.py makemigrations allergies user
+         python manage.py makemigrations allergies users
          python manage.py migrate
          ```
 
@@ -151,6 +151,30 @@ Quick checks to confirm your environment:
      python -V
      python -c "import django; print(django.get_version())"
      ```
+
+---
+
+## Usage
+1. Enter your personal allergies.
+2. Input the ingredients of a skincare product.
+3. Click "Check Safety".
+4. View the results indicating whether the product is safe.
+
+---
+
+## Screenshots/Demo
+
+Here’s an example of how the app looks:
+Allergy Input Page
+![Website requesting User's Allergy Input](link to image)
+
+Ingredients Input Page
+![Website requesting input of skincare product's ingredients](link to image)
+
+Result Page
+![Website with the Result Page. Green background for "SAFE" & Red background for "UNSAFE".](link to image)
+
+((Replace the above images with actual screenshots from your project in a screenshots/ folder.))
 
 ---
 
@@ -380,7 +404,7 @@ repos:
     rev: 23.12.1
     hooks:
       - id: black
-        language_version: python3.11
+        language_version: python3.14
 
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
@@ -445,7 +469,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     
@@ -456,7 +480,6 @@ jobs:
     
     - name: Run migrations
       run: |
-        python manage.py makemigrations allergies users
         python manage.py migrate
     
     - name: Run tests with coverage
@@ -471,14 +494,6 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: true
-
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-    
-    steps:
-    - name: Coverage check passed
-      run: echo "All tests and coverage checks passed"
 ```
 
 This workflow:
@@ -599,7 +614,7 @@ Common setup issues and quick fixes:
 - Migrations/app errors: Ensure apps are installed and migrations ran.
     ```powershell
     python manage.py showmigrations
-    python manage.py makemigrations allergies user
+    python manage.py makemigrations allergies users
     python manage.py migrate
     ```
 
@@ -609,34 +624,11 @@ Common setup issues and quick fixes:
     ```
 
 ---
-
-## Usage
-1. Enter your personal allergies.
-2. Input the ingredients of a skincare product.
-3. Click "Check Safety".
-4. View the results indicating whether the product is safe.
-
----
-
-## Screenshots/Demo
-
-Here’s an example of how the app looks:
-Allergy Input Page
-![Website requesting User's Allergy Input](link to image)
-
-Ingredients Input Page
-![Website requesting input of skincare product's ingredients](link to image)
-
-Result Page
-![Website with the Result Page. Green background for "SAFE" & Red background for "UNSAFE".](link to image)
-
-((Replace the above images with actual screenshots from your project in a screenshots/ folder.))
-
----
-
 ## Contact
     - Developer: Rebecca Jisoo Simpson
 
     - Email: RJSimpson1004@gmail.com
 
     - GitHub: RJChoe
+
+---
