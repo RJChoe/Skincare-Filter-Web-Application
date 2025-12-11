@@ -1,7 +1,9 @@
 # Skincare Allergy Filter
 
+<!--
+implement after codecov
 [![codecov](https://codecov.io/gh/RJChoe/filter-project/branch/main/graph/badge.svg)](https://codecov.io/gh/RJChoe/filter-project)
-[![Tests](https://github.com/RJChoe/filter-project/workflows/Tests/badge.svg)](https://github.com/RJChoe/filter-project/actions)
+-->
 
 ## Project Overview
 The **Skincare Allergy Filter** is a web application that helps users determine if skincare products are safe based on their personal allergies. Users can enter their allergies along with a product's ingredient list, and the app will check for potential allergens and return a safety recommendation.
