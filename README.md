@@ -498,7 +498,7 @@ jobs:
 
 This workflow:
 - **Triggers:** Only on PRs to `main` and `develop` branches
-- **Matrix testing:** Tests Python 3.9, 3.10, and 3.11 on Ubuntu
+- **Matrix testing:** Tests Python 3.11, 3.12, and 3.14 on Ubuntu
 - **Job names:** Uses "build" and "test" for status check references
 - **Coverage enforcement:** Fails if coverage drops below 50% (via `pytest.ini`)
 
