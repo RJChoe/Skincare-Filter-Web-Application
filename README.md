@@ -430,6 +430,74 @@ This configuration runs:
 
 **Note:** Pre-commit hooks run automatically before each commit. If checks fail, the commit is blocked until issues are resolved.
 
+### Fail Fast Checklist
+Catch issues in ~10-15 seconds before committing. Run these manual checks during active development to verify code quality before pre-commit hooks execute.
+
+#### Quick Verification Commands
+
+- **Run fast tests** - Verify core logic without slow integration tests:
+
+    - Windows (PowerShell):
+        ```powershell
+        python -m pytest -m "not slow"
+        ```
+
+    - macOS/Linux:
+        ```bash
+        python -m pytest -m "not slow"
+        ```
+
+- **Check code formatting** - Verify Black formatting without modifying files:
+
+    - Windows (PowerShell):
+        ```powershell
+        black --check .
+        ```
+
+    - macOS/Linux:
+        ```bash
+        black --check .
+        ```
+
+- **Verify import sorting** - Ensure imports follow project standards:
+
+    - Windows (PowerShell):
+        ```powershell
+        isort --check-only .
+        ```
+
+    - macOS/Linux:
+        ```bash
+        isort --check-only .
+        ```
+
+- **Confirm migrations applied** - Check database migration status:
+
+    - Windows (PowerShell):
+        ```powershell
+        python manage.py showmigrations
+        ```
+
+    - macOS/Linux:
+        ```bash
+        python manage.py showmigrations
+        ```
+
+#### Power User Tip
+Run all checks sequentially with a single command:
+
+- Windows (PowerShell):
+    ```powershell
+    python -m pytest -m "not slow"; if ($?) { black --check . }; if ($?) { isort --check-only . }; if ($?) { python manage.py showmigrations }
+    ```
+
+- macOS/Linux:
+    ```bash
+    python -m pytest -m "not slow" && black --check . && isort --check-only . && python manage.py showmigrations
+    ```
+
+**Note:** While pre-commit hooks automate these checks, running them manually helps catch issues faster during development. See [Troubleshooting](#troubleshooting) for resolving common failures.
+
 ### CI/CD Integration
 
 #### GitHub Actions Workflow
