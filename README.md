@@ -1,15 +1,21 @@
 # Skincare Allergy Filter
-
-<!--
-implement after codecov
 [![codecov](https://codecov.io/gh/RJChoe/filter-project/branch/main/graph/badge.svg)](https://codecov.io/gh/RJChoe/filter-project)
--->
-
-## Project Overview
-The **Skincare Allergy Filter** is a web application that helps users determine if skincare products are safe based on their personal allergies. Users can enter their allergies along with a product's ingredient list, and the app will check for potential allergens and return a safety recommendation.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+Disclaimer: This app is a helper tool and not a substitute for professional medical advice. Always consult a dermatologist for severe allergies.
 
 ---
 
+## Project Overview
+The **Skincare Allergy Filter** is a Django-based web application that cross-references product ingredient lists against personal allergens and returns a safety recommendation.
+
+---
+
+## ⚙️ Project Workflow Diagram
+
+Diagram flow of data through application
+![Detailed workflow of the application components](./assets/workflow_allergy_filter.png)
+
+---
 ## Features
 - **Personal Allergy Input:** Users can list their known allergens.
 - **Ingredient Check:** Users can input a skincare product’s ingredient list.
@@ -27,60 +33,40 @@ The **Skincare Allergy Filter** is a web application that helps users determine 
 
 ---
 
-## ⚙️ Project Workflow Diagram
-
-Diagram flow of data through application
-![Detailed workflow of the application components](./assets/workflow_allergy_filter.png)
-
----
-
 ## Tech Stack
-- **Framework:** Python Django 5.2 (handles both frontend and backend)  
-- **Database:** SQLite (development) & PostgreSQL (production)
-- **Python:** 3.9+ (required for Django 5.2 LTS support)
+- **Framework:** Python Django 5.2 LTS (handles both frontend and backend)  
+- **Database:** SQLite (Development) & PostgreSQL (Production)
+- **Python:** 3.11+ (Aligned with Django 5.2+ requirements)
 
 ---
 
 ## Installation
+
+<details>
+<summary><b>📦 Click to expand installation steps</b></summary>
+
 How to install and set up your project:
 
-Note: Unless explicitly labeled, commands are shell-agnostic and work in Windows PowerShell, CMD, and Unix shells. Use the Windows-specific blocks where provided.
+Note: Commands are shell-agnostic and work across Windows PowerShell, CMD, and Unix shells.
 
 1. Clone the repository:
-     - Windows (PowerShell):
-         ```powershell
-         git clone https://github.com/RJChoe/filter-project.git
-         ```
-
-     - macOS/Linux:
-         ```bash
-         git clone https://github.com/RJChoe/filter-project.git
-         ```
+    ```bash
+    git clone https://github.com/RJChoe/filter-project.git
+    ```
 
 2. Navigate to the project folder:
-     - Windows (PowerShell):
-         ```powershell
-         cd filter-project
-         ```
-
-     - macOS/Linux:
-         ```bash
-         cd filter-project
-         ```
+    ```bash
+    cd filter-project
+    ```
 
 
 (Remember to .gitignore .venv prior to setting up)
 
 3. Create a virtual environment:
-     - Windows (PowerShell):
-         ```powershell
-         python -m venv .venv
-         ```
-
-     - macOS/Linux:
-         ```bash
-         python -m venv .venv
-         ```
+    ```bash
+    # macOS/Linux: use python3 if python is not available
+    python -m venv .venv
+    ```
 
 4. Activate the virtual environment:
      - Windows (PowerShell):
@@ -99,58 +85,41 @@ Note: Unless explicitly labeled, commands are shell-agnostic and work in Windows
          ```
 
 5. Install dependencies:
-     - Windows (PowerShell):
-         ```powershell
-         pip install -r requirements.txt
-         ```
-
-     - macOS/Linux:
-         ```bash
-         pip install -r requirements.txt
-         ```
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 6. Apply migrations:
-     - Windows (PowerShell):
-         ```powershell
-         python manage.py makemigrations allergies users
-         python manage.py migrate
-         ```
-
-     - macOS/Linux:
-         ```bash
-         python manage.py makemigrations allergies users
-         python manage.py migrate
-         ```
+    ```bash
+    python manage.py makemigrations allergies users
+    python manage.py migrate
+    ```
 
 7. Run the development server:
-     - Windows (PowerShell):
-         ```powershell
-         python manage.py runserver
-         ```
-
-     - macOS/Linux:
-         ```bash
-         python manage.py runserver
-         ```
+    ```bash
+    python manage.py runserver
+    ```
 
 8. Open your browser and visit http://localhost:8000
+
+</details>
 
 ---
 
 ## Verify Setup
+
+<details>
+<summary><b>✅ Click to expand setup verification</b></summary>
+
 Quick checks to confirm your environment:
 
- - Windows (PowerShell):
-     ```powershell
-     python -V
-     python -c "import django; print(django.get_version())"
-     ```
+```bash
+# macOS/Linux: use python3 if python is not available
+python -V
+python -c "import django; print(django.get_version())"
+```
 
- - macOS/Linux:
-     ```bash
-     python -V
-     python -c "import django; print(django.get_version())"
-     ```
+</details>
 
 ---
 
@@ -165,7 +134,10 @@ Quick checks to confirm your environment:
 ## Screenshots/Demo
 
 Here’s an example of how the app looks:
-Allergy Input Page
+
+Coming Soon
+
+<!--Allergy Input Page:
 ![Website requesting User's Allergy Input](link to image)
 
 Ingredients Input Page
@@ -175,38 +147,30 @@ Result Page
 ![Website with the Result Page. Green background for "SAFE" & Red background for "UNSAFE".](link to image)
 
 ((Replace the above images with actual screenshots from your project in a screenshots/ folder.))
+-->
 
 ---
 
 ## Testing & Code Coverage
 
+<details>
+<summary><b>🧪 Click to expand testing & coverage details</b></summary>
+
 ### Running Tests
 Execute the test suite:
 
-- Windows (PowerShell):
-    ```powershell
-    python -m pytest
-    ```
-
-- macOS/Linux:
-    ```bash
-    python -m pytest
-    ```
+```bash
+python -m pytest
+```
 
 ### Code Coverage
 Measure test coverage to ensure your code is well-tested. Coverage helps identify untested lines and ensures reliability.
 
 Run tests with coverage reporting:
 
-- Windows (PowerShell):
-    ```powershell
-    python -m pytest --cov=allergies --cov=users --cov-report=html --cov-report=term-missing
-    ```
-
-- macOS/Linux:
-    ```bash
-    python -m pytest --cov=allergies --cov=users --cov-report=html --cov-report=term-missing
-    ```
+```bash
+python -m pytest --cov=allergies --cov=users --cov-report=html --cov-report=term-missing
+```
 
 This generates:
 - **Terminal output** showing coverage percentage and which lines aren't covered
@@ -219,7 +183,8 @@ This generates:
 | Phase 2 | 70% | Views + users tests added |
 | Phase 3 | 85% | Project maturity |
 
-### Advanced Coverage Features
+<!--<details>-->
+#### Advanced Coverage Features
 
 #### Branch Coverage
 This project uses **branch coverage** (not just line coverage), which means tests measure both:
@@ -231,15 +196,9 @@ Branch coverage is enabled via `branch = True` in `pytest.ini`, providing more t
 #### Simplified Coverage Command
 Since `.coveragerc` pre-configures the source packages (`allergies` and `users`), you can use a shorter command:
 
-- Windows (PowerShell):
-    ```powershell
-    python -m pytest --cov --cov-report=html --cov-report=term-missing
-    ```
-
-- macOS/Linux:
-    ```bash
-    python -m pytest --cov --cov-report=html --cov-report=term-missing
-    ```
+```bash
+python -m pytest --cov --cov-report=html --cov-report=term-missing
+```
 
 #### Terminal Output Example
 The `--cov-report=term-missing` flag produces output like:
@@ -269,7 +228,7 @@ The project enforces a **minimum 50% coverage threshold** via `fail_under = 50` 
 - **Quality gate:** Prevents merging code that significantly reduces test coverage
 
 To bypass coverage checks temporarily (e.g., during development):
-```powershell
+```bash
 python -m pytest --no-cov
 ```
 
@@ -328,20 +287,16 @@ def test_user_allergy_workflow():
 #### Filtering Tests
 Run specific test subsets using the `-m` flag:
 
-- Run only fast tests (exclude slow tests):
-    ```powershell
-    python -m pytest -m "not slow"
-    ```
+```bash
+# Run only fast tests (exclude slow tests)
+python -m pytest -m "not slow"
 
-- Run only integration tests:
-    ```powershell
-    python -m pytest -m integration
-    ```
+# Run only integration tests
+python -m pytest -m integration
 
-- Run all tests except integration tests:
-    ```powershell
-    python -m pytest -m "not integration"
-    ```
+# Run all tests except integration tests
+python -m pytest -m "not integration"
+```
 
 ### Configuration Files
 
@@ -365,26 +320,24 @@ Controls pytest and coverage integration:
 - [pytest-cov documentation](https://pytest-cov.readthedocs.io/)
 - [coverage.py documentation](https://coverage.readthedocs.io/)
 
+</details>
+
 ---
 ## Development Workflow
 
 ### Pre-commit Hooks
+
+<details>
+<summary><b>🔧 Click to expand pre-commit hooks setup</b></summary>
 Automate code quality checks before each commit to maintain consistent standards and catch issues early.
 
 #### Setup
 Install and configure pre-commit hooks:
 
-- Windows (PowerShell):
-    ```powershell
-    pip install pre-commit
-    pre-commit install
-    ```
-
-- macOS/Linux:
-    ```bash
-    pip install pre-commit
-    pre-commit install
-    ```
+```bash
+pip install pre-commit
+pre-commit install
+```
 
 #### Configuration
 Create `.pre-commit-config.yaml` in your project root:
@@ -430,90 +383,56 @@ This configuration runs:
 
 **Note:** Pre-commit hooks run automatically before each commit. If checks fail, the commit is blocked until issues are resolved.
 
+</details>
+
 ### Fail Fast Checklist
 Catch issues in ~10-15 seconds before committing. Run these manual checks during active development to verify code quality before pre-commit hooks execute.
 
 #### Quick Verification Commands
 
-- **Run fast tests** - Verify core logic without slow integration tests:
+- **Run fast tests** — Verify core logic without slow integration tests:
+    ```bash
+    python -m pytest -m "not slow"
+    ```
 
-    - Windows (PowerShell):
-        ```powershell
-        python -m pytest -m "not slow"
-        ```
+- **Check code formatting** — Verify Black formatting without modifying files:
+    ```bash
+    black --check .
+    ```
 
-    - macOS/Linux:
-        ```bash
-        python -m pytest -m "not slow"
-        ```
+- **Verify import sorting** — Ensure imports follow project standards:
+    ```bash
+    isort --check-only .
+    ```
 
-- **Check code formatting** - Verify Black formatting without modifying files:
-
-    - Windows (PowerShell):
-        ```powershell
-        black --check .
-        ```
-
-    - macOS/Linux:
-        ```bash
-        black --check .
-        ```
-
-- **Verify import sorting** - Ensure imports follow project standards:
-
-    - Windows (PowerShell):
-        ```powershell
-        isort --check-only .
-        ```
-
-    - macOS/Linux:
-        ```bash
-        isort --check-only .
-        ```
-
-- **Confirm migrations applied** - Check database migration status:
-
-    - Windows (PowerShell):
-        ```powershell
-        python manage.py showmigrations
-        ```
-
-    - macOS/Linux:
-        ```bash
-        python manage.py showmigrations
-        ```
+- **Confirm migrations applied** — Check database migration status:
+    ```bash
+    python manage.py showmigrations
+    ```
 
 #### Power User Tip
 Run all checks sequentially with a single command:
 
-- Windows (PowerShell):
-    ```powershell
-    python -m pytest -m "not slow"; if ($?) { black --check . }; if ($?) { isort --check-only . }; if ($?) { python manage.py showmigrations }
-    ```
-
-- macOS/Linux:
-    ```bash
-    python -m pytest -m "not slow" && black --check . && isort --check-only . && python manage.py showmigrations
-    ```
+```bash
+python -m pytest -m "not slow" && black --check . && isort --check-only . && python manage.py showmigrations
+```
 
 **Note:** While pre-commit hooks automate these checks, running them manually helps catch issues faster during development. See [Troubleshooting](#troubleshooting) for resolving common failures.
 
 ### CI/CD Integration
+
+<details>
+<summary><b>⚙️ Click to expand CI/CD configuration</b></summary>
 
 #### GitHub Actions Workflow
 Automate testing and coverage reporting on pull requests to maintain code quality.
 
 **First, create the workflow directory** (if it doesn't exist):
 
-- Windows (PowerShell):
-    ```powershell
-    New-Item -ItemType Directory -Force -Path .github\workflows
-    ```
-
-- macOS/Linux:
-    ```bash
-    mkdir -p .github/workflows
-    ```
+```bash
+# Windows: New-Item -ItemType Directory -Force -Path .github\workflows
+mkdir -p .github/workflows
+```
 
 **Then create `.github/workflows/test.yml`:**
 
@@ -651,8 +570,14 @@ Track and visualize coverage trends across commits and pull requests.
 **For more advanced configuration, see:**
 - [Codecov documentation](https://docs.codecov.com/)
 
+</details>
+
 -------
 ## Troubleshooting
+
+<details>
+<summary><b>🔍 Click to expand troubleshooting guide</b></summary>
+
 Common setup issues and quick fixes:
 
 - **Coverage below 50% threshold:** If tests fail with "coverage is below 50%":
@@ -690,6 +615,8 @@ Common setup issues and quick fixes:
     ```powershell
     python manage.py runserver 8001
     ```
+
+</details>
 
 ---
 ## Contact
