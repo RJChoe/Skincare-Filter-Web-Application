@@ -6,25 +6,47 @@ on:
       - main
       - develop
 
+
+# Cancel superseded runs & restrict token permissions 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 jobs:
-  build:
+  tests:
+    name: Pytest (${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    timeout-minutes: 15 
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ['3.11', '3.12', '3.14']
+        python-version: ['3.12', '3.13', '3.14']
 
     steps:
-    - uses: actions/checkout@v5
+    - name: Checkout      
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
     
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    
+        cache: 'pip'
+        cache-dependency-path: |
+          **/requirements.txt
+          **/requirements-*.txt
+          pyproject.toml
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install -r requirements.txt -r requirements-dev.txt
     
     - name: Run migrations
       run: |
@@ -36,6 +58,7 @@ jobs:
     #--cov=users Temporarily excluding 'users' until tests are written
     
     - name: Upload coverage to Codecov
+      if: ${{ matrix.python-version == '3.14' && github.event.pull_request.head.repo.fork == false }}
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}

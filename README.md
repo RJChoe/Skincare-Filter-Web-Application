@@ -344,6 +344,13 @@ Create `.pre-commit-config.yaml` in your project root:
 
 ```yaml
 repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.1
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
@@ -352,18 +359,6 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
       - id: check-merge-conflict
-
-  - repo: https://github.com/psf/black
-    rev: 23.12.1
-    hooks:
-      - id: black
-        language_version: python3.14
-
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: ["--profile", "black"]
 
   - repo: local
     hooks:
@@ -376,8 +371,8 @@ repos:
 ```
 
 This configuration runs:
-- **Black:** Auto-formats Python code
-- **isort:** Organizes imports alphabetically
+- **Ruff Linter:** Checks code quality (500+ rules, including Django-specific checks)
+- **Ruff Formatter:** Auto-formats Python code (Black-compatible)
 - **File hygiene:** Removes trailing whitespace, ensures newlines at end of files
 - **Fast tests:** Runs non-slow tests (typically ~5-10 seconds)
 
@@ -395,14 +390,10 @@ Catch issues in ~10-15 seconds before committing. Run these manual checks during
     python -m pytest -m "not slow"
     ```
 
-- **Check code formatting** — Verify Black formatting without modifying files:
+- **Lint with Ruff** — Check code quality and formatting:
     ```bash
-    black --check .
-    ```
-
-- **Verify import sorting** — Ensure imports follow project standards:
-    ```bash
-    isort --check-only .
+    ruff check . --fix
+    ruff format . --check
     ```
 
 - **Confirm migrations applied** — Check database migration status:
@@ -414,7 +405,7 @@ Catch issues in ~10-15 seconds before committing. Run these manual checks during
 Run all checks sequentially with a single command:
 
 ```bash
-python -m pytest -m "not slow" && black --check . && isort --check-only . && python manage.py showmigrations
+python -m pytest -m "not slow" && ruff check . --fix && ruff format . --check && python manage.py showmigrations
 ```
 
 **Note:** While pre-commit hooks automate these checks, running them manually helps catch issues faster during development. See [Troubleshooting](#troubleshooting) for resolving common failures.
