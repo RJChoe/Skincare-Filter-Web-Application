@@ -11,8 +11,15 @@ exclude = [
 ]
 
 [tool.ruff.lint]
+# Rule selections:
+# E: pycodestyle errors (PEP 8 violations)
+# F: pyflakes (unused imports, undefined names)
+# W: pycodestyle warnings
+# I: isort (import sorting)
+# DJ: Django-specific checks
+# UP: pyupgrade (Python version upgrades)
 select = ["E", "F", "W", "I", "DJ", "UP"]
-ignore = ["E203"] # Whitespace before ':' (conflicts with some formatters)
+ignore = []
 
 [tool.ruff.lint.per-file-ignores]
 # Ignore linting errors in migrations

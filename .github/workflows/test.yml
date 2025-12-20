@@ -5,9 +5,13 @@ on:
     branches:
       - main
       - develop
+  push:
+    branches:
+      - main
+      - develop
 
 
-# Cancel superseded runs & restrict token permissions 
+# Cancel superseded runs & restrict token permissions
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -17,49 +21,52 @@ permissions:
   checks: write
   pull-requests: write
 
+
+# ADD PostgreSQL for production
+
 jobs:
   tests:
     name: Pytest (${{ matrix.python-version }})
     runs-on: ubuntu-latest
-    timeout-minutes: 15 
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
         python-version: ['3.12', '3.13', '3.14']
 
     steps:
-    - name: Checkout      
-      uses: actions/checkout@v5
+    - name: Checkout
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
-        fetch-depth: 0
-    
+        fetch-depth: 1
+
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@83679a86f781e053a4731c360980e15647565432
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
         cache-dependency-path: |
-          **/requirements.txt
-          **/requirements-*.txt
+          requirements.txt
+          requirements-*.txt
           pyproject.toml
-
+# ** removed from **/requirements-*.txt to keep accidental slow downs
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt -r requirements-dev.txt
-    
+
     - name: Run migrations
       run: |
         python manage.py migrate
-    
+
     - name: Run tests with coverage
       run: |
         pytest --cov=allergies --cov-report=xml --cov-report=term-missing
     #--cov=users Temporarily excluding 'users' until tests are written
-    
+
     - name: Upload coverage to Codecov
       if: ${{ matrix.python-version == '3.14' && github.event.pull_request.head.repo.fork == false }}
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@671740abe49784df0a99c755f891b01da4e9ec65
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./coverage.xml
