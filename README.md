@@ -24,9 +24,9 @@ Diagram flow of data through application
 ---
 
 ## How It Works
-1. Users enter their personal allergies (e.g., nuts, parabens, fragrance).  
-2. Users input the skincare product's ingredient list.  
-3. The application compares the ingredient list against the user's allergies.  
+1. Users enter their personal allergies (e.g., nuts, parabens, fragrance).
+2. Users input the skincare product's ingredient list.
+3. The application compares the ingredient list against the user's allergies.
 4. The app returns a result:
    - **Safe:** No allergens detected.
    - **Unsafe:** Product contains one or more allergens.
@@ -34,7 +34,7 @@ Diagram flow of data through application
 ---
 
 ## Tech Stack
-- **Framework:** Python Django 5.2 LTS (handles both frontend and backend)  
+- **Framework:** Python Django 5.2 LTS (handles both frontend and backend)
 - **Database:** SQLite (Development) & PostgreSQL (Production)
 - **Python:** 3.11+ (Aligned with Django 5.2+ requirements)
 
@@ -163,18 +163,18 @@ Execute the test suite:
 python -m pytest
 ```
 
+All test discovery, markers, and coverage settings are configured in `pyproject.toml`, so `pytest` automatically applies:
+- Test discovery from `allergies/tests` and `users/tests`
+- Coverage of `allergies`, `users`, and `skincare_project` packages
+- Coverage reports in terminal and XML (for CI)
+- Fail-under threshold of 50%
+
 ### Code Coverage
-Measure test coverage to ensure your code is well-tested. Coverage helps identify untested lines and ensures reliability.
-
-Run tests with coverage reporting:
-
-```bash
-python -m pytest --cov=allergies --cov=users --cov-report=html --cov-report=term-missing
-```
-
-This generates:
-- **Terminal output** showing coverage percentage and which lines aren't covered
-- **HTML report** in `htmlcov/index.html` for detailed, line-by-line browsing
+Test coverage is measured automatically when running pytest. The configuration in `pyproject.toml` includes:
+- **Branch coverage** (tests all control flow paths, not just lines)
+- **XML report** for CI/Codecov uploads
+- **Terminal report** showing coverage percentage and untested lines
+- **Omit patterns** to exclude migrations, tests, settings, and utility modules
 
 #### Coverage Targets
 | Phase | Target | When |
@@ -183,22 +183,21 @@ This generates:
 | Phase 2 | 70% | Views + users tests added |
 | Phase 3 | 85% | Project maturity |
 
-<!--<details>-->
-#### Advanced Coverage Features
-
-#### Branch Coverage
-This project uses **branch coverage** (not just line coverage), which means tests measure both:
-- **Line coverage:** Whether each line of code is executed
-- **Branch/decision coverage:** Whether all paths through control structures (if/else, loops, try/except) are tested
-
-Branch coverage is enabled via `branch = True` in `pytest.ini`, providing more thorough test quality measurement.
-
-#### Simplified Coverage Command
-Since `.coveragerc` pre-configures the source packages (`allergies` and `users`), you can use a shorter command:
+#### Viewing Coverage Details
+To view an HTML coverage report for detailed line-by-line analysis:
 
 ```bash
-python -m pytest --cov --cov-report=html --cov-report=term-missing
+# Generate HTML report (pytest runs with coverage automatically)
+python -m pytest
+# Then open htmlcov/index.html in your browser
 ```
+
+The HTML report shows:
+- Which lines are covered/uncovered
+- Branch coverage details
+- Coverage summary by file
+
+</details>
 
 #### Terminal Output Example
 The `--cov-report=term-missing` flag produces output like:
@@ -445,25 +444,25 @@ jobs:
 
     steps:
     - uses: actions/checkout@v5
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    
+
     - name: Run migrations
       run: |
         python manage.py migrate
-    
+
     - name: Run tests with coverage
       run: |
         pytest --cov --cov-report=xml --cov-report=term-missing
-    
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
@@ -538,13 +537,13 @@ Track and visualize coverage trends across commits and pull requests.
        patch:
          default:
            target: 70%           # New code should have 70% coverage
-     
+
      range: 50..100              # Coverage color coding (red at 50%, green at 100%)
-   
+
    comment:
      layout: "header, diff, files"
      behavior: default
-   
+
    ignore:
      - "*/migrations/*"
      - "*/tests/*"
