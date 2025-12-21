@@ -210,7 +210,9 @@ FORM_ALLERGIES_CHOICES = [
 
 def build_category_to_allergens_map(form_allergies_choices):
     category_allergen_map = {}
-    for category_key, optgroup_label, choice_list in form_allergies_choices:
+    # remove _? from _optgroup_label
+    # suggested change to pass ruff
+    for category_key, _optgroup_label, choice_list in form_allergies_choices:
         # Use .setdefault() to ensure the list exists before extending it
         category_allergen_map.setdefault(category_key, []).extend(choice_list)
     return category_allergen_map
