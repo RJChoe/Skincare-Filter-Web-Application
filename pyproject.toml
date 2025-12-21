@@ -1,3 +1,32 @@
+[project]
+name = "skincare-filter"
+version = "0.1.0"
+description = "Skincare Allergy Filter - Cross-reference product ingredients against personal allergens"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+    {name = "RJChoe", email = "your-email@example.com"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: Django :: 5.2",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+[project.urls]
+Homepage = "https://github.com/RJChoe/Skincare-Filter-Web-Application"
+Repository = "https://github.com/RJChoe/Skincare-Filter-Web-Application"
+Issues = "https://github.com/RJChoe/Skincare-Filter-Web-Application/issues"
+
+# ============================================================================
+# Ruff Configuration
+# ============================================================================
 [tool.ruff]
 line-length = 88
 target-version = "py312"
@@ -5,20 +34,145 @@ exclude = [
     ".git",
     "__pycache__",
     ".venv",
+    "venv",
     "migrations",
     ".pytest_cache",
     "htmlcov",
+    ".tox",
+    "build",
+    "dist",
 ]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "DJ", "UP"]
-ignore = ["E203"] # Whitespace before ':' (conflicts with some formatters)
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort
+    "DJ",  # Django
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "S",   # flake8-bandit (security)
+    "T20", # flake8-print
+]
+ignore = [
+    "E203",  # Whitespace before ':' (conflicts with formatters)
+    "S101",  # Use of assert (acceptable in tests)
+    "S105",  # Possible hardcoded password (false positives in Django settings)
+    "S106",  # Possible hardcoded password (false positives in Django settings)
+]
 
 [tool.ruff.lint.per-file-ignores]
-# Ignore linting errors in migrations
-"**/migrations/*" = ["E501"]
+"**/migrations/*" = ["E501", "DJ"]
+"**/tests/*" = ["S101", "T20"]
+"**/test_*.py" = ["S101", "T20"]
+"manage.py" = ["T20"]
+"**/settings*.py" = ["S105", "S106"]
 
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
 line-ending = "auto"
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint.isort]
+known-first-party = ["skincare_project", "allergies", "users"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+# ============================================================================
+# Mypy Configuration
+# ============================================================================
+[tool.mypy]
+python_version = "3.12"
+plugins = ["mypy_django_plugin.main"]
+strict = false
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_untyped_defs = false
+disallow_any_unimported = false
+no_implicit_optional = true
+check_untyped_defs = true
+show_error_codes = true
+pretty = true
+
+# MAYBE IMPLEMENT: prevents mypy from following imports into untyped libraries
+# ignore_missing_imports = true
+# strict_optional = true
+# strict_settings = true #Optional: Set strict_settings to true to catch invalid settings access
+
+# Django-specific settings
+[tool.django-stubs]
+django_settings_module = "skincare_project.settings"
+
+[[tool.mypy.overrides]]
+module = [
+    "*.migrations.*",
+    "manage",
+]
+ignore_errors = true
+
+# ============================================================================
+# Pytest Configuration
+# ============================================================================
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "skincare_project.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+testpaths = ["allergies/tests", "users/tests"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--tb=short",
+]
+markers = [
+    "integration: Integration tests (slower)",
+    "slow: Slow tests that take more than 1 second",
+    "unit: Fast unit tests",
+]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+# ============================================================================
+# Coverage Configuration
+# ============================================================================
+[tool.coverage.run]
+branch = true
+source = ["allergies", "users", "skincare_project"]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/.venv/*",
+    "manage.py",
+    "*/wsgi.py",
+    "*/asgi.py",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+fail_under = 50
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "def __str__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@(abc\\.)?abstractmethod",
+    "if settings.DEBUG:"
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
