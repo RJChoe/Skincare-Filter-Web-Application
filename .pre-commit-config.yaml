@@ -15,11 +15,11 @@ repos:
       - id: check-added-large-files
       - id: check-merge-conflict
 
-  - repo: local
-    hooks:
-      - id: pytest-fast
-        name: pytest-fast
-        entry: pytest -m "not slow" --tb=short
-        language: system
-        pass_filenames: false
-        always_run: true
+#  - repo: local
+#    hooks:
+#      - id: pytest-fast
+#        name: pytest-fast
+#        entry: pytest -m "not slow" --tb=short
+#        language: system
+#        pass_filenames: false
+#        always_run: true

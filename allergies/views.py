@@ -1,9 +1,10 @@
-from urllib import request
 from django.shortcuts import render
+
 
 # Create your views here.
 def allergies_list(request):
-    return render(request, 'allergies/allergies_list.html')
+    return render(request, "allergies/allergies_list.html")
 
-#if request.method == 'POST':
-    # process request: Handle form submission for adding new allergies
+
+# if request.method == 'POST':
+# process request: Handle form submission for adding new allergies
