@@ -1,0 +1,75 @@
+name: UV Export Validation
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'uv.lock'
+      - 'pyproject.toml'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'uv.lock'
+      - 'pyproject.toml'
+
+# Cancel superseded runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  validate-exports:
+    name: Validate Requirements Export
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Export requirements.txt
+        run: |
+          uv export --no-hashes --format requirements-txt -o requirements.txt
+
+      - name: Export requirements-dev.txt
+        run: |
+          uv export --no-hashes --format requirements-txt --extra dev -o requirements-dev.txt
+
+      - name: Check for uncommitted changes
+        run: |
+          git diff --exit-code requirements.txt requirements-dev.txt || {
+            echo "❌ Requirements files are out of sync with uv.lock!"
+            echo ""
+            echo "Please run the following commands locally and commit the changes:"
+            echo "  uv export --no-hashes --format requirements-txt -o requirements.txt"
+            echo "  uv export --no-hashes --format requirements-txt --extra dev -o requirements-dev.txt"
+            echo ""
+            echo "Changes detected:"
+            git diff requirements.txt requirements-dev.txt
+            exit 1
+          }
+
+      - name: Success
+        if: success()
+        run: |
+          echo "✅ Requirements files are in sync with uv.lock"

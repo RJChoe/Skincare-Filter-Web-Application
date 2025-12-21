@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "skincare-filter"
 version = "0.1.0"
@@ -10,13 +14,19 @@ authors = [
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
-    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "asgiref==3.11.0",
+    "dj-database-url==2.2.0",
+    "Django==6.0",
+    "psycopg2-binary==2.9.11",
+    "sqlparse==0.5.5",
+    "tzdata==2025.3",
 ]
 
 [project.urls]
@@ -24,12 +34,28 @@ Homepage = "https://github.com/RJChoe/Skincare-Filter-Web-Application"
 Repository = "https://github.com/RJChoe/Skincare-Filter-Web-Application"
 Issues = "https://github.com/RJChoe/Skincare-Filter-Web-Application/issues"
 
+[project.optional-dependencies]
+dev = [
+    "bandit[toml]==1.8.0",
+    "coverage==7.13.0",
+    "django-debug-toolbar==6.1.0",
+    "django-stubs[compatible-mypy]==5.2.8",
+    "librt==0.7.4",
+    "mypy==1.19.1",
+    "pre-commit==4.5.1",
+    "pytest==9.0.2",
+    "pytest-cov==7.0.0",
+    "pytest-django==4.11.1",
+    "ruff==0.14.10",
+    "safety==3.2.11",
+]
+
 # ============================================================================
 # Ruff Configuration
 # ============================================================================
 [tool.ruff]
 line-length = 88
-target-version = "py312"
+target-version = "py314"
 exclude = [
     ".git",
     "__pycache__",
