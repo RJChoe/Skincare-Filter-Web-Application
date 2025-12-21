@@ -35,8 +35,10 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies:
+          - django==5.2.9
           - django-stubs==5.2.8
           - types-psycopg2
+          # types-requests ## check best practice
         args: [--config-file=pyproject.toml]
         files: ^(allergies|users|skincare_project)/.*\.py$
         exclude: ^.*/migrations/.*\.py$
