@@ -1,30 +1,31 @@
 # --- Category Definitions ---
 # Category Keys (Generic Database values)
-CATEGORY_FOOD = 'food'
-CATEGORY_CONTACT = 'contact'
-CATEGORY_INHALANT = 'inhalant'
-CATEGORY_OTHER = 'other' # <-- String Value stored in DB (self.category)
+CATEGORY_FOOD = "food"
+CATEGORY_CONTACT = "contact"
+CATEGORY_INHALANT = "inhalant"
+CATEGORY_OTHER = "other"  # <-- String Value stored in DB (self.category)
 
 # --- Category Choices (For the Model field) ---
 CATEGORY_CHOICES = [
-    (CATEGORY_FOOD, 'Food Allergens'),
-    (CATEGORY_CONTACT, 'Contact/Topical Allergens'),
-    (CATEGORY_INHALANT, 'Inhalant Allergens'),
-    (CATEGORY_OTHER, 'Other Allergens'), # <-- Category label (displayed via self.get_category_display())
+    (CATEGORY_FOOD, "Food Allergens"),
+    (CATEGORY_CONTACT, "Contact/Topical Allergens"),
+    (CATEGORY_INHALANT, "Inhalant Allergens"),
+    # <-- Category label (displayed via self.get_category_display())
+    (CATEGORY_OTHER, "Other Allergens"),
 ]
 
 # --- Severity Level Choices (For UserAllergy Model) ---
 SEVERITY_CHOICES = [
-    ('mild', 'Mild'),
-    ('moderate', 'Moderate'),
-    ('severe', 'Severe / Anaphylactic'),
+    ("mild", "Mild"),
+    ("moderate", "Moderate"),
+    ("severe", "Severe / Anaphylactic"),
 ]
 
 # --- Source Information Choices (For UserAllergy Model) ---
 SOURCE_INFO_CHOICES = [
-    ('self_reported', 'Self Reported'),
-    ('tested', 'Clinically Tested'),
-    ('family_history', 'Family History'),
+    ("self_reported", "Self Reported"),
+    ("tested", "Clinically Tested"),
+    ("family_history", "Family History"),
 ]
 
 # --- choices/specific allergen lists (Key-Value Pairs for the database) ---
@@ -112,21 +113,21 @@ OTHER_ALLERGENS = [
 # Pollen Allergens
 POLLEN_ALLERGENS = [
     ("birch_pollen", "Birch Pollen"),
-    ("chrysanthemum","Chrysanthemum"),
-    ("goldenrod","Goldenrod"),
+    ("chrysanthemum", "Chrysanthemum"),
+    ("goldenrod", "Goldenrod"),
     ("grass_pollen", "Grass Pollen"),
-    ("humulus_japonicus","Humulus Japonicus"),
-    ("lamb's_quarters","Lamb's Quarters"),
-    ("mulberry","Mulberry"),
-    ("locust","Locust"),
+    ("humulus_japonicus", "Humulus Japonicus"),
+    ("lamb's_quarters", "Lamb's Quarters"),
+    ("mulberry", "Mulberry"),
+    ("locust", "Locust"),
     ("oak_pollen", "Oak Pollen"),
-    ("pine","Pine"),
-    ("plane_tree","Plane Tree"),
+    ("pine", "Pine"),
+    ("plane_tree", "Plane Tree"),
     ("ragweed", "Ragweed Pollen"),
-    ("rape","Rape"),
-    ("spruce","Spruce"),
+    ("rape", "Rape"),
+    ("spruce", "Spruce"),
     ("tree_pollen", "Tree Pollen"),
-    ("queen_palm","Queen Palm"),
+    ("queen_palm", "Queen Palm"),
 ]
 
 # Preservatives
@@ -187,7 +188,7 @@ SURFACTANT_ALLERGENS = [
 FORM_ALLERGIES_CHOICES = [
     # All of these items will be classified as 'contact' in the database
     (CATEGORY_CONTACT, "Acids & Exfoliants", ACID_ALLERGENS),
-    (CATEGORY_CONTACT,"Botanicals & Essential Oils", BOTANICAL_ALLERGENS),
+    (CATEGORY_CONTACT, "Botanicals & Essential Oils", BOTANICAL_ALLERGENS),
     (CATEGORY_CONTACT, "Colorants & Dyes", COLORANT_ALLERGENS),
     (CATEGORY_CONTACT, "General Contact Allergens", CONTACT_ALLERGENS),
     (CATEGORY_CONTACT, "Cosmetic Fragrances", FRAGRANCE_ALLERGENS),
@@ -195,19 +196,17 @@ FORM_ALLERGIES_CHOICES = [
     (CATEGORY_CONTACT, "Proteins & Extracts", PROTEIN_ALLERGENS),
     (CATEGORY_CONTACT, "Sunscreen Ingredients", SUNSCREEN_ALLERGENS),
     (CATEGORY_CONTACT, "Surfactants & Emulsifiers", SURFACTANT_ALLERGENS),
-    
     # This item will be classified as 'food' in the database
     (CATEGORY_FOOD, "Major Food Allergens", FOOD_ALLERGENS),
-    
     # This item will be classified as 'inhalant' in the database
     (CATEGORY_INHALANT, "Environmental Inhalants", DUST_ALLERGENS),
     (CATEGORY_INHALANT, "Pollen Allergens", POLLEN_ALLERGENS),
-    
     (CATEGORY_OTHER, "Other General Contact", OTHER_ALLERGENS),
 ]
 
 # --- Inverse Map (Category -> Specific Choices) ---
 # Maps category_key -> list of (specific_key, specific_label)
+
 
 def build_category_to_allergens_map(form_allergies_choices):
     category_allergen_map = {}
@@ -216,12 +215,21 @@ def build_category_to_allergens_map(form_allergies_choices):
         category_allergen_map.setdefault(category_key, []).extend(choice_list)
     return category_allergen_map
 
+
 CATEGORY_TO_ALLERGENS_MAP = build_category_to_allergens_map(FORM_ALLERGIES_CHOICES)
 
 # Now, CATEGORY_TO_ALLERGENS_MAP looks like:
 # {
-#    'contact': [('glycolic_acid', 'Glycolic Acid'), ('tea_tree_oil', 'Tea Tree Oil'), ...],
-#    'food': [('peanut', 'Peanut'), ('tree_nut', 'Tree Nut (General)'), ...],
+#    'contact': [
+# ('glycolic_acid', 'Glycolic Acid'),
+# ('tea_tree_oil', 'Tea Tree Oil'),
+# ...
+# ],
+#    'food': [
+# ('peanut', 'Peanut'),
+# ('tree_nut', 'Tree Nut (General)'),
+# ...
+# ],
 #    ...
 # }
 
@@ -230,19 +238,22 @@ CATEGORY_TO_ALLERGENS_MAP = build_category_to_allergens_map(FORM_ALLERGIES_CHOIC
 # Maps specific allergen_key -> human_readable_label across ALL categories.
 def build_flat_allergen_label_map(category_to_allergens_map):
     """
-    Creates a single dictionary mapping all allergen keys (e.g., 'peanut') 
-    to their labels (e.g., 'Peanut'), optimized for __str__ lookups.
+    Creates a single dictionary mapping all allergen keys
+    (e.g., 'peanut') to their labels (e.g., 'Peanut'),
+    optimized for __str__ lookups.
     """
     flat_map = {}
-    
-    # Iterate through the values of the category map (which are lists of (key, label) tuples)
+
+    # Iterate through the values of the category map
+    # (which are lists of (key, label) tuples)
     for allergen_list in category_to_allergens_map.values():
-        # Update the flat_map with the tuples from the list. 
-        # Since dict() can take a list of tuples, this is a clean way to merge.
-        # Note: If keys are duplicated across categories, the last one processed wins.
+        # Update the flat_map with the tuples from the list.
+        # Since dict() can take a list of tuples, this is a clean way.
+        # Note: If keys are duplicated across categories, the last wins.
         flat_map.update(dict(allergen_list))
-        
+
     return flat_map
+
 
 # This dictionary is created once when the module is loaded.
 FLAT_ALLERGEN_LABEL_MAP = build_flat_allergen_label_map(CATEGORY_TO_ALLERGENS_MAP)

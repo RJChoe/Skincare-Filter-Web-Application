@@ -14,22 +14,31 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import include, path
 from django.views.generic.base import RedirectView
+
 from . import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', views.home),
-    path('allergies/', include('allergies.urls'), name='allergies'),
-    path('product/', views.product, name='product'),
-    path('favicon.ico', RedirectView.as_view(url='/static/favicon.svg', permanent=True)),
+    path("admin/", admin.site.urls),
+    path("", views.home),
+    path("allergies/", include("allergies.urls"), name="allergies"),
+    path("product/", views.product, name="product"),
+    path(
+        "favicon.ico",
+        RedirectView.as_view(url="/static/favicon.svg", permanent=True),
+    ),
 ]
 
-#TO DO:
-#Add names to your URL patterns for better maintainability.
-#For example, change path('', views.home) to path('', views.home, name='home').
+# TO DO:
+# Add names to your URL patterns for better maintainability.
+# For example, change path('', views.home) to
+# path('', views.home, name='home').
 
-#Use named URLs in templates instead of hard-coded paths (e.g., change <a href="/user"> to <a href="{% url 'user' %}">) after you give that route a name.
-#Add a small test that asserts reverse('home') == '/' if you set name='home' in your URLconf.,
+# Use named URLs in templates instead of hard-coded paths
+# (e.g., change <a href="/user"> to <a href="{% url 'user' %}">)
+# after you give that route a name.
+# Add a small test that asserts reverse('home') == '/' if you set
+# name='home' in your URLconf.
