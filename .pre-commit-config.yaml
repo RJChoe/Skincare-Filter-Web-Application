@@ -1,25 +1,55 @@
+# Pre-commit hooks configuration
+# Install: pre-commit install
+# Run manually: pre-commit run --all-files
+# Update hooks: pre-commit autoupdate
+
 repos:
+  # Ruff: Fast Python linter and formatter
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.1
+    rev: v0.14.10
     hooks:
       - id: ruff
-        args: [--fix]
+        args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
 
+  # General pre-commit hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
+        args: [--unsafe]
       - id: check-added-large-files
+        args: [--maxkb=1000]
       - id: check-merge-conflict
+      - id: check-json
+      - id: check-toml
+      - id: detect-private-key
+      - id: mixed-line-ending
+        args: [--fix=lf]
 
+  # Mypy for static type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.1
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - django-stubs==5.2.8
+          - types-psycopg2
+        args: [--config-file=pyproject.toml]
+        files: ^(allergies|users|skincare_project)/.*\.py$
+        exclude: ^.*/migrations/.*\.py$
+
+# temporary disable pytest hook while setting up CI
+
+#  # Local fast pytest (excluding slow tests)
 #  - repo: local
 #    hooks:
 #      - id: pytest-fast
-#        name: pytest-fast
-#        entry: pytest -m "not slow" --tb=short
+#        name: pytest-fast (unit tests)
+#        entry: pytest -m "not slow and not integration" --tb=short -q
 #        language: system
 #        pass_filenames: false
 #        always_run: true
+#        stages: [pre-commit]
