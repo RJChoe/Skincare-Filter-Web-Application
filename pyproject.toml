@@ -205,11 +205,12 @@ no_implicit_optional = true
 check_untyped_defs = true
 show_error_codes = true
 pretty = true
+ignore_missing_imports = true
+strict_optional = true
 
-# MAYBE IMPLEMENT: prevents mypy from following imports into untyped libraries
-# ignore_missing_imports = true
-# strict_optional = true
-# strict_settings = true #Optional: Set strict_settings to true to catch invalid settings access
+## strict = true
+## Optional: Enable mypy strict mode to more
+## aggressively catch invalid settings access
 
 # Django-specific settings
 [tool.django-stubs]
