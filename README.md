@@ -34,9 +34,10 @@ Diagram flow of data through application
 ---
 
 ## Tech Stack
-- **Framework:** Python Django 5.2 LTS (handles both frontend and backend)
+- **Framework:** Python Django 6.0 (handles both frontend and backend)
 - **Database:** SQLite (Development) & PostgreSQL (Production)
-- **Python:** 3.11+ (Aligned with Django 5.2+ requirements)
+- **Python:** 3.14 (Aligned with Django 6.0 requirements)
+- **Package Management:** uv (fast, reliable dependency resolver with lockfiles)
 
 ---
 
@@ -47,7 +48,7 @@ Diagram flow of data through application
 
 How to install and set up your project:
 
-Note: Commands are shell-agnostic and work across Windows PowerShell, CMD, and Unix shells.
+Note: This project uses [uv](https://docs.astral.sh/uv/) for dependency management, which provides fast, reliable installs with lockfile support.
 
 1. Clone the repository:
     ```bash
@@ -59,48 +60,142 @@ Note: Commands are shell-agnostic and work across Windows PowerShell, CMD, and U
     cd filter-project
     ```
 
-
-(Remember to .gitignore .venv prior to setting up)
-
-3. Create a virtual environment:
+3. Install uv (if not already installed):
     ```bash
-    # macOS/Linux: use python3 if python is not available
-    python -m venv .venv
+    # macOS/Linux
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+
+    # Windows (PowerShell)
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+    # Or via pip
+    pip install uv
     ```
 
-4. Activate the virtual environment:
-     - Windows (PowerShell):
-         ```powershell
-         .\.venv\Scripts\Activate
-         ```
+   **Windows: uv on PATH (quick fixes)**
+   - Check shim: `where.exe uv`
+   - Add user Scripts for this session:
+     ```powershell
+     $env:Path = "$env:Path;$((python -m site --user-base))\Scripts"
+     ```
+   - Optional shim (no PATH edits; replace with your base Python path):
+     ```powershell
+     function uv { & '<PATH_TO_BASE_PYTHON>\python.exe' -m uv @args }
+     ```
+   - Prefer global uv to drive the venv: `uv sync --python .\.venv\Scripts\python.exe --group dev`
+   - Note: `uv sync` prunes undeclared tools (pip/uv) inside the venv; this is expected.
 
-     - Windows (CMD):
-         ```bat
-         .\.venv\Scripts\activate.bat
-         ```
-
-     - macOS/Linux:
-         ```bash
-         source .venv/bin/activate
-         ```
-
-5. Install dependencies:
+4. Install Python 3.14 (if needed):
     ```bash
-    pip install -r requirements.txt
+    uv python install 3.14
     ```
 
-6. Apply migrations:
+5. Create and activate a virtual environment:
     ```bash
-    python manage.py makemigrations allergies users
-    python manage.py migrate
+    # Create venv
+    uv venv
+
+    # Activate on Windows (PowerShell)
+    .venv\Scripts\Activate.ps1
+
+    # Activate on Windows (CMD)
+    .venv\Scripts\activate.bat
+
+    # Activate on macOS/Linux
+    source .venv/bin/activate
     ```
 
-7. Run the development server:
+6. Install all dependencies (runtime + dev):
     ```bash
-    python manage.py runserver
+    uv sync --group dev
     ```
 
-8. Open your browser and visit http://localhost:8000
+7. Apply migrations:
+    ```bash
+    uv run python manage.py makemigrations allergies users
+    uv run python manage.py migrate
+    ```
+
+8. Run the development server:
+    ```bash
+    uv run python manage.py runserver
+    ```
+
+9. Open your browser and visit http://localhost:8000
+
+### Dependency Management with uv
+
+This project uses `uv.lock` as the source of truth for dependencies. The `requirements.txt` and `requirements-dev.txt` files are auto-exported from the lockfile for compatibility.
+
+This project uses **PEP 735 dependency groups** for organized development dependencies:
+- `test` - Testing tools (pytest, pytest-cov, coverage)
+- `lint` - Code formatting and linting (ruff, pre-commit)
+- `type-check` - Type checking tools (mypy, django-stubs)
+- `security` - Security scanning (bandit, safety)
+- `dev` - Full development environment (includes all groups above)
+
+**Adding dependencies:**
+```bash
+# Add a runtime dependency
+uv add package-name
+
+# Add a dependency to a specific group
+uv add --group test pytest-mock
+uv add --group lint pylint
+uv add --group type-check types-requests
+uv add --group security semgrep
+```
+
+**Installing specific groups:**
+```bash
+# Install only test dependencies
+uv sync --group test
+
+# Install multiple groups
+uv sync --group test --group lint
+
+# Install full dev environment
+uv sync --group dev
+```
+
+**Updating dependencies:**
+```bash
+# Update all dependencies
+uv lock --upgrade
+
+# Export to requirements files (done automatically by pre-commit)
+uv export --no-hashes --format requirements-txt -o requirements.txt
+uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.txt
+```
+
+**Note:** The pre-commit hooks automatically validate that requirements files stay in sync with `uv.lock`. CI will fail if they drift.
+
+### Migrating from [project.optional-dependencies]
+
+If you have an existing development environment from before the PEP 735 migration:
+
+1. Remove your existing virtual environment:
+   ```bash
+   # On Windows
+   Remove-Item -Recurse -Force .venv
+
+   # On macOS/Linux
+   rm -rf .venv
+   ```
+
+2. Recreate the virtual environment:
+   ```bash
+   uv venv
+   ```
+
+3. Activate the virtual environment (see installation steps above)
+
+4. Install dependencies with the new group system:
+   ```bash
+   uv sync --group dev
+   ```
+
+The new structure allows faster CI builds by installing only required dependencies per job (e.g., only `--group test` for test jobs).
 
 </details>
 
@@ -114,9 +209,14 @@ Note: Commands are shell-agnostic and work across Windows PowerShell, CMD, and U
 Quick checks to confirm your environment:
 
 ```bash
-# macOS/Linux: use python3 if python is not available
+# Check Python version (should be 3.14)
 python -V
-python -c "import django; print(django.get_version())"
+
+# Check Django version (should be 6.0)
+uv run python -c "import django; print(django.get_version())"
+
+# Verify uv installation
+uv --version
 ```
 
 </details>
@@ -160,7 +260,7 @@ Result Page
 Execute the test suite:
 
 ```bash
-python -m pytest
+uv run pytest
 ```
 
 All test discovery, markers, and coverage settings are configured in `pyproject.toml`, so `pytest` automatically applies:
@@ -188,7 +288,7 @@ To view an HTML coverage report for detailed line-by-line analysis:
 
 ```bash
 # Generate HTML report (pytest runs with coverage automatically)
-python -m pytest
+uv run pytest
 # Then open htmlcov/index.html in your browser
 ```
 
@@ -228,7 +328,7 @@ The project enforces a **minimum 50% coverage threshold** via `fail_under = 50` 
 
 To bypass coverage checks temporarily (e.g., during development):
 ```bash
-python -m pytest --no-cov
+uv run pytest --no-cov
 ```
 
 #### Viewing HTML Coverage Reports
