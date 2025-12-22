@@ -24,6 +24,7 @@ concurrency:
 permissions:
   contents: read
 
+
 env:
   PYTHONUNBUFFERED: "1"
 
@@ -47,13 +48,21 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Validate Lockfile Consistency
+        run: |
+          uv lock --check
+
       - name: Export requirements.txt
         run: |
           uv export --no-hashes --format requirements-txt -o requirements.txt
 
+      - name: Sync Environment
+        run: |
+          uv sync --frozen
+
       - name: Export requirements-dev.txt
         run: |
-          uv export --no-hashes --format requirements-txt --extra dev -o requirements-dev.txt
+          uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.txt
 
       - name: Check for uncommitted changes
         run: |
@@ -62,7 +71,7 @@ jobs:
             echo ""
             echo "Please run the following commands locally and commit the changes:"
             echo "  uv export --no-hashes --format requirements-txt -o requirements.txt"
-            echo "  uv export --no-hashes --format requirements-txt --extra dev -o requirements-dev.txt"
+            echo "  uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.txt"
             echo ""
             echo "Changes detected:"
             git diff requirements.txt requirements-dev.txt

@@ -72,6 +72,19 @@ Note: This project uses [uv](https://docs.astral.sh/uv/) for dependency manageme
     pip install uv
     ```
 
+   **Windows: uv on PATH (quick fixes)**
+   - Check shim: `where.exe uv`
+   - Add user Scripts for this session:
+     ```powershell
+     $env:Path = "$env:Path;$((python -m site --user-base))\Scripts"
+     ```
+   - Optional shim (no PATH edits; replace with your base Python path):
+     ```powershell
+     function uv { & '<PATH_TO_BASE_PYTHON>\python.exe' -m uv @args }
+     ```
+   - Prefer global uv to drive the venv: `uv sync --python .\.venv\Scripts\python.exe --group dev`
+   - Note: `uv sync` prunes undeclared tools (pip/uv) inside the venv; this is expected.
+
 4. Install Python 3.14 (if needed):
     ```bash
     uv python install 3.14
@@ -94,7 +107,7 @@ Note: This project uses [uv](https://docs.astral.sh/uv/) for dependency manageme
 
 6. Install all dependencies (runtime + dev):
     ```bash
-    uv sync --extra dev
+    uv sync --group dev
     ```
 
 7. Apply migrations:
@@ -114,13 +127,35 @@ Note: This project uses [uv](https://docs.astral.sh/uv/) for dependency manageme
 
 This project uses `uv.lock` as the source of truth for dependencies. The `requirements.txt` and `requirements-dev.txt` files are auto-exported from the lockfile for compatibility.
 
+This project uses **PEP 735 dependency groups** for organized development dependencies:
+- `test` - Testing tools (pytest, pytest-cov, coverage)
+- `lint` - Code formatting and linting (ruff, pre-commit)
+- `type-check` - Type checking tools (mypy, django-stubs)
+- `security` - Security scanning (bandit, safety)
+- `dev` - Full development environment (includes all groups above)
+
 **Adding dependencies:**
 ```bash
 # Add a runtime dependency
 uv add package-name
 
-# Add a dev dependency
-uv add --dev package-name
+# Add a dependency to a specific group
+uv add --group test pytest-mock
+uv add --group lint pylint
+uv add --group type-check types-requests
+uv add --group security semgrep
+```
+
+**Installing specific groups:**
+```bash
+# Install only test dependencies
+uv sync --group test
+
+# Install multiple groups
+uv sync --group test --group lint
+
+# Install full dev environment
+uv sync --group dev
 ```
 
 **Updating dependencies:**
@@ -130,10 +165,37 @@ uv lock --upgrade
 
 # Export to requirements files (done automatically by pre-commit)
 uv export --no-hashes --format requirements-txt -o requirements.txt
-uv export --no-hashes --format requirements-txt --extra dev -o requirements-dev.txt
+uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.txt
 ```
 
 **Note:** The pre-commit hooks automatically validate that requirements files stay in sync with `uv.lock`. CI will fail if they drift.
+
+### Migrating from [project.optional-dependencies]
+
+If you have an existing development environment from before the PEP 735 migration:
+
+1. Remove your existing virtual environment:
+   ```bash
+   # On Windows
+   Remove-Item -Recurse -Force .venv
+
+   # On macOS/Linux
+   rm -rf .venv
+   ```
+
+2. Recreate the virtual environment:
+   ```bash
+   uv venv
+   ```
+
+3. Activate the virtual environment (see installation steps above)
+
+4. Install dependencies with the new group system:
+   ```bash
+   uv sync --group dev
+   ```
+
+The new structure allows faster CI builds by installing only required dependencies per job (e.g., only `--group test` for test jobs).
 
 </details>
 

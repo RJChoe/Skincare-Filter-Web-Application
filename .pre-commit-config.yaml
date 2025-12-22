@@ -48,7 +48,7 @@ repos:
   # CI workflow (.github/workflows/uv-export.yml) enforces requirements sync on push/PR.
   # To manually sync after updating uv.lock, run:
   #   uv export --no-hashes --format requirements-txt -o requirements.txt
-  #   uv export --no-hashes --format requirements-txt --extra dev -o requirements-dev.txt
+  #   uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.txt
 
 # temporary disable pytest hook while setting up CI
 
