@@ -1,0 +1,13 @@
+# Default to LF (Unix) line endings for all text files
+* text=auto eol=lf
+
+# Ensure key files always use LF
+requirements.txt text eol=lf
+requirements-dev.txt text eol=lf
+uv.lock text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+*.py text eol=lf
+*.toml text eol=lf
+*.json text eol=lf

@@ -170,6 +170,18 @@ uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.
 
 **Note:** The pre-commit hooks automatically validate that requirements files stay in sync with `uv.lock`. CI will fail if they drift.
 
+## Technical Decisions
+
+### Why `--no-hashes`?
+
+We use the `--no-hashes` flag when exporting requirements for several reasons:
+
+- **Cross-platform compatibility**: Hash values can differ between operating systems and Python implementations, causing installation failures in different environments
+- **Cleaner diffs**: Without hashes, requirement file changes show only meaningful version updates rather than extensive hash changes, making code reviews more focused
+- **CI/CD efficiency**: Simplified requirements files reduce merge conflicts and make automated dependency updates more reliable
+
+While this trades some security for practicality, our locked `uv.lock` file still maintains full integrity verification with hashes for reproducible builds.
+
 ### Migrating from [project.optional-dependencies]
 
 If you have an existing development environment from before the PEP 735 migration:
