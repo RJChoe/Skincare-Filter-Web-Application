@@ -29,7 +29,7 @@ repos:
       - id: mixed-line-ending
         args: [--fix=lf]
 
-  # Mypy for static type checking
+  # Mypy for static type checking (scoped to core app logic only)
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.19.1
     hooks:
@@ -38,10 +38,9 @@ repos:
           - django==6.0
           - django-stubs==5.2.8
           - types-psycopg2
-          # types-requests ## check best practice
         args: [--config-file=pyproject.toml]
         files: ^(allergies|users|skincare_project)/.*\.py$
-        exclude: ^.*/migrations/.*\.py$
+        exclude: ^.*/migrations/.*\.py$|^.*/tests/.*\.py$
 
 # temporary disable pytest hook while setting up CI
 
