@@ -36,6 +36,31 @@ Repository = "https://github.com/RJChoe/Skincare-Filter-Web-Application"
 Issues = "https://github.com/RJChoe/Skincare-Filter-Web-Application/issues"
 
 # ============================================================================
+# uv Configuration
+# ============================================================================
+# Python version pinning: .python-version pins local development to 3.14 for
+# consistency across the team and with CI/CD. However, requires-python = ">=3.14"
+# remains flexible to allow the package to work with future Python versions.
+[tool.uv]
+# Prefer uv-managed Python installations for reproducibility
+python-preference = "only-managed"
+
+# Automatically download Python if the required version is missing
+python-downloads = "automatic"
+
+# Compile bytecode for faster imports
+compile-bytecode = true
+
+# Always resolve to the highest compatible version
+resolution = "highest"
+
+# Only use prereleases when necessary (no stable version available)
+prerelease = "if-necessary"
+
+# Environment markers for cross-platform support
+environments = ["platform_system == 'Windows'", "platform_system != 'Windows'"]
+
+# ============================================================================
 # PEP 735 Dependency Groups
 # ============================================================================
 [dependency-groups]
@@ -163,20 +188,31 @@ select = [
     "C4",  # flake8-comprehensions
     "S",   # flake8-bandit (security)
     "T20", # flake8-print
+    ##IMPLEMENT LATER "D",   # pydocstyle
 ]
 ignore = [
     "E203",  # Whitespace before ':' (conflicts with formatters)
+    "E501",  # Line too long (handled by formatter)
+    "F401",  # Unused import (false positives with Django signals)
     "S101",  # Use of assert (acceptable in tests)
     "S105",  # Possible hardcoded password (false positives in Django settings)
     "S106",  # Possible hardcoded password (false positives in Django settings)
+    "D203",  # 1 blank line required before class docstring (conflicts with D211)
+    "D213",  # Multi-line docstring summary should start at second line (conflicts with D212)
+## Docstring requirements (ENABLE these WHEN READY to write comprehensive docs)
+    "D100",  # Missing module docstring
+    "D104",  # Missing package docstring
+    "D107",  # Missing __init__ docstring
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"**/migrations/*" = ["E501", "DJ"]
-"**/tests/*" = ["S101", "T20"]
-"**/test_*.py" = ["S101", "T20"]
-"manage.py" = ["T20"]
-"**/settings*.py" = ["S105", "S106"]
+"**/migrations/*" = ["DJ"]
+"**/tests/*" = ["S101", "T20", "D100", "D101", "D102", "D103", "D104"]
+"**/test_*.py" = ["S101", "T20", "D100", "D101", "D102", "D103", "D104"]
+"**/__init__.py" = ["D100", "D104"]
+"manage.py" = ["T20", "D100", "D103"]
+"**/settings*.py" = ["S105", "S106", "D100", "D104"]
+"**/apps.py" = ["F401", "D100", "D104"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -194,6 +230,8 @@ section-order = ["future", "standard-library", "third-party", "first-party", "lo
 [tool.mypy]
 python_version = "3.14"
 plugins = ["mypy_django_plugin.main"]
+files = ["allergies", "users", "skincare_project"]
+exclude = [".*?/migrations/.*", ".*?/tests/.*", "manage.py"]
 strict = false
 warn_return_any = true
 warn_unused_configs = true
@@ -205,11 +243,12 @@ no_implicit_optional = true
 check_untyped_defs = true
 show_error_codes = true
 pretty = true
+ignore_missing_imports = true
+strict_optional = true
 
-# MAYBE IMPLEMENT: prevents mypy from following imports into untyped libraries
-# ignore_missing_imports = true
-# strict_optional = true
-# strict_settings = true #Optional: Set strict_settings to true to catch invalid settings access
+## strict = true
+## Optional: Enable mypy strict mode to more
+## aggressively catch invalid settings access
 
 # Django-specific settings
 [tool.django-stubs]
@@ -292,3 +331,6 @@ directory = "htmlcov"
 
 [tool.hatch.build.targets.wheel]
 packages = ["allergies", "users", "skincare_project"]
+
+[tool.deptry]
+extend_exclude = ["tests"] # Ignore the tests directory for production dependency checks

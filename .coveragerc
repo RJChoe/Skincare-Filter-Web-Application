@@ -1,7 +1,7 @@
 [run]
 # Specifies source packages
 source = allergies,users
-omit = 
+omit =
     */migrations/*
     */tests/*
     setup.py

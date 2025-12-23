@@ -90,6 +90,8 @@ Note: This project uses [uv](https://docs.astral.sh/uv/) for dependency manageme
     uv python install 3.14
     ```
 
+    **Note:** This project includes a `.python-version` file that pins Python 3.14. uv will automatically detect and use this version for all operations, ensuring consistency across the development team and CI/CD environments.
+
 5. Create and activate a virtual environment:
     ```bash
     # Create venv
@@ -170,6 +172,18 @@ uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.
 
 **Note:** The pre-commit hooks automatically validate that requirements files stay in sync with `uv.lock`. CI will fail if they drift.
 
+## Technical Decisions
+
+### Why `--no-hashes`?
+
+We use the `--no-hashes` flag when exporting requirements for several reasons:
+
+- **Cross-platform compatibility**: Hash values can differ between operating systems and Python implementations, causing installation failures in different environments
+- **Cleaner diffs**: Without hashes, requirement file changes show only meaningful version updates rather than extensive hash changes, making code reviews more focused
+- **CI/CD efficiency**: Simplified requirements files reduce merge conflicts and make automated dependency updates more reliable
+
+While this trades some security for practicality, our locked `uv.lock` file still maintains full integrity verification with hashes for reproducible builds.
+
 ### Migrating from [project.optional-dependencies]
 
 If you have an existing development environment from before the PEP 735 migration:
@@ -218,6 +232,85 @@ uv run python -c "import django; print(django.get_version())"
 # Verify uv installation
 uv --version
 ```
+
+</details>
+
+---
+
+## Troubleshooting Python Version
+
+<details>
+<summary><b>🔧 Python Version Issues</b></summary>
+
+This project uses a `.python-version` file to pin Python 3.14 for local development. uv automatically detects and uses this version.
+
+### Check Your Python Version
+
+```bash
+# List all installed Python versions managed by uv
+uv python list
+
+# Example output:
+# cpython-3.14.0-windows-x86_64-none    <-- active
+# cpython-3.13.1-windows-x86_64-none
+```
+
+The active version (marked with `<--`) should be 3.14.x to match `.python-version`.
+
+### Install Python 3.14
+
+If you don't have Python 3.14 installed:
+
+```bash
+# Install Python 3.14 (uv will download and manage it)
+uv python install 3.14
+
+# Verify installation
+uv python list
+```
+
+### Pin Python Version
+
+If you need to explicitly pin or change the Python version:
+
+```bash
+# Pin to Python 3.14 (updates .python-version)
+uv python pin 3.14
+
+# Verify the pin
+cat .python-version    # Should output: 3.14
+```
+
+### Recreate Virtual Environment
+
+If your virtual environment is using the wrong Python version:
+
+```bash
+# Remove existing venv
+Remove-Item -Recurse -Force .venv    # Windows PowerShell
+rm -rf .venv                          # macOS/Linux
+
+# Create new venv with correct Python version
+uv venv --python 3.14
+
+# Reinstall dependencies
+uv sync --group dev
+```
+
+### Common Issues
+
+**Issue:** `python --version` shows wrong version despite `.python-version`
+
+**Solution:** The `.python-version` file is for uv's Python management. To ensure consistency:
+- Always use `uv run python` instead of `python` directly
+- Or activate your venv: `.venv\Scripts\Activate.ps1` (Windows) / `source .venv/bin/activate` (Linux/macOS)
+
+**Issue:** Pre-commit hook fails with version mismatch
+
+**Solution:** Your system Python differs from the pinned version. Either:
+1. Activate the virtual environment before committing
+2. Install Python 3.14 system-wide
+3. Use `uv run` commands which automatically use the correct version
 
 </details>
 

@@ -1,9 +1,19 @@
 # --- Category Definitions ---
 # Category Keys (Generic Database values)
-CATEGORY_FOOD = "food"
-CATEGORY_CONTACT = "contact"
-CATEGORY_INHALANT = "inhalant"
-CATEGORY_OTHER = "other"  # <-- String Value stored in DB (self.category)
+from collections import defaultdict
+from collections.abc import Iterable, Mapping, Sequence
+from typing import Final, Literal
+
+CategoryKey = Literal["food", "contact", "inhalant", "other"]
+ChoiceItem = tuple[str, str]  # (value, label)
+AllergyChoice = tuple[CategoryKey, str, Sequence[ChoiceItem]]
+
+CATEGORY_FOOD: Final[CategoryKey] = "food"
+CATEGORY_CONTACT: Final[CategoryKey] = "contact"
+CATEGORY_INHALANT: Final[CategoryKey] = "inhalant"
+CATEGORY_OTHER: Final[CategoryKey] = (
+    "other"  # <-- String Value stored in DB (self.category)
+)
 
 # --- Category Choices (For the Model field) ---
 CATEGORY_CHOICES = [
@@ -32,17 +42,17 @@ SOURCE_INFO_CHOICES = [
 ## alphabetical ##
 
 # Acids and exfoliants
-ACID_ALLERGENS = [
+ACID_ALLERGENS: Final[tuple[ChoiceItem, ...]] = (
     ("glycolic_acid", "Glycolic Acid"),
     ("salicylic_acid", "Salicylic Acid"),
     ("lactic_acid", "Lactic Acid"),
     ("citric_acid", "Citric Acid"),
     ("benzoic_acid", "Benzoic Acid"),
     ("sorbic_acid", "Sorbic Acid"),
-]
+)
 
 # Botanical/Essential oils
-BOTANICAL_ALLERGENS = [
+BOTANICAL_ALLERGENS: Final[tuple[ChoiceItem, ...]] = (
     ("tea_tree_oil", "Tea Tree Oil"),
     ("lavender_oil", "Lavender Oil"),
     ("peppermint_oil", "Peppermint Oil"),
@@ -53,52 +63,52 @@ BOTANICAL_ALLERGENS = [
     ("sandalwood", "Sandalwood"),
     ("bergamot", "Bergamot Oil"),
     ("lemongrass", "Lemongrass Oil"),
-]
+)
 
 # Colorants and dyes
-COLORANT_ALLERGENS = [
+COLORANT_ALLERGENS: Final[tuple[ChoiceItem, ...]] = (
     ("ci_dyes", "CI Dyes (Color Index)"),
     ("fd_c_dyes", "FD&C Dyes"),
     ("carmine", "Carmine (CI 75470)"),
     ("iron_oxides", "Iron Oxides"),
     ("mica", "Mica"),
-]
+)
 
 # Contact/Topical Allergens (example)
-CONTACT_ALLERGENS = [
+CONTACT_ALLERGENS: Final[tuple[ChoiceItem, ...]] = (
     ("nickel", "Nickel"),
     ("latex", "Latex"),
     ("lanolin", "Lanolin"),
-]
+)
 
-DUST_ALLERGENS = [
+DUST_ALLERGENS: Final[tuple[ChoiceItem, ...]] = (
     ("dust_mite", "Dust Mite"),
     ("mold_spores", "Mold Spores"),
     ("pet_dander", "Pet Dander"),
-]
+)
 
 # Fragrance Allergens (based on your example)
-FRAGRANCE_ALLERGENS = [
+FRAGRANCE_ALLERGENS: Final[tuple[ChoiceItem, ...]] = (
     ("linalool", "Linalool"),
     ("limonene", "Limonene"),
     ("geraniol", "Geraniol"),
     ("citronellol", "Citronellol"),
     ("eugenol", "Eugenol"),
     # ... and so on
-]
+)
 
 # Food Allergens (example)
-FOOD_ALLERGENS = [
+FOOD_ALLERGENS: Final[tuple[ChoiceItem, ...]] = (
     ("peanut", "Peanut"),
     ("tree_nut", "Tree Nut (General)"),
     ("gluten", "Gluten / Wheat"),
     ("dairy", "Dairy / Milk"),
     ("soy", "Soy"),
     ("shellfish", "Shellfish"),
-]
+)
 
 # Other common allergens
-OTHER_ALLERGENS = [
+OTHER_ALLERGENS: Final[tuple[ChoiceItem, ...]] = (
     ("retinol", "Retinol/Retinoids"),
     ("vitamin_c", "Vitamin C (L-Ascorbic Acid)"),
     ("niacinamide", "Niacinamide"),
@@ -108,10 +118,10 @@ OTHER_ALLERGENS = [
     ("tocopherol", "Tocopherol (Vitamin E)"),
     ("alcohol_denat", "Alcohol Denat"),
     ("isopropyl_alcohol", "Isopropyl Alcohol"),
-]
+)
 
 # Pollen Allergens
-POLLEN_ALLERGENS = [
+POLLEN_ALLERGENS: Final[tuple[ChoiceItem, ...]] = (
     ("birch_pollen", "Birch Pollen"),
     ("chrysanthemum", "Chrysanthemum"),
     ("goldenrod", "Goldenrod"),
@@ -128,10 +138,10 @@ POLLEN_ALLERGENS = [
     ("spruce", "Spruce"),
     ("tree_pollen", "Tree Pollen"),
     ("queen_palm", "Queen Palm"),
-]
+)
 
 # Preservatives
-PRESERVATIVE_ALLERGENS = [
+PRESERVATIVE_ALLERGENS: Final[tuple[ChoiceItem, ...]] = (
     ("parabens", "Parabens (Methylparaben, Propylparaben, etc.)"),
     ("formaldehyde", "Formaldehyde"),
     ("formaldehyde_releasers", "Formaldehyde Releasers"),
@@ -141,10 +151,10 @@ PRESERVATIVE_ALLERGENS = [
     ("benzalkonium_chloride", "Benzalkonium Chloride"),
     ("bronopol", "Bronopol"),
     ("iodopropynyl_butylcarbamate", "Iodopropynyl Butylcarbamate"),
-]
+)
 
 # Proteins and extracts
-PROTEIN_ALLERGENS = [
+PROTEIN_ALLERGENS: Final[tuple[ChoiceItem, ...]] = (
     ("collagen", "Collagen"),
     ("keratin", "Keratin"),
     ("silk_protein", "Silk Protein"),
@@ -153,10 +163,10 @@ PROTEIN_ALLERGENS = [
     ("beeswax", "Beeswax"),
     ("propolis", "Propolis"),
     ("royal_jelly", "Royal Jelly"),
-]
+)
 
 # UV filters/Sunscreen ingredients
-SUNSCREEN_ALLERGENS = [
+SUNSCREEN_ALLERGENS: Final[tuple[ChoiceItem, ...]] = (
     ("oxybenzone", "Oxybenzone (Benzophenone-3)"),
     ("octinoxate", "Octinoxate (Octyl Methoxycinnamate)"),
     ("avobenzone", "Avobenzone"),
@@ -164,17 +174,17 @@ SUNSCREEN_ALLERGENS = [
     ("homosalate", "Homosalate"),
     ("titanium_dioxide", "Titanium Dioxide"),
     ("zinc_oxide", "Zinc Oxide"),
-]
+)
 
 # Surfactants and emulsifiers
-SURFACTANT_ALLERGENS = [
+SURFACTANT_ALLERGENS: Final[tuple[ChoiceItem, ...]] = (
     ("sls", "Sodium Lauryl Sulfate (SLS)"),
     ("sles", "Sodium Laureth Sulfate (SLES)"),
     ("cocamidopropyl_betaine", "Cocamidopropyl Betaine"),
     ("peg_compounds", "PEG Compounds (Polyethylene Glycol)"),
     ("polysorbates", "Polysorbates"),
     ("sodium_lauroyl_sarcosinate", "Sodium Lauroyl Sarcosinate"),
-]
+)
 
 # --- The Grouped Choice Constant (Grouping/UI)---
 # list of 3-tuples: (database_key, human_readable_label, choice_list)
@@ -185,7 +195,7 @@ SURFACTANT_ALLERGENS = [
 
 # --- Form Grouping for OptGroups (3-tuples) ---
 # Structure: (category_key, optgroup_label, choices_list)
-FORM_ALLERGIES_CHOICES = [
+FORM_ALLERGIES_CHOICES: list[AllergyChoice] = [
     # All of these items will be classified as 'contact' in the database
     (CATEGORY_CONTACT, "Acids & Exfoliants", ACID_ALLERGENS),
     (CATEGORY_CONTACT, "Botanicals & Essential Oils", BOTANICAL_ALLERGENS),
@@ -208,17 +218,20 @@ FORM_ALLERGIES_CHOICES = [
 # Maps category_key -> list of (specific_key, specific_label)
 
 
-def build_category_to_allergens_map(form_allergies_choices):
-    category_allergen_map = {}
-    # remove _? from _optgroup_label
-    # suggested change to pass ruff
-    for category_key, _optgroup_label, choice_list in form_allergies_choices:
-        # Use .setdefault() to ensure the list exists before extending it
-        category_allergen_map.setdefault(category_key, []).extend(choice_list)
-    return category_allergen_map
+def build_category_to_allergens_map(
+    form_allergies_choices: Iterable[AllergyChoice],
+) -> dict[CategoryKey, list[ChoiceItem]]:
+    acc: defaultdict[CategoryKey, list[ChoiceItem]] = defaultdict(list)
+
+    for category_key, _, choice_list in form_allergies_choices:
+        acc[category_key].extend(choice_list)
+
+    return dict(acc)
 
 
-CATEGORY_TO_ALLERGENS_MAP = build_category_to_allergens_map(FORM_ALLERGIES_CHOICES)
+CATEGORY_TO_ALLERGENS_MAP: dict[CategoryKey, list[ChoiceItem]] = (
+    build_category_to_allergens_map(FORM_ALLERGIES_CHOICES)
+)
 
 # Now, CATEGORY_TO_ALLERGENS_MAP looks like:
 # {
@@ -238,27 +251,25 @@ CATEGORY_TO_ALLERGENS_MAP = build_category_to_allergens_map(FORM_ALLERGIES_CHOIC
 
 # --- Pre-calculate a flat map for efficient lookups ---
 # Maps specific allergen_key -> human_readable_label across ALL categories.
-def build_flat_allergen_label_map(category_to_allergens_map):
-    """
-    Creates a single dictionary mapping all allergen keys
+def build_flat_allergen_label_map(
+    category_to_allergens_map: Mapping[CategoryKey, Sequence[ChoiceItem]],
+) -> dict[str, str]:
+    """Creates a single dictionary mapping all allergen keys
     (e.g., 'peanut') to their labels (e.g., 'Peanut'),
     optimized for __str__ lookups.
     """
-    flat_map = {}
+    flat_map: dict[str, str] = {}
 
-    # Iterate through the values of the category map
-    # (which are lists of (key, label) tuples)
     for allergen_list in category_to_allergens_map.values():
-        # Update the flat_map with the tuples from the list.
-        # Since dict() can take a list of tuples, this is a clean way.
-        # Note: If keys are duplicated across categories, the last wins.
         flat_map.update(dict(allergen_list))
 
     return flat_map
 
 
 # This dictionary is created once when the module is loaded.
-FLAT_ALLERGEN_LABEL_MAP = build_flat_allergen_label_map(CATEGORY_TO_ALLERGENS_MAP)
+FLAT_ALLERGEN_LABEL_MAP: dict[str, str] = build_flat_allergen_label_map(
+    CATEGORY_TO_ALLERGENS_MAP
+)
 
 # FLAT_ALLERGEN_LABEL_MAP now looks like:
 # {

@@ -10,8 +10,7 @@ from allergies.models import Allergen
 
 @pytest.fixture
 def allergen_contact(db):
-    """
-    Fixture for contact allergen.
+    """Fixture for contact allergen.
     Assumes 'sls' key maps to 'Sodium Lauryl Sulfate (SLS)' label.
     """
     return Allergen.objects.create(category=CATEGORY_CONTACT, allergen_key="sls")
@@ -55,9 +54,9 @@ class TestAllergenModel:
         assert ("peanut", "Peanut") in food_allergens
 
         # Ensure the list is not empty
-        assert (
-            len(contact_allergens) > 1
-        ), "Contact allergens map is empty or too small."
+        assert len(contact_allergens) > 1, (
+            "Contact allergens map is empty or too small."
+        )
         assert len(food_allergens) > 1, "Food allergens map is empty or too small."
 
 

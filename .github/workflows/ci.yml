@@ -51,6 +51,18 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Verify Python version matches .python-version
+        run: |
+          PINNED_VERSION=$(cat .python-version)
+          ACTIVE_VERSION=$(uv run python --version | grep -oP '\d+\.\d+')
+          echo "Pinned version: $PINNED_VERSION"
+          echo "Active version: $ACTIVE_VERSION"
+          if [ "$ACTIVE_VERSION" != "$PINNED_VERSION" ]; then
+            echo "❌ Python version mismatch! Expected $PINNED_VERSION but found $ACTIVE_VERSION"
+            exit 1
+          fi
+          echo "✅ Python version matches .python-version"
+
       - name: Validate ${{ matrix.group }} group installs
         run: |
           uv sync --group ${{ matrix.group }}
@@ -75,6 +87,18 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
+
+      - name: Verify Python version matches .python-version
+        run: |
+          PINNED_VERSION=$(cat .python-version)
+          ACTIVE_VERSION=$(uv run python --version | grep -oP '\d+\.\d+')
+          echo "Pinned version: $PINNED_VERSION"
+          echo "Active version: $ACTIVE_VERSION"
+          if [ "$ACTIVE_VERSION" != "$PINNED_VERSION" ]; then
+            echo "❌ Python version mismatch! Expected $PINNED_VERSION but found $ACTIVE_VERSION"
+            exit 1
+          fi
+          echo "✅ Python version matches .python-version"
 
       - name: Install dependencies
         run: |
@@ -108,6 +132,18 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
+
+      - name: Verify Python version matches .python-version
+        run: |
+          PINNED_VERSION=$(cat .python-version)
+          ACTIVE_VERSION=$(uv run python --version | grep -oP '\d+\.\d+')
+          echo "Pinned version: $PINNED_VERSION"
+          echo "Active version: $ACTIVE_VERSION"
+          if [ "$ACTIVE_VERSION" != "$PINNED_VERSION" ]; then
+            echo "❌ Python version mismatch! Expected $PINNED_VERSION but found $ACTIVE_VERSION"
+            exit 1
+          fi
+          echo "✅ Python version matches .python-version"
 
       - name: Install dependencies
         run: |
@@ -153,6 +189,18 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
+
+      - name: Verify Python version matches .python-version
+        run: |
+          PINNED_VERSION=$(cat .python-version)
+          ACTIVE_VERSION=$(uv run python --version | grep -oP '\d+\.\d+')
+          echo "Pinned version: $PINNED_VERSION"
+          echo "Active version: $ACTIVE_VERSION"
+          if [ "$ACTIVE_VERSION" != "$PINNED_VERSION" ]; then
+            echo "❌ Python version mismatch! Expected $PINNED_VERSION but found $ACTIVE_VERSION"
+            exit 1
+          fi
+          echo "✅ Python version matches .python-version"
 
       - name: Install dependencies
         run: |
