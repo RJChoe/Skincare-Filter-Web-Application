@@ -41,6 +41,53 @@ Diagram flow of data through application
 
 ---
 
+## Quick Start
+
+Get up and running in 5 minutes:
+
+1. **Install uv** (if not already installed):
+   ```bash
+   # Windows
+   powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+   # macOS/Linux
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+2. **Clone and navigate:**
+   ```bash
+   git clone https://github.com/RJChoe/Skincare-Filter-Web-Application.git
+   cd Skincare-Filter-Web-Application
+   ```
+
+3. **Set up Python environment:**
+   ```bash
+   uv python install 3.14
+   uv python pin 3.14
+   uv venv
+   uv sync --group dev
+   ```
+
+4. **Run migrations and start server:**
+   ```bash
+   uv run python manage.py migrate
+   uv run python manage.py runserver
+   ```
+
+5. **Run tests:**
+   ```bash
+   uv run pytest
+   ```
+
+6. **Set up pre-commit hooks (optional):**
+   ```bash
+   uv run pre-commit install
+   ```
+
+**Note:** Commands use `uv run` so manual venv activation is optional. For detailed setup instructions, see the Installation section below.
+
+---
+
 ## Installation
 
 <details>
@@ -72,27 +119,35 @@ Note: This project uses [uv](https://docs.astral.sh/uv/) for dependency manageme
     pip install uv
     ```
 
-   **Windows: uv on PATH (quick fixes)**
-   - Check shim: `where.exe uv`
-   - Add user Scripts for this session:
-     ```powershell
-     $env:Path = "$env:Path;$((python -m site --user-base))\Scripts"
-     ```
-   - Optional shim (no PATH edits; replace with your base Python path):
-     ```powershell
-     function uv { & '<PATH_TO_BASE_PYTHON>\python.exe' -m uv @args }
-     ```
-   - Prefer global uv to drive the venv: `uv sync --python .\.venv\Scripts\python.exe --group dev`
-   - Note: `uv sync` prunes undeclared tools (pip/uv) inside the venv; this is expected.
+   **Windows users:** If the installation script fails, ensure PowerShell execution policy allows scripts. Run as Administrator if needed, or check `where.exe uv` to verify the installation path. Alternatively, use WSL2 for a Unix-like environment.
+
+   **Note:** `uv sync` may prune undeclared tools (pip/uv) inside the venv; this is expected behavior.
 
 4. Install Python 3.14 (if needed):
     ```bash
     uv python install 3.14
     ```
 
-    **Note:** This project includes a `.python-version` file that pins Python 3.14. uv will automatically detect and use this version for all operations, ensuring consistency across the development team and CI/CD environments.
+5. Pin Python version for this project:
+    ```bash
+    uv python pin 3.14
+    ```
 
-5. Create and activate a virtual environment:
+    This creates/updates `.python-version` which CI uses to enforce consistency (see [CI workflow](.github/workflows/ci.yml#L54-L64)).
+
+    Verify the pin:
+    ```bash
+    # Windows
+    type .python-version
+
+    # macOS/Linux
+    cat .python-version
+    ```
+    Output should show `3.14`.
+
+    **Note:** If `.python-version` doesn't exist, run `uv python pin 3.14` to generate it. This file ensures CI and local development use the same Python version.
+
+6. Create virtual environment (activation optional):
     ```bash
     # Create venv
     uv venv
@@ -107,23 +162,25 @@ Note: This project uses [uv](https://docs.astral.sh/uv/) for dependency manageme
     source .venv/bin/activate
     ```
 
-6. Install all dependencies (runtime + dev):
+    **Note:** All commands in this README use `uv run`, which automatically uses the venv without manual activation. Activation is optional but shown for reference.
+
+7. Install all dependencies (runtime + dev):
     ```bash
     uv sync --group dev
     ```
 
-7. Apply migrations:
+8. Apply migrations:
     ```bash
     uv run python manage.py makemigrations allergies users
     uv run python manage.py migrate
     ```
 
-8. Run the development server:
+9. Run the development server:
     ```bash
     uv run python manage.py runserver
     ```
 
-9. Open your browser and visit http://localhost:8000
+10. Open your browser and visit http://localhost:8000
 
 ### Dependency Management with uv
 
@@ -224,7 +281,7 @@ Quick checks to confirm your environment:
 
 ```bash
 # Check Python version (should be 3.14)
-python -V
+uv run python -V
 
 # Check Django version (should be 6.0)
 uv run python -c "import django; print(django.get_version())"
@@ -237,10 +294,41 @@ uv --version
 
 ---
 
+## CI/CD Alignment
+
+This project's CI enforces consistency between local development and automated testing:
+
+- **Python 3.14 enforcement:** CI verifies `.python-version` matches the active interpreter ([see workflow](.github/workflows/ci.yml#L54-L64))
+- **uv-based commands:** All CI jobs use `uv run` for consistent Python/tool resolution
+- **Dependency group isolation:** Each CI job installs only required groups (test, lint, type-check, security)
+- **Lockfile validation:** The [uv-export workflow](.github/workflows/uv-export.yml) ensures `requirements.txt` files stay in sync with `uv.lock`
+
+**Run the same checks locally:**
+
+```bash
+# Verify Python version matches .python-version
+uv run python --version
+
+# Run pre-commit (same as CI lint job)
+uv run pre-commit run --all-files
+
+# Run tests (same as CI test job)
+uv run pytest
+
+# Validate lockfile sync
+uv lock --check
+```
+
+**Before committing:** Ensure `.python-version` exists (`uv python pin 3.14`) and pre-commit hooks are installed (`uv run pre-commit install`). CI will fail if Python versions mismatch or requirements files drift from `uv.lock`.
+
+---
+
 ## Troubleshooting Python Version
 
 <details>
 <summary><b>🔧 Python Version Issues</b></summary>
+
+**Important:** CI enforces `.python-version` matching (see [workflow](.github/workflows/ci.yml#L54-L64)). Always run `uv python pin 3.14` after cloning to ensure alignment.
 
 This project uses a `.python-version` file to pin Python 3.14 for local development. uv automatically detects and uses this version.
 
@@ -414,7 +502,7 @@ This shows:
 - **Missing:** Specific line numbers and ranges not covered
 
 #### Automatic Coverage Threshold Enforcement
-The project enforces a **minimum 50% coverage threshold** via `fail_under = 50` in `pytest.ini`. This means:
+The project enforces a **minimum 50% coverage threshold** via `fail_under = 50` in `pyproject.toml` under `[tool.coverage.report]`. This means:
 - **Local development:** Test suite fails if coverage drops below 50%
 - **CI/CD pipelines:** Builds fail automatically if coverage is insufficient
 - **Quality gate:** Prevents merging code that significantly reduces test coverage
@@ -481,32 +569,37 @@ Run specific test subsets using the `-m` flag:
 
 ```bash
 # Run only fast tests (exclude slow tests)
-python -m pytest -m "not slow"
+uv run pytest -m "not slow"
 
 # Run only integration tests
-python -m pytest -m integration
+uv run pytest -m integration
 
 # Run all tests except integration tests
-python -m pytest -m "not integration"
+uv run pytest -m "not integration"
 ```
 
 ### Configuration Files
 
-The coverage system uses two configuration files:
+The coverage system is configured in `pyproject.toml`:
 
-#### `.coveragerc`
-Controls coverage.py behavior:
-- **Source packages:** Defines `allergies` and `users` as measured code
-- **Omit patterns:** Excludes `*/migrations/*`, `*/tests/*`, `*/__pycache__/*` from coverage
-- **Exclusions:** Ignores debug-only code, `TYPE_CHECKING` blocks, and pragma comments
-- **HTML output:** Configures `htmlcov/` directory and report formatting
-
-#### `pytest.ini`
+#### `[tool.pytest.ini_options]`
 Controls pytest and coverage integration:
+- **Test discovery:** Defines `testpaths = ["allergies/tests", "users/tests"]`
+- **Coverage flags:** Enables `--cov`, `--cov-report=term-missing`, `--cov-report=xml`
+- **Markers:** Registers `integration`, `slow`, and `unit` markers
+- **Default flags:** Applies `-ra --strict-markers --strict-config --tb=short` for better test reporting
+
+#### `[tool.coverage.run]`
+Controls coverage.py behavior:
 - **Branch coverage:** Enables `branch = True` for decision coverage
+- **Source packages:** Defines `allergies`, `users`, and `skincare_project` as measured code
+- **Omit patterns:** Excludes `*/migrations/*`, `*/tests/*`, `*/__pycache__/*` from coverage
+
+#### `[tool.coverage.report]`
+Controls coverage reporting:
 - **Fail threshold:** Sets `fail_under = 50` to enforce minimum coverage
-- **Markers:** Registers `integration` and `slow` markers
-- **Default flags:** Applies `-ra --strict-markers` for better test reporting
+- **Exclusions:** Ignores debug-only code, `TYPE_CHECKING` blocks, and pragma comments
+- **HTML output:** Configures `htmlcov/` directory via `[tool.coverage.html]`
 
 **For advanced customization, see:**
 - [pytest-cov documentation](https://pytest-cov.readthedocs.io/)
@@ -527,8 +620,14 @@ Automate code quality checks before each commit to maintain consistent standards
 Install and configure pre-commit hooks:
 
 ```bash
-pip install pre-commit
-pre-commit install
+# Install pre-commit (included in dev/lint groups)
+uv sync --group lint
+
+# Set up git hooks
+uv run pre-commit install
+
+# Run manually on all files
+uv run pre-commit run --all-files
 ```
 
 #### Configuration
@@ -556,7 +655,7 @@ repos:
     hooks:
       - id: pytest-fast
         name: pytest-fast
-        entry: pytest -m "not slow" --tb=short
+        entry: uv run pytest -m "not slow" --tb=short
         language: system
         pass_filenames: false
         always_run: true
@@ -579,25 +678,25 @@ Catch issues in ~10-15 seconds before committing. Run these manual checks during
 
 - **Run fast tests** — Verify core logic without slow integration tests:
     ```bash
-    python -m pytest -m "not slow"
+    uv run pytest -m "not slow"
     ```
 
 - **Lint with Ruff** — Check code quality and formatting:
     ```bash
-    ruff check . --fix
-    ruff format . --check
+    uv run ruff check . --fix
+    uv run ruff format . --check
     ```
 
 - **Confirm migrations applied** — Check database migration status:
     ```bash
-    python manage.py showmigrations
+    uv run python manage.py showmigrations
     ```
 
 #### Power User Tip
 Run all checks sequentially with a single command:
 
 ```bash
-python -m pytest -m "not slow" && ruff check . --fix && ruff format . --check && python manage.py showmigrations
+uv run pytest -m "not slow" && uv run ruff check . --fix && uv run ruff format . --check && uv run python manage.py showmigrations
 ```
 
 **Note:** While pre-commit hooks automate these checks, running them manually helps catch issues faster during development. See [Troubleshooting](#troubleshooting) for resolving common failures.
@@ -645,16 +744,15 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        uv sync --group test
 
     - name: Run migrations
       run: |
-        python manage.py migrate
+        uv run python manage.py migrate
 
     - name: Run tests with coverage
       run: |
-        pytest --cov --cov-report=xml --cov-report=term-missing
+        uv run pytest
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
@@ -670,7 +768,7 @@ This workflow:
 - **Triggers:** Only on PRs to `main` and `develop` branches
 - **Matrix testing:** Tests Python 3.11, 3.12, and 3.14 on Ubuntu
 - **Job names:** Uses "build" and "test" for status check references
-- **Coverage enforcement:** Fails if coverage drops below 50% (via `pytest.ini`)
+- **Coverage enforcement:** Fails if coverage drops below 50% (via `pyproject.toml`)
 
 #### Branch Protection Rules
 Enforce quality standards by requiring all checks to pass before merging.
@@ -764,8 +862,8 @@ Track and visualize coverage trends across commits and pull requests.
 Common setup issues and quick fixes:
 
 - **Coverage below 50% threshold:** If tests fail with "coverage is below 50%":
-    - **Temporary bypass:** Run tests without coverage: `pytest --no-cov`
-    - **Adjust threshold:** Temporarily lower `fail_under` value in `pytest.ini` (remember to restore it)
+    - **Temporary bypass:** Run tests without coverage: `uv run pytest --no-cov`
+    - **Adjust threshold:** Temporarily lower `fail_under` value in `pyproject.toml` under `[tool.coverage.report]` (remember to restore it)
     - **Add tests:** Write additional tests to increase coverage before committing
 
 - **GitHub status checks blocking merge:** If PR shows "Some checks failed" despite local tests passing:
@@ -780,23 +878,24 @@ Common setup issues and quick fixes:
     .\.venv\Scripts\Activate
     ```
 
-- Python not found on Windows: Use the `py` launcher.
-    ```powershell
-    py -V
-    py -m venv .venv
-    py -m pip install -r requirements.txt
+- Python not found: Use uv to manage Python installations.
+    ```bash
+    uv python install 3.14
+    uv python pin 3.14
+    uv venv
+    uv sync --group dev
     ```
 
 - Migrations/app errors: Ensure apps are installed and migrations ran.
-    ```powershell
-    python manage.py showmigrations
-    python manage.py makemigrations allergies users
-    python manage.py migrate
+    ```bash
+    uv run python manage.py showmigrations
+    uv run python manage.py makemigrations allergies users
+    uv run python manage.py migrate
     ```
 
 - Port already in use: Run on a different port.
-    ```powershell
-    python manage.py runserver 8001
+    ```bash
+    uv run python manage.py runserver 8001
     ```
 
 </details>

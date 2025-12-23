@@ -4,6 +4,7 @@ Purpose: Make AI coding agents productive immediately in this Django repo by doc
 
 ## Big Picture
 - Framework: Django 6.0 + Templates (SQLite in dev).
+- Environment & PDM: Standardize on `uv`. Always use `uv run` for executing management commands or scripts.
 - Project: `skincare_project/` with apps: `allergies/`, `users/`.
 - Auth: Custom user `users.CustomUser` (configured via `AUTH_USER_MODEL`).
 - Domain: Predefined `Allergen` catalog; `UserAllergy` links a user to an `Allergen` with extra fields (severity, confirmation, source, JSON notes).
@@ -26,7 +27,6 @@ Purpose: Make AI coding agents productive immediately in this Django repo by doc
 ## Database Management
 - **Local Development:** Use SQLite (`db.sqlite3`) for zero-config startup.
 - **CI/CD:** Tests run against a fresh SQLite instance in GitHub Actions unless a `DATABASE_URL` is provided.
-- **Migrations:** Always run `python manage.py makemigrations` and include them in commits.
 - **Instruction:** When suggesting model changes, remind the user to run migrations to keep the local SQLite file in sync.
 
 ## Conventions
@@ -36,23 +36,25 @@ Purpose: Make AI coding agents productive immediately in this Django repo by doc
 - URLs: Use named routes (`name='home'`, `name='product'`) and `{% url '...' %}` in templates. Current root `home` is missing a name.
 - Queries: For `UserAllergy` access, use `.select_related('allergen')` and filter `is_active=True`.
 
-## Developer Workflows (Windows-friendly)
-- Create venv + install:
-  - `python -m venv .venv`
-  - `.\.venv\Scripts\Activate`
-  - `pip install -r requirements.txt`
-- DB setup:
-  - `python manage.py makemigrations allergies users`
-  - `python manage.py migrate`
-- Run server: `python manage.py runserver`
-- Lint/format: `ruff check . --fix` then `ruff format .`
+## Dependency & Environment Management (`uv`)
+- **Execution:** Never ask the user to "activate venv." Use `uv run <command>` (e.g., `uv run python manage.py migrate`).
+- **Add Packages:** Use `uv add <package>` for base deps and `uv add --group <name> <package>` for specific groups (test, lint, type-check, security).
+- **Syncing:** Use `uv sync` to ensure the environment matches `uv.lock`.
+- **Version Pinning:** Respect `.python-version` and `requires-python = ">=3.14"` in `pyproject.toml`.
 
-## CI/CD Standards
-- **Pipeline Structure:** We use a tiered CI. Static analysis (Ruff/Mypy) is the 'Gatekeeper' and must pass before Tests run.
-- **Workflow Dependency:** The `test` job depends on the `static-analysis` job via the `needs` keyword.
-- **AI Guidance:** If a PR fails the first tier (Lint), do not attempt to debug tests. Fix formatting and type hints first.
+## 3. Django 6.0 Conventions
+- **Background Tasks:** Prefer the native `django.tasks` framework over Celery for lightweight operations like email or data cleanup.
+- **Template Partials:** Use `{% partialdef %}` and `{% partial %}` tags within templates to handle modular components (HTMX-friendly) instead of excessive `{% include %}` calls.
+- **Type Safety:** Use `TypeAlias` for complex types and explicitly hint all QuerySets as `QuerySet[ModelName]` or `Manager[ModelName]` to satisfy `django-stubs`.
+
+## 4. Coding Standards (Ruff & Mypy)
+- **Linting:** Follow **Ruff** conventions. Use `_` for intentionally unused variables in tuple unpacking (e.g., `for key, _, list in choices:`).
+- **Mypy:** If a ManyToManyField assignment throws an "Incompatible types" error (common in `AbstractUser` overrides), use `# type: ignore[assignment]`.
+- **Async:** Use `async def` for I/O bound views (like external product scanning) where supported by Django 6.0.
 
 ## CI/CD Workflow
+**CI Awareness:** The CI enforces `.python-version` and `uv lock --check`. Always ensure the lockfile is synced before suggesting a commit.
+- **Testing:** Use `pytest` for all new features. Place tests in `app/tests/` and run via `uv run pytest`.
 - **Gate 1 (Lint):** Pre-commit (Ruff + Mypy) must pass.
 - **Gate 2 (Test):** Pytest suite must pass.
 - **Gate 3 (Coverage):** Codecov enforces a minimum threshold based on the project phase (currently 50%).

@@ -43,6 +43,13 @@ repos:
         files: ^(allergies|users|skincare_project)/.*\.py$
         exclude: ^.*/migrations/.*\.py$|^.*/tests/.*\.py$
 
+  # uv lock
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.4.1
+    hooks:
+      - id: uv-lock
+        name: uv lock
+
 # temporary disable pytest hook while setting up CI
 
 #  # Local fast pytest (excluding slow tests)
