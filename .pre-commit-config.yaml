@@ -38,6 +38,7 @@ repos:
           - django==6.0
           - django-stubs==5.2.8
           - types-psycopg2
+          - dj-database-url==2.2.0
         args: [--config-file=pyproject.toml]
         files: ^(allergies|users|skincare_project)/.*\.py$
         exclude: ^.*/migrations/.*\.py$|^.*/tests/.*\.py$

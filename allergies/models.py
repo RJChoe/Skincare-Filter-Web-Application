@@ -1,5 +1,4 @@
-"""
-Django models for the allergies app.
+"""Django models for the allergies app.
 
 Defines:
 - Allergen: Pre-defined catalog of allergens/ingredients
@@ -9,7 +8,10 @@ Defines:
 from typing import Any
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import functions as db_functions
+from django.utils import timezone
 
 from .constants.choices import (
     CATEGORY_CHOICES,
@@ -23,8 +25,7 @@ type AdminNotes = dict[str, str | int | None]
 
 
 class Allergen(models.Model):
-    """
-    Pre-defined catalog of allergens/ingredients.
+    """Pre-defined catalog of allergens/ingredients.
     Admins can manage this list, users select from it.
     """
 
@@ -45,13 +46,13 @@ class Allergen(models.Model):
         blank=False,
         null=False,
         db_index=True,
-        help_text=("Specific allergen " "(choices filtered via category)"),
+        help_text=("Specific allergen (choices filtered via category)"),
     )
 
     is_active = models.BooleanField(
         default=True,
         db_index=False,
-        help_text=("Inactive allergens won't be shown " "in user selection"),
+        help_text=("Inactive allergens won't be shown in user selection"),
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -87,6 +88,9 @@ class Allergen(models.Model):
     @property
     def allergen_label(self) -> str:
         """Return user-friendly label for this allergen."""
+        if not self.allergen_key:
+            # Keep behavior consistent with __str__ by never returning None
+            return ""
         return FLAT_ALLERGEN_LABEL_MAP.get(
             self.allergen_key,
             self.allergen_key,
@@ -94,8 +98,7 @@ class Allergen(models.Model):
 
 
 class UserAllergy(models.Model):
-    """
-    Junction model linking a CustomUser to an Allergen.
+    """Junction model linking a CustomUser to an Allergen.
     Represents a user's specific allergy selection.
     """
 
@@ -156,22 +159,22 @@ class UserAllergy(models.Model):
         help_text="Source of allergy information",
     )
 
-    user_reaction_details: ReactionDetails = models.JSONField(
+    user_reaction_details = models.JSONField(
         default=dict,
         blank=True,
-        help_text=("Past reactions: " "{symptom: str, severity: str, date: str}"),
+        help_text=("Past reactions: {symptom: str, severity: str, date: str}"),
     )
 
-    admin_notes: AdminNotes = models.JSONField(
+    admin_notes = models.JSONField(
         default=dict,
         blank=True,
-        help_text=("Internal notes: " "{verified_by: str, verification_date: str}"),
+        help_text=("Internal notes: {verified_by: str, verification_date: str}"),
     )
 
     is_active = models.BooleanField(
         default=True,
         db_index=False,
-        help_text=("Inactive user allergies won't be considered " "in assessments"),
+        help_text=("Inactive user allergies won't be considered in assessments"),
     )
 
     class Meta:
@@ -181,9 +184,8 @@ class UserAllergy(models.Model):
                 name="uniq_user_allergen",
             ),
             models.CheckConstraint(
-                check=models.Q(symptom_onset_date__lte=models.functions.Now()),
-                name="check_onset_not_future",
-                violation_error_message=("Symptom onset date cannot be in the future"),
+                condition=models.Q(symptom_onset_date__lte=db_functions.Now()),
+                name="symptom_onset_not_future",
             ),
         ]
         indexes = [
@@ -212,22 +214,16 @@ class UserAllergy(models.Model):
         return f"{self.user.username} - {self.allergen}"
 
     def save(self, *args: Any, **kwargs: Any) -> None:
-        """
-        Override save to ensure validation always runs.
+        """Override save to ensure validation always runs.
         Guarantees data integrity regardless of save method.
         """
         self.full_clean()
         super().save(*args, **kwargs)
 
     def clean(self) -> None:
-        """
-        Validate that the allergen being linked is active.
-
-        Raises:
-            ValidationError: If attempting to link to an
-            inactive allergen.
-        """
-        from django.core.exceptions import ValidationError
-
-        if self.allergen and not self.allergen.is_active:
-            raise ValidationError("Cannot link to an inactive allergen.")
+        """Validate model fields."""
+        super().clean()
+        if self.symptom_onset_date and self.symptom_onset_date > timezone.now().date():
+            raise ValidationError(
+                {"symptom_onset_date": "Symptom onset date cannot be in the future"}
+            )

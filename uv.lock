@@ -1,6 +1,17 @@
 version = 1
 revision = 3
 requires-python = ">=3.14"
+resolution-markers = [
+    "sys_platform == 'win32'",
+    "sys_platform != 'win32'",
+]
+supported-markers = [
+    "sys_platform == 'win32'",
+    "sys_platform != 'win32'",
+]
+
+[options]
+prerelease-mode = "if-necessary"
 
 [[package]]
 name = "annotated-types"
