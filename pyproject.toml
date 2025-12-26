@@ -178,6 +178,7 @@ exclude = [
 
 [tool.ruff.lint]
 select = [
+    "PTH", # flake8-use-pathlib linter
     "E",   # pycodestyle errors
     "F",   # pyflakes
     "W",   # pycodestyle warnings

@@ -35,16 +35,15 @@ repos:
       - id: mixed-line-ending
         args: [--fix=lf]
 
-
-  ##Replace Invalid Gitleaks Hook with Valid Alternative
+#FIX WITH VALID GITLEAKS
   # ============================================================================
   # Stage 2: Security Scanning (Detect secrets before any code analysis)
   # ============================================================================
   # Gitleaks: Prevent credentials/secrets from being committed
-  #- repo: https://github.com/gitleaks/gitleaks-action
-  #  rev: v2.3.9
-  #  hooks:
-  #    - id: gitleaks
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
 
   # ============================================================================
   # Stage 3: Dependency Management (Keep lockfiles synchronized)
@@ -100,7 +99,7 @@ repos:
         args: [--config-file=pyproject.toml]
         files: ^(allergies|users|skincare_project)/.*\.py$
         exclude: ^.*/migrations/.*\.py$|^.*/tests/.*\.py$
-        name: uv lock
+        name: uv lock mypy (pre-push)
 
 # temporary disable pytest hook while setting up CI
 
