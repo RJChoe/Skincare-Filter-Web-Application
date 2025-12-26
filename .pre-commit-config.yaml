@@ -3,37 +3,94 @@
 # Run manually: pre-commit run --all-files
 # Update hooks: pre-commit autoupdate
 
-repos:
-  # Ruff: Fast Python linter and formatter
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.10
-    hooks:
-      - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
-      - id: ruff-format
+fail_fast: false
+default_language_version:
+  python: "3.14"
 
-  # General pre-commit hooks
+repos:
+  # ============================================================================
+  # Stage 1: File Hygiene Checks (Fast, no external dependencies)
+  # ============================================================================
+  # General pre-commit hooks for code quality and safety
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
+      # Remove trailing whitespace
       - id: trailing-whitespace
+      # Ensure files end with newline
       - id: end-of-file-fixer
+      # Prevent merge conflicts from being committed
+      - id: check-merge-conflict
+      # Validate JSON files
+      - id: check-json
+      # Validate TOML files
+      - id: check-toml
+      # Validate YAML files (--unsafe enables unsafe constructors)
       - id: check-yaml
         args: [--unsafe]
+      # Prevent accidental commits of large files
       - id: check-added-large-files
         args: [--maxkb=1000]
-      - id: check-merge-conflict
-      - id: check-json
-      - id: check-toml
-      - id: detect-private-key
+      # Normalize line endings to LF
       - id: mixed-line-ending
         args: [--fix=lf]
 
-  # Mypy for static type checking (scoped to core app logic only)
+#FIX WITH VALID GITLEAKS
+  # ============================================================================
+  # Stage 2: Security Scanning (Detect secrets before any code analysis)
+  # ============================================================================
+  # Gitleaks: Prevent credentials/secrets from being committed
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+
+  # ============================================================================
+  # Stage 3: Dependency Management (Keep lockfiles synchronized)
+  # ============================================================================
+  # uv: Fast Python package manager with lockfile support
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.9.18
+    hooks:
+      # Validate uv.lock stays synchronized with pyproject.toml
+      - id: uv-lock
+      # Ensure requirements.txt files stay in sync with uv.lock
+      - id: uv-export
+        args: [--all-extras]
+
+  # ============================================================================
+  # Stage 4: Code Formatting (Fix formatting issues automatically)
+  # ============================================================================
+  # Ruff formatter: Black-compatible Python code formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.10
+    hooks:
+      # Format code according to project standards
+      - id: ruff-format
+
+  # ============================================================================
+  # Stage 5: Code Linting (Check code quality and style rules)
+  # ============================================================================
+  # Ruff linter: Fast Python linter with 500+ rules (including Django-specific)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.10
+    hooks:
+      # Check code quality and fix violations where possible
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+
+  # ============================================================================
+  # Stage 6: Type Checking (Runs on pre-push to avoid blocking commits)
+  # ============================================================================
+  # Mypy: Static type checker for Python (slower, runs on pre-push stage only)
+  # Pre-push stage allows commits to proceed quickly, while still catching type
+  # errors before pushing to remote. Run locally with: pre-commit run -a -c
+  # .pre-commit-config.yaml --hook-stage push
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.19.1
     hooks:
       - id: mypy
+        stages: [pre-push]
         additional_dependencies:
           - django==6.0
           - django-stubs==5.2.8
@@ -42,13 +99,7 @@ repos:
         args: [--config-file=pyproject.toml]
         files: ^(allergies|users|skincare_project)/.*\.py$
         exclude: ^.*/migrations/.*\.py$|^.*/tests/.*\.py$
-
-  # uv lock
-  - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.4.1
-    hooks:
-      - id: uv-lock
-        name: uv lock
+        name: uv lock mypy (pre-push)
 
 # temporary disable pytest hook while setting up CI
 
