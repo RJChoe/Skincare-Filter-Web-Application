@@ -4,6 +4,7 @@ Purpose: Make AI coding agents productive immediately in this Django repo by doc
 
 ## Big Picture
 - Framework: Django 6.0 + Templates (SQLite in dev).
+- Language: Python 3.14 (Leverage `type` aliases and T-strings)
 - Environment & PDM: Standardize on `uv`. Always use `uv run` for executing management commands or scripts.
 - Project: `skincare_project/` with apps: `allergies/`, `users/`.
 - Auth: Custom user `users.CustomUser` (configured via `AUTH_USER_MODEL`).
@@ -49,6 +50,7 @@ Purpose: Make AI coding agents productive immediately in this Django repo by doc
 
 ## 4. Coding Standards (Ruff & Mypy)
 - **Linting:** Follow **Ruff** conventions. Use `_` for intentionally unused variables in tuple unpacking (e.g., `for key, _, list in choices:`).
+- **Validation:** Run `uv run mypy .` before proposing logic changes
 - **Mypy:** If a ManyToManyField assignment throws an "Incompatible types" error (common in `AbstractUser` overrides), use `# type: ignore[assignment]`.
 - **Async:** Use `async def` for I/O bound views (like external product scanning) where supported by Django 6.0.
 
@@ -97,9 +99,15 @@ Purpose: Make AI coding agents productive immediately in this Django repo by doc
 - **Type Aliases:** Use the `type` statement for complex type aliases (e.g., `type AllergenDict = dict[str, str | int]`).
 - **Performance:** Django 6.0 includes ORM optimizations; benchmark queries with `.explain()` when needed.
 - **Async Views:** Django 6.0 enhances async support. For future product scanning endpoints, consider `async def product_check(request: HttpRequest)`.
+- **T-Strings:** Use Python 3.14 Template Strings (`t"..."`) for safer string processing where applicable
 - **Compatibility:** All dependencies in `requirements.txt` are compatible with Python 3.14 and Django 6.0.
 
 For anything unclear or missing, call out what you need clarified (e.g., product safety parsing rules, users routes naming), and I'll refine this doc.
+
+## AI Interaction Rules
+- **DRY Principle:** Avoid suggesting duplicate code; refactor shared logic into utility functions or model methods (e.g., allergen lookup, validation helpers).
+- **Check Configuration First:** Before suggesting style, dependency, or tool changes, reference `pyproject.toml` (Ruff, Mypy, Pytest configs are the source of truth).
+- **Tests Required:** All new features must include corresponding `pytest` tests in `app/tests/`. No feature proposal is complete without test coverage.
 
 ## Type Checking (Mypy)
 - **Configuration:** Always respect the `[tool.mypy]` and `[tool.django-stubs]` blocks in `pyproject.toml`.
