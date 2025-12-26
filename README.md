@@ -1,5 +1,5 @@
 # Skincare Allergy Filter
-[![codecov](https://codecov.io/gh/RJChoe/filter-project/branch/main/graph/badge.svg)](https://codecov.io/gh/RJChoe/filter-project)
+[![codecov](https://codecov.io/gh/RJChoe/Skincare-Filter-Web-Application/branch/main/graph/badge.svg)](https://codecov.io/gh/RJChoe/Skincare-Filter-Web-Application)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 Disclaimer: This app is a helper tool and not a substitute for professional medical advice. Always consult a dermatologist for severe allergies.
 
@@ -99,12 +99,12 @@ Note: This project uses [uv](https://docs.astral.sh/uv/) for dependency manageme
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/RJChoe/filter-project.git
+    git clone https://github.com/RJChoe/Skincare-Filter-Web-Application.git
     ```
 
 2. Navigate to the project folder:
     ```bash
-    cd filter-project
+    cd Skincare-Filter-Web-Application
     ```
 
 3. Install uv (if not already installed):
@@ -709,6 +709,8 @@ uv run pytest -m "not slow" && uv run ruff check . --fix && uv run ruff format .
 #### GitHub Actions Workflow
 Automate testing and coverage reporting on pull requests to maintain code quality.
 
+**Note:** The example below shows a simplified workflow for learning purposes. This project's actual CI workflow is [.github/workflows/ci.yml](.github/workflows/ci.yml), which includes 5 specialized jobs (dependencies, lint, test, type-check, security) for comprehensive quality enforcement.
+
 **First, create the workflow directory** (if it doesn't exist):
 
 ```bash
@@ -716,7 +718,7 @@ Automate testing and coverage reporting on pull requests to maintain code qualit
 mkdir -p .github/workflows
 ```
 
-**Then create `.github/workflows/test.yml`:**
+**Example simplified workflow (`.github/workflows/test.yml`):**
 
 ```yaml
 name: Tests
@@ -805,7 +807,7 @@ Track and visualize coverage trends across commits and pull requests.
    - Authorize Codecov to access your repositories
 
 2. **Link your repository:**
-   - Select `RJChoe/filter-project` from your repository list
+   - Select `RJChoe/Skincare-Filter-Web-Application` from your repository list
    - Codecov will provide an upload token
 
 3. **Add Codecov token to GitHub:**

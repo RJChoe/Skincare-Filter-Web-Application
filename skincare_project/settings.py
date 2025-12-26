@@ -13,21 +13,35 @@ import os
 from pathlib import Path
 
 import dj_database_url
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Initialize django-environ
+env = environ.Env(
+    DEBUG=(bool, False),  # Default to False for production safety
+)
+
+# Read .env file if it exists
+env_file = BASE_DIR / ".env"
+if env_file.exists():
+    environ.Env.read_env(env_file)
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-iu^-5-^=+=l4314*v%1)+wo_p@ol(ijqvbhvc0))#ems+$9rbf"
+SECRET_KEY = env(
+    "SECRET_KEY",
+    default="django-insecure-iu^-5-^=+=l4314*v%1)+wo_p@ol(ijqvbhvc0))#ems+$9rbf",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env("DEBUG")
 
-ALLOWED_HOSTS: list[str] = []
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
 
 # Application definition
