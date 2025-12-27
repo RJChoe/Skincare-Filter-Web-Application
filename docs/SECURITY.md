@@ -1,3 +1,5 @@
+Disclaimer: This app is a helper tool and not a substitute for professional medical advice. Always consult a dermatologist for severe allergies.
+
 # Security Best Practices
 
 This document outlines security best practices for the Skincare Allergy Filter application, particularly for production deployments.
