@@ -35,7 +35,7 @@ repos:
       - id: mixed-line-ending
         args: [--fix=lf]
 
-#FIX WITH VALID GITLEAKS
+# TODO: Review and finalize gitleaks configuration for this project
   # ============================================================================
   # Stage 2: Security Scanning (Detect secrets before any code analysis)
   # ============================================================================
@@ -99,7 +99,7 @@ repos:
         args: [--config-file=pyproject.toml]
         files: ^(allergies|users|skincare_project)/.*\.py$
         exclude: ^.*/migrations/.*\.py$|^.*/tests/.*\.py$
-        name: uv lock mypy (pre-push)
+        name: mypy type checking (pre-push)
 
 # temporary disable pytest hook while setting up CI
 
