@@ -221,6 +221,140 @@ CSRF_COOKIE_SECURE=True
 
 ---
 
+## Production Security Settings
+
+### Complete Production Configuration
+
+Django provides a comprehensive set of security settings for production deployments. These settings should be configured in [settings.py](../skincare_project/settings.py) with conditional logic based on the `DEBUG` setting.
+
+#### Required Security Headers
+
+```python
+# settings.py
+import os
+from pathlib import Path
+
+# ... existing settings ...
+
+# Production Security Settings (conditional on DEBUG=False)
+if not DEBUG:
+    # HTTPS/SSL Configuration
+    SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=True)
+    SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=True)
+    CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', default=True)
+
+    # HTTP Strict Transport Security (HSTS)
+    SECURE_HSTS_SECONDS = env.int('SECURE_HSTS_SECONDS', default=31536000)  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=True)
+    SECURE_HSTS_PRELOAD = env.bool('SECURE_HSTS_PRELOAD', default=True)
+
+    # Security Headers
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+    X_FRAME_OPTIONS = 'DENY'
+
+    # Referrer Policy
+    SECURE_REFERRER_POLICY = 'same-origin'
+
+    # Session Security
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+
+    # CSRF Protection
+    CSRF_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_SAMESITE = 'Lax'
+```
+
+#### Environment Variables for Production
+
+Update your production `.env` file (see [.env.example](../.env.example) for complete template):
+
+```bash
+# .env (production)
+DEBUG=False
+SECRET_KEY=your-unique-production-secret-key-50-plus-characters
+ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
+
+# Database
+DATABASE_URL=postgres://username:secure_password@hostname:5432/dbname
+
+# Security Settings (optional overrides)
+SECURE_SSL_REDIRECT=True
+SESSION_COOKIE_SECURE=True
+CSRF_COOKIE_SECURE=True
+SECURE_HSTS_SECONDS=31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS=True
+SECURE_HSTS_PRELOAD=True
+```
+
+#### Django Security Check Command
+
+Before deploying to production, **always** run Django's built-in security check:
+
+```bash
+# Verify production security configuration
+uv run python manage.py check --deploy
+
+# Example output shows missing/incorrect settings:
+# WARNINGS:
+# ?: (security.W004) You have not set a value for SECURE_HSTS_SECONDS.
+# ?: (security.W008) Your SECURE_SSL_REDIRECT setting is not set to True.
+```
+
+**Fix all warnings** before deploying. This command checks for:
+- Missing `SECURE_*` settings
+- Insecure `SECRET_KEY`
+- `DEBUG=True` in production
+- Missing `ALLOWED_HOSTS` configuration
+- Insecure cookie settings
+- Missing security middleware
+
+#### Required Dependencies
+
+The security configuration requires `django-environ` for environment variable management:
+
+```bash
+# Install django-environ (REQUIRED, not optional)
+uv add django-environ
+```
+
+This package is **required** for this project (already used in [settings.py](../skincare_project/settings.py)) but may be missing from your dependencies. After installation, run:
+
+```bash
+# Sync dependencies
+uv sync
+
+# Verify installation
+uv run python -c "import environ; print('django-environ installed successfully')"
+```
+
+#### Security Settings Checklist
+
+Before production deployment:
+
+- [ ] `DEBUG=False` in production `.env`
+- [ ] Strong, unique `SECRET_KEY` (50+ characters, high entropy)
+- [ ] `ALLOWED_HOSTS` configured with actual domain(s)
+- [ ] All `SECURE_*` settings enabled (SSL_REDIRECT, HSTS, etc.)
+- [ ] Secure cookies enabled (`SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`)
+- [ ] Security headers configured (`X_FRAME_OPTIONS`, `CONTENT_TYPE_NOSNIFF`)
+- [ ] `uv run python manage.py check --deploy` passes with no warnings
+- [ ] HTTPS/SSL certificate installed and verified
+- [ ] `django-environ` installed and configured
+- [ ] `.env` file excluded from version control (in `.gitignore`)
+
+#### Common Pitfalls
+
+1. **Setting security flags in development:** Only enable `SECURE_SSL_REDIRECT` and secure cookies when HTTPS is properly configured. Development servers (e.g., `runserver`) use HTTP by default.
+
+2. **HSTS without testing:** Once `SECURE_HSTS_PRELOAD=True` is enabled and your site is added to the HSTS preload list, browsers will **permanently** refuse HTTP connections. Test thoroughly before enabling.
+
+3. **Missing django-environ:** The project uses `django-environ` in [settings.py](../skincare_project/settings.py) but it may not be in your dependency list. Install with `uv add django-environ`.
+
+4. **Incorrect ALLOWED_HOSTS:** Must include all domains/subdomains where your app is accessible. Wildcard patterns (e.g., `*.example.com`) are supported.
+
+---
+
 ## Security Scanning Tools
 
 This project includes automated security scanning in CI/CD. Run these tools locally before committing:
