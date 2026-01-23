@@ -1,6 +1,11 @@
+import logging
+
 from django.contrib import admin
 
 from .models import Allergen, UserAllergy
+
+# Module-level logger setup
+logger = logging.getLogger(__name__)
 
 
 @admin.register(Allergen)
