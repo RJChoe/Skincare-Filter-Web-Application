@@ -98,8 +98,57 @@ repos:
           - dj-database-url==2.2.0
         args: [--config-file=pyproject.toml]
         files: ^(allergies|users|skincare_project)/.*\.py$
-        exclude: ^.*/migrations/.*\.py$|^.*/tests/.*\.py$
-        name: mypy type checking (pre-push)
+
+  # ============================================================================
+  # Stage 7: Custom Validation (Project-Specific Rules)
+  # ============================================================================
+  # Custom hook: Enforce logging standards in view files
+  # Validates that all view files have logger setup or explicit exemption
+  - repo: local
+    hooks:
+      - id: enforce-view-logging
+        name: Enforce Logging in Views
+        entry: python
+        language: system
+        types: [python]
+        files: .*/views\.py$
+        stages: [commit]
+        pass_filenames: true
+        args:
+          - -c
+          - |
+            import sys
+            import re
+            from pathlib import Path
+
+            LOGGER_PATTERN = r'logger\s*=\s*logging\.getLogger\(__name__\)'
+            MINIMAL_VIEW_MARKER = r'#\s*minimal-view:\s*no-logger-needed'
+
+            errors = []
+            for filepath in sys.argv[1:]:
+                path = Path(filepath)
+                content = path.read_text(encoding='utf-8')
+
+                # Check if file has logger setup
+                has_logger = bool(re.search(LOGGER_PATTERN, content))
+                has_exemption = bool(re.search(MINIMAL_VIEW_MARKER, content))
+
+                if not has_logger and not has_exemption:
+                    errors.append(
+                        f"❌ {filepath}: Missing 'logger = logging.getLogger(__name__)' at module level.\n"
+                        f"   Add logger or use '# minimal-view: no-logger-needed' for simple template renders.\n"
+                        f"   See .github/instructions/copilot-instructions.md#logging-standards"
+                    )
+
+            if errors:
+                print("\n🚨 View Logging Validation Failed:\n")
+                for error in errors:
+                    print(error)
+                print("\n💡 Development Gate 2 requires logging in all views before implementing new features.")
+                print("   See: .github/instructions/copilot-instructions.md#development-gates-strict-priority-order\n")
+                sys.exit(1)
+
+            sys.exit(0)
 
 # temporary disable pytest hook while setting up CI
 
