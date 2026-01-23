@@ -1,7 +1,12 @@
+import logging
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .models import CustomUser
+
+# Module-level logger setup
+logger = logging.getLogger(__name__)
 
 
 @admin.register(CustomUser)
