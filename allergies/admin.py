@@ -26,18 +26,22 @@ class AllergenAdmin(admin.ModelAdmin):
     )
 
     # Custom admin actions with error handling
-    actions = ["deactivate_allergens", "activate_allergens"]
+    actions = ["deactivate_selected_allergens", "activate_selected_allergens"]
 
     @admin.action(description="Deactivate selected allergens")
-    def deactivate_allergens(self, request, queryset):
+    def deactivate_selected_allergens(self, request, queryset):
         """Bulk deactivate allergens with logging and error handling."""
         try:
             count = queryset.count()
-            logger.info(f"Admin {request.user.id} deactivating {count} allergens")
+            logger.info(
+                f"Admin {request.user.id} ({request.user.username}) deactivating {count} allergens"
+            )
 
             updated = queryset.update(is_active=False)
 
-            logger.info(f"Successfully deactivated {updated} allergens")
+            logger.info(
+                f"Successfully deactivated {updated} allergens by admin {request.user.username}"
+            )
             self.message_user(
                 request,
                 f"Successfully deactivated {updated} allergen(s).",
@@ -45,7 +49,7 @@ class AllergenAdmin(admin.ModelAdmin):
             )
         except Exception as e:
             logger.error(
-                f"Error deactivating allergens by admin {request.user.id}: {e}",
+                f"Error deactivating allergens by admin {request.user.id} ({request.user.username}): {e}",
                 exc_info=True,
             )
             self.message_user(
@@ -53,15 +57,19 @@ class AllergenAdmin(admin.ModelAdmin):
             )
 
     @admin.action(description="Activate selected allergens")
-    def activate_allergens(self, request, queryset):
+    def activate_selected_allergens(self, request, queryset):
         """Bulk activate allergens with logging and error handling."""
         try:
             count = queryset.count()
-            logger.info(f"Admin {request.user.id} activating {count} allergens")
+            logger.info(
+                f"Admin {request.user.id} ({request.user.username}) activating {count} allergens"
+            )
 
             updated = queryset.update(is_active=True)
 
-            logger.info(f"Successfully activated {updated} allergens")
+            logger.info(
+                f"Successfully activated {updated} allergens by admin {request.user.username}"
+            )
             self.message_user(
                 request,
                 f"Successfully activated {updated} allergen(s).",
@@ -69,7 +77,7 @@ class AllergenAdmin(admin.ModelAdmin):
             )
         except Exception as e:
             logger.error(
-                f"Error activating allergens by admin {request.user.id}: {e}",
+                f"Error activating allergens by admin {request.user.id} ({request.user.username}): {e}",
                 exc_info=True,
             )
             self.message_user(
@@ -133,10 +141,67 @@ class UserAllergyAdmin(admin.ModelAdmin):
             {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
         ),
     )
-    # date_hierarchy adds a date drilldown
-    # navigation bar at the top of the
-    # admin list page
+
     date_hierarchy = "noted_at"
+
+    # Custom admin actions with error handling
+    actions = ["mark_as_confirmed", "mark_as_unconfirmed"]
+
+    @admin.action(description="Mark selected allergies as confirmed")
+    def mark_as_confirmed(self, request, queryset):
+        """Mark user allergies as confirmed with logging."""
+        try:
+            count = queryset.count()
+            logger.info(
+                f"Admin {request.user.id} ({request.user.username}) confirming {count} user allergies"
+            )
+
+            updated = queryset.update(is_confirmed=True)
+
+            logger.info(
+                f"Successfully confirmed {updated} user allergies by admin {request.user.username}"
+            )
+            self.message_user(
+                request,
+                f"Successfully marked {updated} allergy(ies) as confirmed.",
+                messages.SUCCESS,
+            )
+        except Exception as e:
+            logger.error(
+                f"Error confirming allergies by admin {request.user.id} ({request.user.username}): {e}",
+                exc_info=True,
+            )
+            self.message_user(
+                request, f"Error confirming allergies: {e}", messages.ERROR
+            )
+
+    @admin.action(description="Mark selected allergies as unconfirmed")
+    def mark_as_unconfirmed(self, request, queryset):
+        """Mark user allergies as unconfirmed with logging."""
+        try:
+            count = queryset.count()
+            logger.info(
+                f"Admin {request.user.id} ({request.user.username}) unconfirming {count} user allergies"
+            )
+
+            updated = queryset.update(is_confirmed=False)
+
+            logger.info(
+                f"Successfully unconfirmed {updated} user allergies by admin {request.user.username}"
+            )
+            self.message_user(
+                request,
+                f"Successfully marked {updated} allergy(ies) as unconfirmed.",
+                messages.SUCCESS,
+            )
+        except Exception as e:
+            logger.error(
+                f"Error unconfirming allergies by admin {request.user.id} ({request.user.username}): {e}",
+                exc_info=True,
+            )
+            self.message_user(
+                request, f"Error unconfirming allergies: {e}", messages.ERROR
+            )
 
 
 # call above links your database
