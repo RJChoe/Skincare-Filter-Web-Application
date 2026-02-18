@@ -26,22 +26,18 @@ class AllergenAdmin(admin.ModelAdmin):
     )
 
     # Custom admin actions with error handling
-    actions = ["deactivate_selected_allergens", "activate_selected_allergens"]
+    actions = ["deactivate_allergens", "activate_allergens"]
 
     @admin.action(description="Deactivate selected allergens")
-    def deactivate_selected_allergens(self, request, queryset):
+    def deactivate_allergens(self, request, queryset):
         """Bulk deactivate allergens with logging and error handling."""
         try:
             count = queryset.count()
-            logger.info(
-                f"Admin {request.user.id} ({request.user.username}) deactivating {count} allergens"
-            )
+            logger.info(f"Admin {request.user.id} deactivating {count} allergens")
 
             updated = queryset.update(is_active=False)
 
-            logger.info(
-                f"Successfully deactivated {updated} allergens by admin {request.user.username}"
-            )
+            logger.info(f"Successfully deactivated {updated} allergens")
             self.message_user(
                 request,
                 f"Successfully deactivated {updated} allergen(s).",
@@ -49,27 +45,25 @@ class AllergenAdmin(admin.ModelAdmin):
             )
         except Exception as e:
             logger.error(
-                f"Error deactivating allergens by admin {request.user.id} ({request.user.username}): {e}",
+                f"Error deactivating allergens by admin {request.user.id}: {e}",
                 exc_info=True,
             )
             self.message_user(
-                request, f"Error deactivating allergens: {e}", messages.ERROR
+                request,
+                f"Error deactivating allergens: {e}",
+                messages.ERROR,
             )
 
     @admin.action(description="Activate selected allergens")
-    def activate_selected_allergens(self, request, queryset):
+    def activate_allergens(self, request, queryset):
         """Bulk activate allergens with logging and error handling."""
         try:
             count = queryset.count()
-            logger.info(
-                f"Admin {request.user.id} ({request.user.username}) activating {count} allergens"
-            )
+            logger.info(f"Admin {request.user.id} activating {count} allergens")
 
             updated = queryset.update(is_active=True)
 
-            logger.info(
-                f"Successfully activated {updated} allergens by admin {request.user.username}"
-            )
+            logger.info(f"Successfully activated {updated} allergens")
             self.message_user(
                 request,
                 f"Successfully activated {updated} allergen(s).",
@@ -77,11 +71,13 @@ class AllergenAdmin(admin.ModelAdmin):
             )
         except Exception as e:
             logger.error(
-                f"Error activating allergens by admin {request.user.id} ({request.user.username}): {e}",
+                f"Error activating allergens by admin {request.user.id}: {e}",
                 exc_info=True,
             )
             self.message_user(
-                request, f"Error activating allergens: {e}", messages.ERROR
+                request,
+                f"Error activating allergens: {e}",
+                messages.ERROR,
             )
 
 
