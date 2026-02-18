@@ -53,10 +53,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "allergies",
     "users",
+    "allergies",  # depends on users
     #'products', ## Future app for skincare products
 ]
+
 # Set the custom user model reference
 AUTH_USER_MODEL = "users.CustomUser"
 

@@ -138,7 +138,7 @@ class UserAllergyAdmin(admin.ModelAdmin):
         ),
     )
 
-    date_hierarchy = "noted_at"
+    date_hierarchy = "created_at"
 
     # Custom admin actions with error handling
     actions = ["mark_as_confirmed", "mark_as_unconfirmed"]
