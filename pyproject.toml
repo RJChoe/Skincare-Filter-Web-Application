@@ -7,7 +7,7 @@ name = "skincare-filter"
 version = "0.1.0"
 description = "Skincare Allergy Filter - Cross-reference product ingredients against personal allergens"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.13"
 license = {text = "MIT"}
 authors = [
     {name = "RJChoe", email = "your-email@example.com"}
@@ -18,7 +18,7 @@ classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
     "asgiref==3.11.0",
@@ -43,8 +43,8 @@ Issues = "https://github.com/RJChoe/Skincare-Filter-Web-Application/issues"
 # ============================================================================
 # uv Configuration
 # ============================================================================
-# Python version pinning: .python-version pins local development to 3.14 for
-# consistency across the team and with CI/CD. However, requires-python = ">=3.14"
+# Python version pinning: .python-version pins local development to 3.13 for
+# consistency across the team and with CI/CD. However, requires-python = ">=3.13"
 # remains flexible to allow the package to work with future Python versions.
 [tool.uv]
 # Prefer uv-managed Python installations for reproducibility
@@ -167,7 +167,7 @@ dev = [
 # ============================================================================
 [tool.ruff]
 line-length = 88
-target-version = "py314"
+target-version = "py313"
 exclude = [
     ".git",
     "__pycache__",
@@ -234,7 +234,7 @@ section-order = ["future", "standard-library", "third-party", "first-party", "lo
 # Mypy Configuration
 # ============================================================================
 [tool.mypy]
-python_version = "3.14"
+python_version = "3.13"
 plugins = ["mypy_django_plugin.main"]
 files = ["allergies", "users", "skincare_project"]
 exclude = [".*?/migrations/.*", ".*?/tests/.*", "manage.py"]

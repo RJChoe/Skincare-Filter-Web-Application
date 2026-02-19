@@ -191,15 +191,15 @@ class UserAllergy(models.Model):
         indexes = [
             models.Index(
                 fields=["user", "is_active"],
-                name="userallergy_user_active_idx",
+                name="user_allergy_user_idx",
             ),
             models.Index(
                 fields=["allergen", "is_active"],
-                name="userallergy_allergen_active_idx",
+                name="user_allergy_alrgn_idx",
             ),
             models.Index(
                 fields=["is_confirmed", "is_active"],
-                name="userallergy_confirmed_active_idx",
+                name="user_allergy_conf_idx",
             ),
         ]
         verbose_name = "User Allergy"

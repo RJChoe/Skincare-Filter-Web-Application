@@ -36,7 +36,7 @@ Diagram flow of data through application
 ## Tech Stack
 - **Framework:** Python Django 6.0 (handles both frontend and backend)
 - **Database:** SQLite (Development) & PostgreSQL (Production)
-- **Python:** 3.14 (Aligned with Django 6.0 requirements)
+- **Python:** 3.13 (Aligned with Django 6.0 requirements)
 - **Package Management:** uv (fast, reliable dependency resolver with lockfiles)
 
 ---
@@ -62,8 +62,8 @@ Get up and running in 5 minutes:
 
 3. **Set up Python environment:**
    ```bash
-   uv python install 3.14
-   uv python pin 3.14
+   uv python install 3.13
+   uv python pin 3.13
    uv venv
    uv sync --group dev
    ```
@@ -123,14 +123,14 @@ Note: This project uses [uv](https://docs.astral.sh/uv/) for dependency manageme
 
    **Note:** `uv sync` may prune undeclared tools (pip/uv) inside the venv; this is expected behavior.
 
-4. Install Python 3.14 (if needed):
+4. Install Python 3.13 (if needed):
     ```bash
-    uv python install 3.14
+    uv python install 3.13
     ```
 
 5. Pin Python version for this project:
     ```bash
-    uv python pin 3.14
+    uv python pin 3.13
     ```
 
     This creates/updates `.python-version` which CI uses to enforce consistency (see [CI workflow](.github/workflows/ci.yml#L54-L64)).
@@ -143,9 +143,9 @@ Note: This project uses [uv](https://docs.astral.sh/uv/) for dependency manageme
     # macOS/Linux
     cat .python-version
     ```
-    Output should show `3.14`.
+    Output should show `3.13`.
 
-    **Note:** If `.python-version` doesn't exist, run `uv python pin 3.14` to generate it. This file ensures CI and local development use the same Python version.
+    **Note:** If `.python-version` doesn't exist, run `uv python pin 3.13` to generate it. This file ensures CI and local development use the same Python version.
 
 6. Create virtual environment (activation optional):
     ```bash
@@ -280,7 +280,7 @@ The new structure allows faster CI builds by installing only required dependenci
 Quick checks to confirm your environment:
 
 ```bash
-# Check Python version (should be 3.14)
+# Check Python version (should be 3.13)
 uv run python -V
 
 # Check Django version (should be 6.0)
@@ -298,7 +298,7 @@ uv --version
 
 This project's CI enforces consistency between local development and automated testing:
 
-- **Python 3.14 enforcement:** CI verifies `.python-version` matches the active interpreter ([see workflow](.github/workflows/ci.yml#L54-L64))
+- **Python 3.13 enforcement:** CI verifies `.python-version` matches the active interpreter ([see workflow](.github/workflows/ci.yml#L54-L64))
 - **uv-based commands:** All CI jobs use `uv run` for consistent Python/tool resolution
 - **Dependency group isolation:** Each CI job installs only required groups (test, lint, type-check, security)
 - **Lockfile validation:** The [uv-export workflow](.github/workflows/uv-export.yml) ensures `requirements.txt` files stay in sync with `uv.lock`
@@ -319,7 +319,7 @@ uv run pytest
 uv lock --check
 ```
 
-**Before committing:** Ensure `.python-version` exists (`uv python pin 3.14`) and pre-commit hooks are installed (`uv run pre-commit install`). CI will fail if Python versions mismatch or requirements files drift from `uv.lock`.
+**Before committing:** Ensure `.python-version` exists (`uv python pin 3.13`) and pre-commit hooks are installed (`uv run pre-commit install`). CI will fail if Python versions mismatch or requirements files drift from `uv.lock`.
 
 ---
 
@@ -328,9 +328,9 @@ uv lock --check
 <details>
 <summary><b>🔧 Python Version Issues</b></summary>
 
-**Important:** CI enforces `.python-version` matching (see [workflow](.github/workflows/ci.yml#L54-L64)). Always run `uv python pin 3.14` after cloning to ensure alignment.
+**Important:** CI enforces `.python-version` matching (see [workflow](.github/workflows/ci.yml#L54-L64)). Always run `uv python pin 3.13` after cloning to ensure alignment.
 
-This project uses a `.python-version` file to pin Python 3.14 for local development. uv automatically detects and uses this version.
+This project uses a `.python-version` file to pin Python 3.13 for local development. uv automatically detects and uses this version.
 
 ### Check Your Python Version
 
@@ -339,15 +339,15 @@ This project uses a `.python-version` file to pin Python 3.14 for local developm
 uv python list
 
 # Example output:
-# cpython-3.14.0-windows-x86_64-none    <-- active
-# cpython-3.13.1-windows-x86_64-none
+# cpython-3.13.0-windows-x86_64-none    <-- active
+# cpython-3.12.1-windows-x86_64-none
 ```
 
-The active version (marked with `<--`) should be 3.14.x to match `.python-version`.
+The active version (marked with `<--`) should be 3.13.x to match `.python-version`.
 
-### Install Python 3.14
+### Install Python 3.13
 
-If you don't have Python 3.14 installed:
+If you don't have Python 3.13 installed:
 
 ```bash
 # Install Python 3.14 (uv will download and manage it)
@@ -379,7 +379,7 @@ Remove-Item -Recurse -Force .venv    # Windows PowerShell
 rm -rf .venv                          # macOS/Linux
 
 # Create new venv with correct Python version
-uv venv --python 3.14
+uv venv --python 3.13
 
 # Reinstall dependencies
 uv sync --group dev
@@ -734,7 +734,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.11', '3.12', '3.14']
+        python-version: ['3.11', '3.12', '3.13']
 
     steps:
     - uses: actions/checkout@v5
@@ -768,7 +768,7 @@ jobs:
 
 This workflow:
 - **Triggers:** Only on PRs to `main` and `develop` branches
-- **Matrix testing:** Tests Python 3.11, 3.12, and 3.14 on Ubuntu
+- **Matrix testing:** Tests Python 3.11, 3.12, and 3.13 on Ubuntu
 - **Job names:** Uses "build" and "test" for status check references
 - **Coverage enforcement:** Fails if coverage drops below 50% (via `pyproject.toml`)
 
