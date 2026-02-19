@@ -1,6 +1,7 @@
 name: UV Export Validation
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
