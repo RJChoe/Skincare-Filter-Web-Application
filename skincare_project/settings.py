@@ -53,8 +53,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "phonenumber_field",
     "users",
     "allergies",  # depends on users
+    "django_cleanup.apps.CleanupConfig",  # Must come after apps defining models
     #'products', ## Future app for skincare products
 ]
 
@@ -144,6 +146,14 @@ STATICFILES_DIRS = [
 ]
 # Tells Django to look for static files in a folder named 'static'
 # located at the base directory of the project.
+
+# Media files (user uploads)
+# https://docs.djangoproject.com/en/5.2/howto/static-files/
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# Phone number configuration
+PHONENUMBER_DEFAULT_REGION = "US"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
