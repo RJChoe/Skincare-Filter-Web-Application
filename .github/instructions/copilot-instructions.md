@@ -570,3 +570,132 @@ For anything unclear or missing, call out what you need clarified (e.g., product
 - **Source of Truth:** All type configurations live in `pyproject.toml`.
 - **Pre-commit:** We use `mypy` with `django-stubs`. If a commit fails, run `mypy .` locally to debug.
 - **AI Instructions:** When writing new logic for `allergies/views.py`, ensure all functions have explicit type hints. If the AI suggests a generic `QuerySet`, prompt it to use specific model typing (e.g., `QuerySet[Allergen]`).
+
+## AI Agent Behavior & Quality Standards
+
+### Autonomous Bug Fixing
+When given bug reports, CI failures, or error logs:
+1. **Read & Diagnose Independently:** Parse error logs, stack traces, and failing test output without requesting clarification
+2. **Identify Root Cause:** Trace the error to its source (model validation, query issue, missing dependency, etc.)
+3. **Follow Development Gates:** Implement fix respecting Gate 1 → 5 order (dependencies → logging → error handling → forms → tests)
+4. **Verify Fix Works:** Run `uv run pytest` for affected modules, check coverage with `pytest --cov`
+5. **Document Non-Obvious Fixes:** Add inline comments explaining why the fix was needed
+
+**Examples of Autonomous Workflows:**
+- CI test failure → Read pytest output → Identify missing fixture → Add to `conftest.py` → Verify tests pass
+- Mypy type error → Check `pyproject.toml` type config → Add type hints → Run `mypy .` → Confirm passes
+- Security scan failure (bandit) → Review flagged code → Apply secure alternative → Re-run `bandit -r .`
+
+**When to Stop & Request Guidance:**
+- Same CI job fails 3+ times after attempted fixes
+- User requirements are ambiguous or contradictory
+- Architectural assumptions prove fundamentally wrong (e.g., model relationships need redesign)
+
+### Verification Before Marking Complete
+Never mark a task complete without proving correctness:
+- **Tests:** Run `uv run pytest` for affected apps (e.g., `pytest allergies/tests/ -v`)
+- **Coverage:** Check impact with `pytest --cov --cov-report=term-missing`
+- **Linting:** Confirm `ruff check . --fix` and `ruff format .` pass
+- **Type Safety:** Run `mypy .` for type correctness
+- **Security:** If models/views changed, run `bandit -r . -ll` (high/medium severity)
+- **Staff Engineer Bar:** Ask "Would a senior engineer approve this PR?"
+
+### Core Development Principles
+These principles override convenience:
+
+1. **Simplicity First**
+   - Minimal code changes for maximum impact
+   - Touch only files necessary to fix the issue
+   - Avoid refactoring unrelated code in the same commit
+   - Example: If fixing a view bug, don't rewrite the entire view unless necessary
+
+2. **Root Cause Analysis (No Laziness)**
+   - Never propose temporary fixes or workarounds
+   - Trace issues to their source (don't mask symptoms)
+   - Example: If `UserAllergy` validation fails, fix the model constraint, don't add view-level checks
+   - Example: If imports fail, add to dependencies, don't suggest "try installing manually"
+
+3. **Minimal Blast Radius**
+   - Changes should not introduce regressions
+   - Use `.select_related()` when adding queries to avoid N+1 issues
+   - Test adjacent functionality if uncertain about impact
+   - Example: Changing `Allergen.allergen_key` validation → test all `UserAllergy` creation flows
+
+4. **Senior Engineer Standards**
+   - Write code you'd accept in code review
+   - Include docstrings for non-obvious functions
+   - Follow Django best practices (CBVs where appropriate, proper form usage)
+   - Don't check in debug statements, commented code, or print() calls
+
+### Error Context for AI Agents
+When encountering errors, AI agents should reference:
+- **Dependency Issues:** Check `pyproject.toml` dependency groups (test, lint, type-check, security)
+- **Import Errors:** Verify `uv sync` has been run and `.python-version` matches (Python 3.13)
+- **Model Errors:** Review `allergies/models.py` and `users/models.py` for constraints
+- **Validation Errors:** Check `CATEGORY_CHOICES` in `allergies/constants/choices.py`
+- **Test Failures:** Check `pytest.ini` for markers (unit, integration, slow)
+- **Type Errors:** Review `[tool.mypy]` and `[tool.django-stubs]` in `pyproject.toml`
+
+### Development Gate Enforcement
+AI agents must respect the strict gate order:
+
+**Gate 1: Dependencies** → Install before writing code
+```bash
+uv add django-environ  # Required for environment variables
+uv add --group test pytest-django  # Test dependencies
+```
+
+**Gate 2: Logging Infrastructure** → Add before business logic
+```python
+import logging
+logger = logging.getLogger(__name__)
+
+logger.info(f"User {user.id} created allergy")  # Security events
+logger.error(f"Validation failed: {e}", exc_info=True)  # Errors
+```
+
+**Gate 3: Error Handling** → Implement before features
+```python
+from django.db import transaction
+
+@transaction.atomic
+def view_function(request):
+    try:
+        # Business logic
+        obj.full_clean()  # Validate before save
+        obj.save()
+    except ValidationError as e:
+        logger.warning(f"Validation failed: {e}")
+        return render(request, 'form.html', {'error': e.message})
+```
+
+**Gate 4: Forms & Validation** → After error handling exists
+```python
+# allergies/forms.py
+from django import forms
+class UserAllergyForm(forms.ModelForm):
+    class Meta:
+        model = UserAllergy
+        fields = ['allergen', 'severity', 'confirmation']
+```
+
+**Gate 5: Tests** → Complete before marking feature done
+```python
+# allergies/tests/test_views.py
+def test_create_allergy_success(authenticated_client, contact_allergen):
+    response = authenticated_client.post('/allergies/create/', {
+        'allergen': contact_allergen.id,
+        'severity': 'MODERATE'
+    })
+    assert response.status_code == 302
+    assert UserAllergy.objects.filter(allergen=contact_allergen).exists()
+```
+
+**Violation Consequences:**
+- ❌ Proposing a new view without logging → Reject, add Gate 2 first
+- ❌ Suggesting a feature without error handling → Reject, add Gate 3 first
+- ❌ Implementing a form without tests → Reject, add Gate 5 before marking done
+
+---
+
+**Note for AI Agents:** This section codifies expected behavior for autonomous operation. When in doubt, prioritize code quality over speed. A working, well-tested feature implemented tomorrow is better than a broken feature shipped today.
