@@ -4,7 +4,7 @@ Purpose: Make AI coding agents productive immediately in this Django repo by doc
 
 ## Big Picture
 - Framework: Django 6.0 + Templates (SQLite in dev).
-- Language: Python 3.14 (Leverage `type` aliases and T-strings)
+- Language: Python 3.13 (Leverage `type` aliases and T-strings)
 - Environment & PDM: Standardize on `uv`. Always use `uv run` for executing management commands or scripts.
 - Project: `skincare_project/` with apps: `allergies/`, `users/`.
 - Auth: Custom user `users.CustomUser` (configured via `AUTH_USER_MODEL`).
@@ -41,7 +41,7 @@ Purpose: Make AI coding agents productive immediately in this Django repo by doc
 - **Execution:** Never ask the user to "activate venv." Use `uv run <command>` (e.g., `uv run python manage.py migrate`).
 - **Add Packages:** Use `uv add <package>` for base deps and `uv add --group <name> <package>` for specific groups (test, lint, type-check, security).
 - **Syncing:** Use `uv sync` to ensure the environment matches `uv.lock`.
-- **Version Pinning:** Respect `.python-version` and `requires-python = ">=3.14"` in `pyproject.toml`.
+- **Version Pinning:** Respect `.python-version` and `requires-python = ">=3.13"` in `pyproject.toml`.
 - **Required Dependencies:** `django-environ` is **required** (not optional) - install with `uv add django-environ`. See [docs/SECURITY.md](docs/SECURITY.md) for environment variable management.
 
 ## Error Handling & Resilience

@@ -26,8 +26,8 @@ from . import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", views.home),
-    path("allergies/", include("allergies.urls"), name="allergies"),
+    path("", views.home, name="home"),
+    path("allergies/", include("allergies.urls")),
     path("product/", views.product, name="product"),
     path(
         "favicon.ico",

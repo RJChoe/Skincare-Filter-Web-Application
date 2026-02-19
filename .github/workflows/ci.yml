@@ -113,7 +113,7 @@ jobs:
   # Test Job - Depends on successful static analysis
   # ============================================================================
   test:
-    name: Test (Python 3.14)
+    name: Test (Python 3.13)
     runs-on: ubuntu-latest
     needs: [validate-groups, static-analysis]
     timeout-minutes: 15
@@ -124,10 +124,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Python 3.14
+      - name: Set up Python 3.13
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
-          python-version: '3.14'
+          python-version: '3.13'
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
