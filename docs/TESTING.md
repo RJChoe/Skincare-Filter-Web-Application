@@ -468,13 +468,13 @@ def test_create_allergy_sets_correct_attributes(test_user, contact_allergen):
     allergy = UserAllergy.objects.create(
         user=test_user,
         allergen=contact_allergen,
-        severity="moderate",
-        confirmed=True
+        severity_level="moderate",
+        is_confirmed=True
     )
     assert allergy.user == test_user
     assert allergy.allergen == contact_allergen
-    assert allergy.severity == "moderate"
-    assert allergy.confirmed is True
+    assert allergy.severity_level == "moderate"
+    assert allergy.is_confirmed is True
 ```
 
 ### ❌ Ignoring Pre-commit Hooks

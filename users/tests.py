@@ -15,6 +15,7 @@ from PIL import Image
 
 from allergies.constants.choices import CATEGORY_CONTACT
 from allergies.models import Allergen, UserAllergy
+from users.models import CustomUser
 
 User = get_user_model()
 
@@ -61,8 +62,8 @@ def user_allergy(db, custom_user, allergen_contact):
     return UserAllergy.objects.create(
         user=custom_user,
         allergen=allergen_contact,
-        severity="moderate",
-        confirmed=True,
+        severity_level="moderate",
+        is_confirmed=True,
     )
 
 
@@ -304,8 +305,8 @@ class TestAllergySignalBatching:
             UserAllergy.objects.create(
                 user=custom_user,
                 allergen=allergen_contact,
-                severity="mild",
-                confirmed=True,
+                severity_level="mild",
+                is_confirmed=True,
             )
 
         # Refresh user from database
@@ -350,10 +351,10 @@ class TestAllergySignalBatching:
         # Create multiple allergies in one transaction
         with transaction.atomic():
             UserAllergy.objects.create(
-                user=custom_user, allergen=allergen_contact, severity="mild"
+                user=custom_user, allergen=allergen_contact, severity_level="mild"
             )
             UserAllergy.objects.create(
-                user=custom_user, allergen=allergen2, severity="moderate"
+                user=custom_user, allergen=allergen2, severity_level="moderate"
             )
 
         # Refresh user from database
@@ -364,7 +365,7 @@ class TestAllergySignalBatching:
         """Test that allergies_updated_at includes full timestamp with seconds."""
         with transaction.atomic():
             UserAllergy.objects.create(
-                user=custom_user, allergen=allergen_contact, severity="mild"
+                user=custom_user, allergen=allergen_contact, severity_level="mild"
             )
 
         custom_user.refresh_from_db()

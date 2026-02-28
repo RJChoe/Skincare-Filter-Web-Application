@@ -1,17 +1,20 @@
 """Custom user manager for email-based authentication."""
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.contrib.auth.models import BaseUserManager
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
+if TYPE_CHECKING:
+    from users.models import CustomUser
+
 # Module-level logger setup
 logger = logging.getLogger(__name__)
 
 
-class CustomUserManager(BaseUserManager):
+class CustomUserManager(BaseUserManager["CustomUser"]):
     """
     Custom user manager for the CustomUser model.
 
@@ -24,7 +27,7 @@ class CustomUserManager(BaseUserManager):
         username: str,
         password: str | None = None,
         **extra_fields: Any,
-    ):
+    ) -> "CustomUser":
         """
         Create and save a regular user with the given email, username, and password.
 
@@ -76,7 +79,7 @@ class CustomUserManager(BaseUserManager):
         username: str,
         password: str | None = None,
         **extra_fields: Any,
-    ):
+    ) -> "CustomUser":
         """
         Create and save a superuser with the given email, username, and password.
 

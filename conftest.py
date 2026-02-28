@@ -141,6 +141,6 @@ def user_allergy(db, test_user, contact_allergen):
     return UserAllergy.objects.create(
         user=test_user,
         allergen=contact_allergen,
-        severity="moderate",
-        confirmed=True,
+        severity_level="moderate",
+        is_confirmed=True,
     )
