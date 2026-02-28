@@ -10,6 +10,20 @@ from django.contrib.auth import get_user_model
 from allergies.constants.choices import CATEGORY_CONTACT, CATEGORY_FOOD
 from allergies.models import Allergen, UserAllergy
 
+
+@pytest.fixture
+def media_root(settings, tmp_path_factory):
+    """Redirect MEDIA_ROOT to a pytest-managed temp directory for this test.
+
+    Prevents profile picture uploads from writing into the real project
+    media/ folder during tests. The temporary directory is automatically
+    removed by pytest after the test completes, even on hard failures.
+    """
+    temp_media = tmp_path_factory.mktemp("media")
+    settings.MEDIA_ROOT = str(temp_media)
+    yield temp_media
+
+
 User = get_user_model()
 
 
