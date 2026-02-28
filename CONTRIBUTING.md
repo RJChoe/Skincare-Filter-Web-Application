@@ -183,9 +183,9 @@ git push origin feature/your-feature-name
     # ✅ Pattern 2: For service layer (business logic)
     # services.py
     @transaction.atomic
-    def create_user_allergy(user: User, allergen: Allergen, severity: str) -> UserAllergy:
+    def create_user_allergy(user: User, allergen: Allergen, severity_level: str) -> UserAllergy:
         """Business logic for creating user allergy. Raises exceptions on failure."""
-        user_allergy = UserAllergy(user=user, allergen=allergen, severity=severity)
+        user_allergy = UserAllergy(user=user, allergen=allergen, severity_level=severity_level)
         user_allergy.full_clean()  # Raises ValidationError
         user_allergy.save()
         return user_allergy

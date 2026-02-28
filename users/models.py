@@ -2,6 +2,7 @@
 
 import logging
 from datetime import date
+from typing import ClassVar
 
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
@@ -72,7 +73,7 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = ["username"]
 
     # Custom Manager
-    objects = CustomUserManager()
+    objects: ClassVar[CustomUserManager] = CustomUserManager()  # type: ignore[assignment]
 
     class Meta:
         db_table = "users_customuser"

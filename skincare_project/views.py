@@ -45,45 +45,45 @@ def product(request: HttpRequest) -> HttpResponse:
                 status=401,
             )
 
-            # TODO: Implement ingredient parsing and allergen checking
-            # This will be completed in Gate 4 (Forms & Validation)
-            logger.warning("POST handler not yet fully implemented")
-            return JsonResponse(
-                {"error": "Feature coming soon"},
-                status=501,  # Not Implemented
-            )
+        # TODO: Implement ingredient parsing and allergen checking
+        # This will be completed in Gate 4 (Forms & Validation)
+        logger.warning("POST handler not yet fully implemented")
+        return JsonResponse(
+            {"error": "Feature coming soon"},
+            status=501,  # Not Implemented
+        )
 
-            # FUTURE: Ingredient checking logic will go here
-            # ingredients = request.POST.get("ingredients", "").strip()
-            # if not ingredients:
-            #     raise InvalidIngredientError("Ingredient list cannot be empty")
-            #
-            # ingredient_list = [i.strip().lower() for i in ingredients.split(",")]
-            #
-            # user_allergies = UserAllergy.objects.select_related('allergen').filter(
-            #     user=request.user,
-            #     is_active=True
-            # )
-            #
-            # matches = []
-            # for allergy in user_allergies:
-            #     allergen_label = allergy.allergen.allergen_label.lower()
-            #     if any(allergen_label in ingredient for ingredient in ingredient_list):
-            #         matches.append({
-            #             'allergen': allergy.allergen.allergen_label,
-            #             'severity': allergy.severity_level,
-            #             'category': allergy.allergen.get_category_display(),
-            #         })
-            #         logger.info(
-            #             f"Match found: User {request.user.id} allergen '{allergen_label}' "
-            #             f"in ingredients (severity: {allergy.severity_level})"
-            #         )
-            #
-            # return JsonResponse({
-            #     'success': True,
-            #     'matches': matches,
-            #     'total_checked': len(ingredient_list)
-            # })
+        # FUTURE: Ingredient checking logic will go here
+        # ingredients = request.POST.get("ingredients", "").strip()
+        # if not ingredients:
+        #     raise InvalidIngredientError("Ingredient list cannot be empty")
+        #
+        # ingredient_list = [i.strip().lower() for i in ingredients.split(",")]
+        #
+        # user_allergies = UserAllergy.objects.select_related('allergen').filter(
+        #     user=request.user,
+        #     is_active=True
+        # )
+        #
+        # matches = []
+        # for allergy in user_allergies:
+        #     allergen_label = allergy.allergen.allergen_label.lower()
+        #     if any(allergen_label in ingredient for ingredient in ingredient_list):
+        #         matches.append({
+        #             'allergen': allergy.allergen.allergen_label,
+        #             'severity': allergy.severity_level,
+        #             'category': allergy.allergen.get_category_display(),
+        #         })
+        #         logger.info(
+        #             f"Match found: User {request.user.id} allergen '{allergen_label}' "
+        #             f"in ingredients (severity: {allergy.severity_level})"
+        #         )
+        #
+        # return JsonResponse({
+        #     'success': True,
+        #     'matches': matches,
+        #     'total_checked': len(ingredient_list)
+        # })
 
     except Exception as e:
         logger.error(

@@ -88,12 +88,12 @@ class CustomUserAdmin(UserAdmin):
 
     readonly_fields = ("age", "allergies_updated_at", "last_login", "date_joined")
 
+    @admin.display(description="Age")
     def get_age(self, obj):
         """Display user's age in list view."""
         return obj.age if obj.age is not None else "-"
 
-    get_age.short_description = "Age"
-
+    @admin.display(description="Allergy Profile")
     def allergy_status_display(self, obj):
         """
         Display allergy profile status with visual indicators.
@@ -114,5 +114,3 @@ class CustomUserAdmin(UserAdmin):
             return format_html(
                 '<span style="color: red;">✗</span> Not set',
             )
-
-    allergy_status_display.short_description = "Allergy Profile"
