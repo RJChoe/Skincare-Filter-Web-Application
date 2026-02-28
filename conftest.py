@@ -58,15 +58,13 @@ def test_user(db, user_email, user_password):
 
 
 @pytest.fixture
-def custom_user(db, user_email, user_password):
+def custom_user(test_user):
     """Alias for test_user fixture for backward compatibility.
 
     This fixture exists to support existing tests that use 'custom_user'.
     New tests should use 'test_user' instead.
     """
-    return User.objects.create_user(
-        email=user_email, username="testuser", password=user_password
-    )
+    return test_user
 
 
 # ============================================================================
@@ -81,7 +79,7 @@ def authenticated_client(client, test_user, user_password):
     Returns:
         Client: Django test client logged in as test_user
     """
-    client.login(username=test_user.username, password=user_password)
+    client.login(email=test_user.email, password=user_password)
     return client
 
 
@@ -104,15 +102,13 @@ def contact_allergen(db):
 
 
 @pytest.fixture
-def allergen_contact(db):
+def allergen_contact(contact_allergen):
     """Alias for contact_allergen fixture for backward compatibility.
 
     This fixture exists to support existing tests that use 'allergen_contact'.
     New tests should use 'contact_allergen' instead.
     """
-    return Allergen.objects.create(
-        category=CATEGORY_CONTACT, allergen_key="sls", is_active=True
-    )
+    return contact_allergen
 
 
 @pytest.fixture
@@ -129,15 +125,13 @@ def food_allergen(db):
 
 
 @pytest.fixture
-def allergen_food(db):
+def allergen_food(food_allergen):
     """Alias for food_allergen fixture for backward compatibility.
 
     This fixture exists to support existing tests that use 'allergen_food'.
     New tests should use 'food_allergen' instead.
     """
-    return Allergen.objects.create(
-        category=CATEGORY_FOOD, allergen_key="peanut", is_active=True
-    )
+    return food_allergen
 
 
 # ============================================================================
@@ -147,14 +141,30 @@ def allergen_food(db):
 
 @pytest.fixture
 def user_allergy(db, test_user, contact_allergen):
-    """Create a UserAllergy instance linking test_user to contact_allergen.
+    """Create a confirmed UserAllergy instance linking test_user to contact_allergen.
 
     Returns:
-        UserAllergy: UserAllergy with severity='moderate', confirmed=True
+        UserAllergy: UserAllergy with severity_level='moderate', is_confirmed=True
     """
     return UserAllergy.objects.create(
         user=test_user,
         allergen=contact_allergen,
         severity_level="moderate",
         is_confirmed=True,
+    )
+
+
+@pytest.fixture
+def unconfirmed_user_allergy(db, test_user, contact_allergen):
+    """Create an unconfirmed UserAllergy instance linking test_user to contact_allergen.
+
+    Represents a newly added allergy that has not yet been verified. Uses model
+    defaults: is_confirmed=False and severity_level='' (blank).
+
+    Returns:
+        UserAllergy: UserAllergy with severity_level='', is_confirmed=False
+    """
+    return UserAllergy.objects.create(
+        user=test_user,
+        allergen=contact_allergen,
     )
