@@ -79,10 +79,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.14
+      - name: Set up Python 3.13
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
-          python-version: '3.14'
+          python-version: '3.13'
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
@@ -158,6 +158,14 @@ jobs:
         run: |
           uv run pytest
 
+      - name: Verify coverage.xml generated
+        run: |
+          if [ ! -f coverage.xml ]; then
+            echo "❌ coverage.xml not found! pytest should generate it via --cov-report=xml"
+            exit 1
+          fi
+          echo "✅ coverage.xml exists"
+
       - name: Upload coverage to Codecov
         if: github.event.pull_request.head.repo.fork == false
         uses: codecov/codecov-action@v5
@@ -181,10 +189,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.14
+      - name: Set up Python 3.13
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
-          python-version: '3.14'
+          python-version: '3.13'
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
