@@ -228,7 +228,7 @@ jobs:
 
       - name: Run safety
         run: |
-          uv run safety check --full-report --output-format=json > safety-output.json || true
+          uv run safety scan --output json --disable-optional-telemetry > safety-output.json
 
       - name: Upload safety report
         if: ${{ always() }}
