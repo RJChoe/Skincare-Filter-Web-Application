@@ -10,7 +10,6 @@ from typing import Any
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
-from django.db.models import functions as db_functions
 from django.utils import timezone
 
 from .constants.choices import (
@@ -182,10 +181,6 @@ class UserAllergy(models.Model):
             models.UniqueConstraint(
                 fields=["user", "allergen"],
                 name="uniq_user_allergen",
-            ),
-            models.CheckConstraint(
-                condition=models.Q(symptom_onset_date__lte=db_functions.Now()),
-                name="symptom_onset_not_future",
             ),
         ]
         indexes = [

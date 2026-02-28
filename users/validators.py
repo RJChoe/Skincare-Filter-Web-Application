@@ -48,9 +48,9 @@ def validate_image_format(image) -> None:
         ValidationError: If the image format is not in ALLOWED_IMAGE_FORMATS.
     """
     try:
-        # Open the image to verify format
-        img = Image.open(image)
-        image_format = img.format
+        # Open the image to verify format; context manager ensures the file handle is closed
+        with Image.open(image) as img:
+            image_format = img.format
 
         if image_format not in ALLOWED_IMAGE_FORMATS:
             logger.warning(
@@ -61,7 +61,7 @@ def validate_image_format(image) -> None:
                 f"Allowed formats: {', '.join(ALLOWED_IMAGE_FORMATS)}."
             )
 
-        # Reset file pointer after reading
+        # Reset file pointer after Pillow has finished reading
         image.seek(0)
 
     except (OSError, AttributeError) as e:

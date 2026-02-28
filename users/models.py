@@ -99,7 +99,7 @@ class CustomUser(AbstractUser):
 
         # Validate date_of_birth
         if self.date_of_birth:
-            today = timezone.now().date()
+            today = date.today()
 
             # Check if date is not in the future
             if self.date_of_birth > today:
@@ -144,3 +144,7 @@ class CustomUser(AbstractUser):
             age -= 1
 
         return age
+
+    def get_age(self) -> int | None:
+        """Return the user's age in years, or None if date_of_birth is not set."""
+        return self.age

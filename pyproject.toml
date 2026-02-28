@@ -275,7 +275,7 @@ DJANGO_SETTINGS_MODULE = "skincare_project.settings"
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-testpaths = ["allergies/tests", "users/tests"]
+testpaths = ["allergies/tests", "users/tests.py"]
 addopts = [
     "--cov",
     "--cov-report=term-missing",

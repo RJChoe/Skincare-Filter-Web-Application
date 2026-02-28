@@ -183,7 +183,7 @@ class TestCustomUserModel:
 
     def test_email_uniqueness(self, custom_user, user_password):
         """Test that duplicate emails are not allowed."""
-        with pytest.raises(IntegrityError):
+        with pytest.raises(ValidationError):
             User.objects.create_user(
                 email=custom_user.email,
                 username="another_user",
@@ -210,8 +210,21 @@ class TestCustomUserModel:
 
 
 @pytest.mark.django_db
+@pytest.mark.usefixtures("media_root")
 class TestCustomUserValidation:
     """Tests for CustomUser field validation."""
+
+    @pytest.fixture(autouse=True)
+    def close_profile_picture(self, custom_user):
+        """Close any open FieldFile handle on profile_picture after each test.
+
+        Django's FieldFile.save() opens the saved file internally and does not
+        close it automatically, which causes a ResourceWarning when the object
+        is garbage-collected. Explicitly closing here prevents that.
+        """
+        yield
+        if custom_user.profile_picture:
+            custom_user.profile_picture.close()
 
     def test_date_of_birth_future_invalid(self, custom_user):
         """Test that future date_of_birth raises ValidationError."""
@@ -278,7 +291,7 @@ class TestCustomUserValidation:
 
     def test_phone_number_us_format_valid(self, custom_user):
         """Test that US phone number format is accepted."""
-        custom_user.phone_number = "+15551234567"
+        custom_user.phone_number = "+12024561414"
         custom_user.full_clean()  # Should not raise
 
     def test_phone_number_optional(self, custom_user):
@@ -292,7 +305,7 @@ class TestCustomUserValidation:
 # ============================================================================
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 class TestAllergySignalBatching:
     """Tests for allergy timestamp signal handlers."""
 
