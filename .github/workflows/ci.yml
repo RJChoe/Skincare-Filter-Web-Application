@@ -42,10 +42,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.14
+      - name: Set up Python 3.13
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
-          python-version: '3.14'
+          python-version: '3.13'
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
@@ -226,9 +226,13 @@ jobs:
           name: bandit-report
           path: bandit-output.json
 
-      - name: Run safety
+      - name: Run safety via uv
+        env:
+          SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
         run: |
-          uv run safety check --full-report --output-format=json > safety-output.json || true
+          # --non-interactive: bypasses the initialization prompt
+          # --disable-optional-telemetry: keeps the scan private/fast
+          uv run safety scan --non-interactive --output json --disable-optional-telemetry > safety-output.json
 
       - name: Upload safety report
         if: ${{ always() }}
