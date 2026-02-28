@@ -46,15 +46,27 @@ Located in [conftest.py](../conftest.py) at the project root for reuse across al
 
 ```python
 @pytest.fixture
-def user_password():
-    """Standard test password for all users."""
-    return "SecureTestPass123!"
+def media_root(settings, tmp_path_factory):
+    """Redirect MEDIA_ROOT to a temp directory; prevents writes to real media/ during tests."""
+    temp_media = tmp_path_factory.mktemp("media")
+    settings.MEDIA_ROOT = str(temp_media)
+    yield temp_media
 
 @pytest.fixture
-def test_user(db, user_password):
+def user_email():
+    """Standard test email address."""
+    return "test@example.com"
+
+@pytest.fixture
+def user_password():
+    """Standard test password for all users."""
+    return "SecurePassword123!"
+
+@pytest.fixture
+def test_user(db, user_email, user_password):
     """Create standard test user with predictable credentials."""
     return User.objects.create_user(
-        email="test@example.com",
+        email=user_email,
         username="testuser",
         password=user_password
     )
@@ -62,7 +74,7 @@ def test_user(db, user_password):
 @pytest.fixture
 def authenticated_client(client, test_user, user_password):
     """Django test client with authenticated session."""
-    client.login(username=test_user.username, password=user_password)
+    client.login(email=test_user.email, password=user_password)
     return client
 
 @pytest.fixture
@@ -82,25 +94,42 @@ def food_allergen(db):
         allergen_key="peanut",
         is_active=True
     )
+
+@pytest.fixture
+def user_allergy(db, test_user, contact_allergen):
+    """Confirmed UserAllergy linking test_user to contact_allergen."""
+    return UserAllergy.objects.create(
+        user=test_user,
+        allergen=contact_allergen,
+        severity_level="moderate",
+        is_confirmed=True,
+    )
+
+@pytest.fixture
+def unconfirmed_user_allergy(db, test_user, contact_allergen):
+    """Unconfirmed UserAllergy; uses model defaults (severity_level='', is_confirmed=False)."""
+    return UserAllergy.objects.create(
+        user=test_user,
+        allergen=contact_allergen,
+    )
 ```
 
 ### App-Specific Fixtures
 
-For fixtures used only within a single app, define them in the app's test file or `conftest.py` within the app's test directory.
+For fixtures used only within a single app, define them in the app's test file or a `conftest.py` within that app's test directory. The shared fixtures above cover the most common cross-app scenarios — only create app-specific fixtures for truly isolated concerns.
 
-**Example from [users/tests.py](../users/tests.py#L60-L65):**
+### Deprecated Aliases
 
-```python
-@pytest.fixture
-def user_allergy(db, custom_user, allergen_contact):
-    """Create a UserAllergy instance for testing signals."""
-    return UserAllergy.objects.create(
-        user=custom_user,
-        allergen=allergen_contact,
-        severity="moderate",
-        confirmed=True,
-    )
-```
+The following fixture aliases exist in [conftest.py](../conftest.py) for backward compatibility. **New tests must use the canonical name.** Aliases will be removed in `v1.0.0`.
+
+| Alias | Canonical Replacement | Removed in |
+|---|---|---|
+| `custom_user` | `test_user` | `v1.0.0` |
+| `allergen_contact` | `contact_allergen` | `v1.0.0` |
+| `allergen_food` | `food_allergen` | `v1.0.0` |
+
+> [!NOTE]
+> When you encounter `custom_user`, `allergen_contact`, or `allergen_food` in older test files, replace them with their canonical counterparts above. Do not introduce these aliases in new tests.
 
 ---
 
@@ -185,8 +214,8 @@ class TestAllergyListView:
         """Verify POST creates UserAllergy and redirects."""
         data = {
             'allergen': contact_allergen.id,
-            'severity': 'moderate',
-            'confirmed': True,
+            'severity_level': 'moderate',
+            'is_confirmed': True,
         }
 
         response = authenticated_client.post(reverse('allergy_create'), data=data)
@@ -209,7 +238,7 @@ class TestErrorHandling:
         """Verify duplicate UserAllergy raises ValidationError, not IntegrityError."""
         UserAllergy.objects.create(user=test_user, allergen=contact_allergen)
 
-        data = {'allergen': contact_allergen.id, 'severity': 'mild', 'confirmed': False}
+        data = {'allergen': contact_allergen.id, 'severity_level': 'mild', 'is_confirmed': False}
         response = authenticated_client.post(reverse('allergy_create'), data=data)
 
         assert response.status_code == 400
@@ -308,7 +337,7 @@ uv run pytest -n 4
 
 ## Coverage Configuration
 
-Coverage settings are defined in [pyproject.toml](../pyproject.toml#L319-L351).
+Coverage settings are defined in [pyproject.toml](../pyproject.toml#L302-L336).
 
 ### Current Settings
 
