@@ -226,9 +226,13 @@ jobs:
           name: bandit-report
           path: bandit-output.json
 
-      - name: Run safety
+      - name: Run safety via uv
+        env:
+          SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
         run: |
-          uv run safety scan --output json --disable-optional-telemetry > safety-output.json
+          # --non-interactive: bypasses the initialization prompt
+          # --disable-optional-telemetry: keeps the scan private/fast
+          uv run safety scan --non-interactive --output json --disable-optional-telemetry > safety-output.json
 
       - name: Upload safety report
         if: ${{ always() }}
