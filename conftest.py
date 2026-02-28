@@ -4,11 +4,16 @@ This module provides reusable fixtures available to all test files in the projec
 Fixtures are organized by category: users, allergens, and authentication.
 """
 
+import warnings
+
 import pytest
 from django.contrib.auth import get_user_model
 
 from allergies.constants.choices import CATEGORY_CONTACT, CATEGORY_FOOD
 from allergies.models import Allergen, UserAllergy
+from users.models import CustomUser
+
+User = get_user_model()
 
 
 @pytest.fixture
@@ -24,35 +29,32 @@ def media_root(settings, tmp_path_factory):
     yield temp_media
 
 
-User = get_user_model()
-
-
 # ============================================================================
 # User Fixtures
 # ============================================================================
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def user_email():
     """Provide a standard test email address."""
     return "test@example.com"
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def user_password():
     """Provide a standard test password for all test users."""
     return "SecurePassword123!"
 
 
 @pytest.fixture
-def test_user(db, user_email, user_password):
+def test_user(db, user_email, user_password) -> CustomUser:
     """Create a standard test user with predictable credentials.
 
     Returns:
-        User: A CustomUser instance with username='testuser',
+        CustomUser: A CustomUser instance with username='testuser',
               email='test@example.com', password='SecurePassword123!'
     """
-    return User.objects.create_user(
+    return CustomUser.objects.create_user(
         email=user_email, username="testuser", password=user_password
     )
 
@@ -64,6 +66,11 @@ def custom_user(test_user):
     This fixture exists to support existing tests that use 'custom_user'.
     New tests should use 'test_user' instead.
     """
+    warnings.warn(
+        "custom_user is deprecated; use test_user instead. Will be removed in v1.0.0.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return test_user
 
 
@@ -108,6 +115,11 @@ def allergen_contact(contact_allergen):
     This fixture exists to support existing tests that use 'allergen_contact'.
     New tests should use 'contact_allergen' instead.
     """
+    warnings.warn(
+        "allergen_contact is deprecated; use contact_allergen instead. Will be removed in v1.0.0.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return contact_allergen
 
 
@@ -131,6 +143,11 @@ def allergen_food(food_allergen):
     This fixture exists to support existing tests that use 'allergen_food'.
     New tests should use 'food_allergen' instead.
     """
+    warnings.warn(
+        "allergen_food is deprecated; use food_allergen instead. Will be removed in v1.0.0.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return food_allergen
 
 
@@ -140,7 +157,7 @@ def allergen_food(food_allergen):
 
 
 @pytest.fixture
-def user_allergy(db, test_user, contact_allergen):
+def user_allergy(test_user, contact_allergen):
     """Create a confirmed UserAllergy instance linking test_user to contact_allergen.
 
     Returns:
@@ -155,7 +172,7 @@ def user_allergy(db, test_user, contact_allergen):
 
 
 @pytest.fixture
-def unconfirmed_user_allergy(db, test_user, contact_allergen):
+def unconfirmed_user_allergy(test_user, contact_allergen):
     """Create an unconfirmed UserAllergy instance linking test_user to contact_allergen.
 
     Represents a newly added allergy that has not yet been verified. Uses model
