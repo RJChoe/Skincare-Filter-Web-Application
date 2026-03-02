@@ -56,8 +56,8 @@ python-downloads = "automatic"
 # Compile bytecode for faster imports
 compile-bytecode = true
 
-# Always resolve to the highest compatible version
-resolution = "highest"
+# Resolve to the lowest compatible version for direct dependencies (conservative, security-friendly)
+resolution = "lowest-direct"
 
 # Only use prereleases when necessary (no stable version available)
 prerelease = "if-necessary"

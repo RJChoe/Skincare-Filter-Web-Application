@@ -47,7 +47,7 @@ jobs:
 
       - name: Export requirements.txt
         run: |
-          uv export --no-hashes --format requirements-txt -o requirements.txt
+          uv export --no-dev --no-hashes --format requirements-txt -o requirements.txt
 
       - name: Sync Environment
         run: |
@@ -64,7 +64,7 @@ jobs:
             echo "❌ Requirements files are out of sync with uv.lock!"
             echo ""
             echo "Please run the following commands locally and commit the changes:"
-            echo "  uv export --no-hashes --format requirements-txt -o requirements.txt"
+            echo "  uv export --no-dev --no-hashes --format requirements-txt -o requirements.txt"
             echo "  uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.txt"
             echo ""
             echo "Changes detected:"
