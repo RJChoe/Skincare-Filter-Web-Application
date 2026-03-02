@@ -55,6 +55,7 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    needs: [validate-groups]
     timeout-minutes: 10
 
     steps:
@@ -171,8 +172,8 @@ jobs:
       - name: Annotate safety results
         if: ${{ always() }}
         continue-on-error: true
+        shell: python
         run: |
-          python3 - << 'PYEOF'
           import json, os, sys
           from pathlib import Path
 
@@ -201,14 +202,7 @@ jobs:
               ])
               sys.exit(0)
 
-          vulns = None
-          try:
-              vulns = data["vulnerabilities"]
-          except KeyError:
-              try:
-                  vulns = data["scan_results"]["vulnerabilities"]
-              except (KeyError, TypeError):
-                  pass
+          vulns = data.get("vulnerabilities") or data.get("scan_results", {}).get("vulnerabilities")
 
           lines = ["### \U0001f512 Safety Vulnerability Scan", ""]
           if vulns is None:
@@ -229,7 +223,6 @@ jobs:
                   print(f"::warning title=Safety::{pkg} {cve} ({sev})")
 
           write_summary(lines)
-          PYEOF
 
       - name: Upload safety report
         if: ${{ always() }}
