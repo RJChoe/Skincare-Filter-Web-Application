@@ -1,0 +1,45 @@
+name: 'Setup Python + uv'
+description: 'Installs Python (version from .python-version), uv, and verifies the version match.'
+
+inputs:
+  python-version:
+    description: 'Python version override. If empty, reads from .python-version.'
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Resolve Python version
+      id: resolve-version
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.python-version }}" ]; then
+          VERSION="${{ inputs.python-version }}"
+        else
+          VERSION=$(cat .python-version)
+        fi
+        echo "python-version=$VERSION" >> "$GITHUB_OUTPUT"
+
+    - name: Set up Python
+      uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+      with:
+        python-version: ${{ steps.resolve-version.outputs.python-version }}
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
+      with:
+        enable-cache: true
+
+    - name: Verify Python version matches .python-version
+      shell: bash
+      run: |
+        PINNED_VERSION=$(cat .python-version)
+        ACTIVE_VERSION=$(uv run python --version | grep -oP '\d+\.\d+')
+        echo "Pinned version: $PINNED_VERSION"
+        echo "Active version: $ACTIVE_VERSION"
+        if [ "$ACTIVE_VERSION" != "$PINNED_VERSION" ]; then
+          echo "❌ Python version mismatch! Expected $PINNED_VERSION but found $ACTIVE_VERSION"
+          exit 1
+        fi
+        echo "✅ Python version matches .python-version"
