@@ -163,7 +163,7 @@ uv run python manage.py migrate allergies zero
 uv run bandit -r allergies users skincare_project
 
 # Check for vulnerable dependencies
-uv run safety check
+uv run safety scan --non-interactive
 
 # Production deployment check
 uv run python manage.py check --deploy
@@ -184,7 +184,7 @@ uv run mypy .
 
 # 4. Security checks
 uv run bandit -r allergies users skincare_project
-uv run safety check
+uv run safety scan --non-interactive
 
 # 5. Production readiness check
 uv run python manage.py check --deploy
