@@ -18,8 +18,6 @@ concurrency:
 
 permissions:
   contents: read
-  checks: write
-  pull-requests: write
 
 env:
   PYTHONUNBUFFERED: "1"
@@ -80,6 +78,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [validate-groups, static-analysis]
     timeout-minutes: 15
+    permissions:
+      contents: read
+      checks: write       # codecov: post check run
+      pull-requests: write # codecov: post PR comment
 
     steps:
       - name: Checkout
