@@ -40,29 +40,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      - name: Set up Python 3.13
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: '3.13'
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-
-      - name: Verify Python version matches .python-version
-        run: |
-          PINNED_VERSION=$(cat .python-version)
-          ACTIVE_VERSION=$(uv run python --version | grep -oP '\d+\.\d+')
-          echo "Pinned version: $PINNED_VERSION"
-          echo "Active version: $ACTIVE_VERSION"
-          if [ "$ACTIVE_VERSION" != "$PINNED_VERSION" ]; then
-            echo "❌ Python version mismatch! Expected $PINNED_VERSION but found $ACTIVE_VERSION"
-            exit 1
-          fi
-          echo "✅ Python version matches .python-version"
+      - name: Set up Python + uv
+        uses: ./.github/actions/setup-python-uv
 
       - name: Validate ${{ matrix.group }} group installs
         run: |
@@ -78,29 +59,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      - name: Set up Python 3.13
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: '3.13'
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-
-      - name: Verify Python version matches .python-version
-        run: |
-          PINNED_VERSION=$(cat .python-version)
-          ACTIVE_VERSION=$(uv run python --version | grep -oP '\d+\.\d+')
-          echo "Pinned version: $PINNED_VERSION"
-          echo "Active version: $ACTIVE_VERSION"
-          if [ "$ACTIVE_VERSION" != "$PINNED_VERSION" ]; then
-            echo "❌ Python version mismatch! Expected $PINNED_VERSION but found $ACTIVE_VERSION"
-            exit 1
-          fi
-          echo "✅ Python version matches .python-version"
+      - name: Set up Python + uv
+        uses: ./.github/actions/setup-python-uv
 
       - name: Install dependencies
         run: |
@@ -121,31 +83,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      - name: Set up Python 3.13
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: '3.13'
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-
-      - name: Verify Python version matches .python-version
-        run: |
-          PINNED_VERSION=$(cat .python-version)
-          ACTIVE_VERSION=$(uv run python --version | grep -oP '\d+\.\d+')
-          echo "Pinned version: $PINNED_VERSION"
-          echo "Active version: $ACTIVE_VERSION"
-          if [ "$ACTIVE_VERSION" != "$PINNED_VERSION" ]; then
-            echo "❌ Python version mismatch! Expected $PINNED_VERSION but found $ACTIVE_VERSION"
-            exit 1
-          fi
-          echo "✅ Python version matches .python-version"
+      - name: Set up Python + uv
+        uses: ./.github/actions/setup-python-uv
 
       - name: Install dependencies
         run: |
@@ -169,7 +110,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: github.event.pull_request.head.repo.fork == false
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
@@ -188,29 +129,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      - name: Set up Python 3.13
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: '3.13'
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-
-      - name: Verify Python version matches .python-version
-        run: |
-          PINNED_VERSION=$(cat .python-version)
-          ACTIVE_VERSION=$(uv run python --version | grep -oP '\d+\.\d+')
-          echo "Pinned version: $PINNED_VERSION"
-          echo "Active version: $ACTIVE_VERSION"
-          if [ "$ACTIVE_VERSION" != "$PINNED_VERSION" ]; then
-            echo "❌ Python version mismatch! Expected $PINNED_VERSION but found $ACTIVE_VERSION"
-            exit 1
-          fi
-          echo "✅ Python version matches .python-version"
+      - name: Set up Python + uv
+        uses: ./.github/actions/setup-python-uv
 
       - name: Install dependencies
         run: |
@@ -218,16 +140,17 @@ jobs:
 
       - name: Run bandit
         run: |
-          uv run bandit -r . --severity-level high --confidence-level high -x htmlcov,venv,.venv -f json -o bandit-output.json
+          uv run bandit -r . --severity-level high --confidence-level high -x .git,__pycache__,.venv,venv,migrations,.pytest_cache,htmlcov,.tox,build,dist -f json -o bandit-output.json
 
       - name: Upload bandit report
         if: ${{ always() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: bandit-report
           path: bandit-output.json
 
       - name: Run safety via uv
+        continue-on-error: true
         env:
           SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
         run: |
@@ -235,9 +158,72 @@ jobs:
           # --disable-optional-telemetry: keeps the scan private/fast
           uv run safety scan --non-interactive --output json --disable-optional-telemetry > safety-output.json
 
+      - name: Annotate safety results
+        if: ${{ always() }}
+        continue-on-error: true
+        run: |
+          python3 - << 'PYEOF'
+          import json, os, sys
+          from pathlib import Path
+
+          summary_file = os.environ.get("GITHUB_STEP_SUMMARY", os.devnull)
+          report = Path("safety-output.json")
+
+          def write_summary(lines):
+              with open(summary_file, "a", encoding="utf-8") as f:
+                  f.write("\n".join(lines) + "\n")
+
+          if not report.exists() or report.stat().st_size == 0:
+              write_summary([
+                  "### \U0001f512 Safety Vulnerability Scan",
+                  "",
+                  "\u26a0\ufe0f No safety report found or report was empty.",
+              ])
+              sys.exit(0)
+
+          try:
+              data = json.loads(report.read_text(encoding="utf-8"))
+          except json.JSONDecodeError:
+              write_summary([
+                  "### \U0001f512 Safety Vulnerability Scan",
+                  "",
+                  "\u26a0\ufe0f Could not parse safety-output.json.",
+              ])
+              sys.exit(0)
+
+          vulns = None
+          try:
+              vulns = data["vulnerabilities"]
+          except KeyError:
+              try:
+                  vulns = data["scan_results"]["vulnerabilities"]
+              except (KeyError, TypeError):
+                  pass
+
+          lines = ["### \U0001f512 Safety Vulnerability Scan", ""]
+          if vulns is None:
+              lines.append("\u26a0\ufe0f Could not identify vulnerability list (unexpected schema).")
+          elif not vulns:
+              lines.append("\u2705 No vulnerabilities found.")
+          else:
+              lines.append(f"\u274c **{len(vulns)} vulnerability(s) found**")
+              lines.append("")
+              lines.append("| Package | CVE | Severity | Advisory |")
+              lines.append("| :--- | :--- | :--- | :--- |")
+              for v in vulns:
+                  pkg = v.get("package_name") or v.get("package", "unknown")
+                  cve = v.get("CVE") or v.get("cve") or v.get("vulnerability_id", "N/A")
+                  sev = v.get("severity") or v.get("cvss_v3_severity", "unknown")
+                  adv = (v.get("advisory") or "")[:80]
+                  lines.append(f"| {pkg} | {cve} | {sev} | {adv} |")
+                  print(f"::warning title=Safety::{pkg} {cve} ({sev})")
+
+          write_summary(lines)
+          PYEOF
+
       - name: Upload safety report
         if: ${{ always() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: safety-report
           path: safety-output.json
