@@ -39,6 +39,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 1
 
       - name: Set up Python + uv
         uses: ./.github/actions/setup-python-uv
@@ -58,6 +60,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 1
 
       - name: Set up Python + uv
         uses: ./.github/actions/setup-python-uv
@@ -86,6 +90,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 1
 
       - name: Set up Python + uv
         uses: ./.github/actions/setup-python-uv
@@ -132,6 +138,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 1
 
       - name: Set up Python + uv
         uses: ./.github/actions/setup-python-uv
@@ -142,7 +150,7 @@ jobs:
 
       - name: Run bandit
         run: |
-          uv run bandit -r . --severity-level high --confidence-level high -x .git,__pycache__,.venv,venv,migrations,.pytest_cache,htmlcov,.tox,build,dist -f json -o bandit-output.json
+          uv run bandit -r . --severity-level high --confidence-level high -x .git,__pycache__,.venv,venv,migrations,.pytest_cache,htmlcov,.tox,build,dist,assets,media,static -f json -o bandit-output.json
 
       - name: Upload bandit report
         if: ${{ always() }}
