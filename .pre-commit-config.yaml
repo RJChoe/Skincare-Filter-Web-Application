@@ -150,6 +150,49 @@ repos:
 
             sys.exit(0)
 
+      - id: enforce-migration-naming
+        name: Enforce Migration Naming Convention
+        entry: python
+        language: system
+        types: [python]
+        files: ^(allergies|users)/migrations/[^/]+\.py$
+        stages: [commit]
+        pass_filenames: true
+        args:
+          - -c
+          - |
+            import sys
+            import re
+            from pathlib import Path
+
+            # Reject Django's auto-generated timestamp names: 0001_auto_20260303_1234.py
+            AUTO_NAME_PATTERN = re.compile(r'^\d{4}_auto_\d+\.py$')
+
+            errors = []
+            for filepath in sys.argv[1:]:
+                filename = Path(filepath).name
+
+                # Always allow __init__.py
+                if filename == '__init__.py':
+                    continue
+
+                if AUTO_NAME_PATTERN.match(filename):
+                    errors.append(
+                        f"❌ {filepath}: Auto-generated migration name '{filename}' is not allowed.\n"
+                        f"   Rename using: uv run python manage.py makemigrations <app> --name <descriptive_name>\n"
+                        f"   Example: uv run python manage.py makemigrations allergies --name add_severity_to_userallergy"
+                    )
+
+            if errors:
+                print("\n🚨 Migration Naming Validation Failed:\n")
+                for error in errors:
+                    print(error)
+                print("\n💡 Migration names must be descriptive, not auto-generated timestamps.")
+                print("   See: .github/instructions/copilot-instructions.md#gotchas\n")
+                sys.exit(1)
+
+            sys.exit(0)
+
 # temporary disable pytest hook while setting up CI
 
 #  # Local fast pytest (excluding slow tests)
