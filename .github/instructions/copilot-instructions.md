@@ -1,3 +1,17 @@
+## 🔴 HARD PROHIBITIONS — READ FIRST
+
+The following are **banned in all generated code** for the current phase. Violations must include a `# Future Refactor:` comment and must not be submitted without explicit user approval:
+
+| Prohibited Pattern | Why Banned | If Suggested, Must Say |
+|---|---|---|
+| `async def` view functions | Not used — all views are synchronous `def` | `# Future Refactor: async views not yet adopted in this project` |
+| `{% partialdef %}` / `{% partial %}` tags | Template partials not yet adopted | `# Future Refactor: template partials not yet adopted in this project` |
+| `django.tasks` / `@task` decorator | Background tasks not yet adopted | `# Future Refactor: background tasks not yet adopted in this project` |
+| `python -m pip install` / bare `pip install` | Always use `uv add` | N/A — never suggest pip directly |
+| Python 3.14-only features (T-strings, etc.) | Project targets Python 3.13 | N/A — not compatible |
+
+---
+
 # Copilot Instructions: Skincare Allergy Filter
 
 Purpose: Make AI coding agents productive immediately in this Django repo by documenting the real architecture, workflows, and project-specific conventions.
@@ -276,6 +290,9 @@ Example response:
 - Models: See [allergies/models.py](allergies/models.py) and choices in [allergies/constants/choices.py](allergies/constants/choices.py).
 - `Allergen` fields: `category` (from `CATEGORY_CHOICES`), `allergen_key` (category-dependent), `is_active` with unique `(category, allergen_key)`.
 - `UserAllergy`: `user` → `users.CustomUser`, `allergen` → `Allergen` (+ severity_level, is_confirmed, source_info, JSON fields). Unique `(user, allergen)`.
+- **Expected JSONField Schemas (use only these keys — do not invent new ones):**
+  - `user_reaction_details` → `{"symptom": str, "severity": str, "date": str}` (type alias: `ReactionDetails` in [allergies/models.py](allergies/models.py))
+  - `admin_notes` → `{"verified_by": str, "verification_date": str}` (type alias: `AdminNotes` in [allergies/models.py](allergies/models.py))
 - Convenience: `Allergen.allergen_label` maps key to human label via `FLAT_ALLERGEN_LABEL_MAP`.
 
 ## Database Management
@@ -294,6 +311,7 @@ Example response:
 - **Execution:** Never ask the user to "activate venv." Use `uv run <command>` (e.g., `uv run python manage.py migrate`).
 - **Add Packages:** Use `uv add <package>` for base deps and `uv add --group <name> <package>` for specific groups (test, lint, type-check, security).
 - **Syncing:** Use `uv sync` to ensure the environment matches `uv.lock`.
+- **Lockfile Commits:** After `uv add`, always commit both `pyproject.toml` and `uv.lock` together. The CI enforces `uv lock --check` — a stale lockfile will fail the build.
 - **Version Pinning:** Respect `.python-version` and `requires-python = ">=3.13"` in `pyproject.toml`.
 - **Required Dependencies:** `django-environ` is **required** (not optional) - install with `uv add django-environ`. See [docs/SECURITY.md](docs/SECURITY.md) for environment variable management.
 
@@ -637,7 +655,7 @@ When suggesting model changes, always remind:
 - **Models:** 80% minimum (test all custom methods, properties, validation logic)
 - **Views:** 70% minimum (test GET, POST, error cases, authentication)
 - **Forms:** 80% minimum (test validation, clean methods, error messages)
-- **Integration Tests:** Mark with `@pytest.mark.integration` for end-to-end workflows
+- **Integration Tests:** Mark with `@pytest.mark.integration` for any test spanning multiple apps (e.g., `users` + `allergies`) or testing end-to-end workflows. `--strict-markers` is enforced in [pyproject.toml](pyproject.toml) — only use registered markers (`integration`, `slow`, `unit`).
 
 ### Fixture Reference ([conftest.py](conftest.py))
 
@@ -994,6 +1012,8 @@ Example response:
 - `allergen_key` choices are category-dependent; leave `choices=[]` in the model and filter in forms.
 - Ensure `UserAllergy.clean()` runs: save path uses `full_clean()` override; do not bypass `save()`.
 - Static files are served from [static/](static) with `STATICFILES_DIRS` configured in settings.
+- **Migration naming:** Always pass `--name` to `makemigrations` — e.g., `uv run python manage.py makemigrations allergies --name add_severity_to_userallergy`. Auto-generated names like `0004_auto_20260303_1234` are not acceptable.
+- **JSONField key discipline:** Only use the canonical keys defined in the model `help_text` and type aliases (`ReactionDetails`, `AdminNotes` in [allergies/models.py](allergies/models.py)). Inventing new keys (e.g., `"reaction_type"`, `"onset"`) will silently corrupt existing data.
 
 ## Python 3.13 + Django 6.0 Technical Notes
 - **Type Aliases:** Use the `type` statement for complex type aliases (e.g., `type AllergenDict = dict[str, str | int]`).
