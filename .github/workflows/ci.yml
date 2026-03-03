@@ -149,6 +149,10 @@ jobs:
         run: |
           uv sync --group type-check --group security
 
+      - name: Run mypy
+        run: |
+          uv run mypy allergies users skincare_project
+
       - name: Run bandit
         run: |
           uv run bandit -r . --severity-level high --confidence-level high -x .git,__pycache__,.venv,venv,migrations,.pytest_cache,htmlcov,.tox,build,dist,assets,media,static -f json -o bandit-output.json
@@ -202,7 +206,17 @@ jobs:
               ])
               sys.exit(0)
 
-          vulns = data.get("vulnerabilities") or data.get("scan_results", {}).get("vulnerabilities")
+          # Safety v2: {"vulnerabilities": [...]}
+          # Safety v3: {"scan_results": {"packages": [{"name": "...", "vulnerabilities": [...]}]}}
+          vulns = data.get("vulnerabilities")
+          if vulns is None:
+              # v3 flat key (future-proofing)
+              vulns = data.get("scan_results", {}).get("vulnerabilities")
+          if vulns is None:
+              # v3 per-package structure — flatten vulnerabilities across all packages
+              packages = data.get("scan_results", {}).get("packages", [])
+              if packages:
+                  vulns = [v for pkg in packages for v in pkg.get("vulnerabilities", [])]
 
           lines = ["### \U0001f512 Safety Vulnerability Scan", ""]
           if vulns is None:
@@ -217,7 +231,16 @@ jobs:
               for v in vulns:
                   pkg = v.get("package_name") or v.get("package", "unknown")
                   cve = v.get("CVE") or v.get("cve") or v.get("vulnerability_id", "N/A")
-                  sev = v.get("severity") or v.get("cvss_v3_severity", "unknown")
+                  # v3 severity is a nested object; v2 is a plain string
+                  sev_raw = v.get("severity") or v.get("cvss_v3_severity", "unknown")
+                  if isinstance(sev_raw, dict):
+                      sev = (
+                          sev_raw.get("cvssv3", {}).get("base_severity")
+                          or sev_raw.get("cvssv2", {}).get("base_severity")
+                          or "unknown"
+                      )
+                  else:
+                      sev = sev_raw or "unknown"
                   adv = (v.get("advisory") or "")[:80]
                   lines.append(f"| {pkg} | {cve} | {sev} | {adv} |")
                   print(f"::warning title=Safety::{pkg} {cve} ({sev})")
