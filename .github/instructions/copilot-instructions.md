@@ -1012,7 +1012,7 @@ Example response:
 - `allergen_key` choices are category-dependent; leave `choices=[]` in the model and filter in forms.
 - Ensure `UserAllergy.clean()` runs: save path uses `full_clean()` override; do not bypass `save()`.
 - Static files are served from [static/](static) with `STATICFILES_DIRS` configured in settings.
-- **Migration naming:** Always pass `--name` to `makemigrations` — e.g., `uv run python manage.py makemigrations allergies --name add_severity_to_userallergy`. Auto-generated names like `0004_auto_20260303_1234` are not acceptable.
+- **Migration naming:** Always pass `--name` to `makemigrations` — e.g., `uv run python manage.py makemigrations allergies --name add_severity_to_userallergy`. Auto-generated names matching `0004_auto_<timestamp>` are **rejected at commit time** by the `enforce-migration-naming` pre-commit hook in [.pre-commit-config.yaml](.pre-commit-config.yaml).
 - **JSONField key discipline:** Only use the canonical keys defined in the model `help_text` and type aliases (`ReactionDetails`, `AdminNotes` in [allergies/models.py](allergies/models.py)). Inventing new keys (e.g., `"reaction_type"`, `"onset"`) will silently corrupt existing data.
 
 ## Python 3.13 + Django 6.0 Technical Notes
