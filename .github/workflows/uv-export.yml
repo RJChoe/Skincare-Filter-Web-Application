@@ -56,13 +56,6 @@ jobs:
           uv export --no-hashes --format requirements-txt --group dev -o /tmp/requirements-dev.txt
 
       - name: Success
-        run: |
-          echo "✅ Lockfile is consistent and all exports succeed"
-            git diff requirements.txt requirements-dev.txt
-            exit 1
-          }
-
-      - name: Success
         if: success()
         run: |
-          echo "✅ Requirements files are in sync with uv.lock"
+          echo "✅ Lockfile is consistent and all exports succeed"
