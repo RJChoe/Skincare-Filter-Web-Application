@@ -47,7 +47,7 @@ jobs:
 
       - name: Export requirements.txt
         run: |
-          uv export --no-dev --no-hashes --format requirements-txt -o requirements.txt
+          uv export --no-dev --no-hashes --universal --format requirements-txt -o requirements.txt
 
       - name: Sync Environment
         run: |
@@ -55,7 +55,7 @@ jobs:
 
       - name: Export requirements-dev.txt
         run: |
-          uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.txt
+          uv export --no-hashes --universal --format requirements-txt --group dev -o requirements-dev.txt
 
       - name: Verify Requirements Sync
         run: |

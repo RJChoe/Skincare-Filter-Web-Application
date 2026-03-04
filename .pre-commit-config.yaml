@@ -56,7 +56,11 @@ repos:
       - id: uv-lock
       # Ensure requirements.txt files stay in sync with uv.lock
       - id: uv-export
-        args: [--no-dev, --no-hashes, --format, requirements-txt, -o, requirements.txt]
+        name: uv-export (requirements.txt)
+        args: [--no-dev, --no-hashes, --universal, --format, requirements-txt, -o, requirements.txt]
+      - id: uv-export
+        name: uv-export (requirements-dev.txt)
+        args: [--no-hashes, --universal, --format, requirements-txt, --group, dev, -o, requirements-dev.txt]
 
   # ============================================================================
   # Stage 4 & 5: Code Formatting + Linting (single repo entry, two hooks)
