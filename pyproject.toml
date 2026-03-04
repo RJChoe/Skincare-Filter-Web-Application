@@ -121,45 +121,15 @@ dev = [
     {include-group = "security"},
     # Django development tools
     "django-debug-toolbar==6.1.0",
-    # Data validation
-    "pydantic==2.12.5",
-    "pydantic-core==2.41.5",
-    "annotated-types==0.7.0",
-    "marshmallow==4.1.2",
-    # Authentication & cryptography
-    "authlib==1.6.6",
-    "cryptography==46.0.5",
-    "cffi==2.0.0",
-    "pycparser==2.23",
-    # HTTP & networking
-    "requests==2.32.5",
-    "urllib3==2.6.3",
-    "certifi==2025.11.12",
-    "idna==3.11",
-    "charset-normalizer==3.4.4",
-    # YAML & config parsing
+    # YAML & config parsing (used by safety internals; pin for reproducibility)
     "pyyaml==6.0.3",
-    "ruamel-yaml==0.18.17",
-    "ruamel-yaml-clib==0.2.15",
-    "dparse==0.6.4",
-    # Template rendering
-    "jinja2==3.1.6",
-    "markupsafe==3.0.3",
-    # Markdown rendering
-    "markdown-it-py==4.0.0",
-    "mdurl==0.1.2",
-    "pygments==2.19.2",
     # Build & packaging tools
     "setuptools==80.9.0",
     "packaging==25.0",
     "filelock>=3.16.1",
     "platformdirs==4.5.1",
-    # Virtual environment tools
-    "virtualenv==20.36.1",
-    "distlib==0.4.0",
     # Utilities
-    "colorama==0.4.6",
-    "librt==0.7.4",
+    "pygments==2.19.2",
     "pytest-randomly>=4.0.1",
 ]
 
@@ -200,7 +170,6 @@ select = [
 ignore = [
     "E203",  # Whitespace before ':' (conflicts with formatters)
     "E501",  # Line too long (handled by formatter)
-    "F401",  # Unused import (false positives with Django signals)
     "S101",  # Use of assert (acceptable in tests)
     "S105",  # Possible hardcoded password (false positives in Django settings)
     "S106",  # Possible hardcoded password (false positives in Django settings)
@@ -220,6 +189,7 @@ ignore = [
 "manage.py" = ["T20", "D100", "D103"]
 "**/settings*.py" = ["S105", "S106", "D100", "D104"]
 "**/apps.py" = ["F401", "D100", "D104"]
+"**/signals.py" = ["F401"]
 
 [tool.ruff.format]
 quote-style = "double"

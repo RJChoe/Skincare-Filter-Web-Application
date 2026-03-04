@@ -3,19 +3,15 @@
 import io
 import logging
 from datetime import date, timedelta
-from pathlib import Path
 
 import pytest
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError, transaction
-from django.utils import timezone
+from django.db import transaction
 from PIL import Image
 
 from allergies.constants.choices import CATEGORY_CONTACT
 from allergies.models import Allergen, UserAllergy
-from users.models import CustomUser
 
 User = get_user_model()
 

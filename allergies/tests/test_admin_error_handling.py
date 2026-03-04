@@ -4,7 +4,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory
 
-from allergies.admin import AllergenAdmin, UserAllergyAdmin
+from allergies.admin import AllergenAdmin
 from allergies.models import Allergen
 from users.models import CustomUser
 
