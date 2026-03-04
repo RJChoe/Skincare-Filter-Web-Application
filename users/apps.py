@@ -17,4 +17,4 @@ class UserConfig(AppConfig):
         Uses an import guard to prevent duplicate registration during testing.
         """
         # Import signals to register handlers
-        import users.signals  # noqa: F401
+        import users.signals
