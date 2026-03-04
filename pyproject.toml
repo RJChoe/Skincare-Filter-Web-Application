@@ -98,6 +98,7 @@ type-check = [
     "django-stubs-ext==5.2.8",
     "types-pyyaml==6.0.12.20250915",
     "typing-inspection==0.4.2",
+    "types-psycopg2>=2.9.0",
 ]
 
 # Security scanning tools

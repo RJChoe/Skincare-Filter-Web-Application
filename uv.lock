@@ -1349,6 +1349,7 @@ dev = [
     { name = "shellingham" },
     { name = "stevedore" },
     { name = "typer" },
+    { name = "types-psycopg2" },
     { name = "types-pyyaml" },
     { name = "typing-inspection" },
     { name = "urllib3" },
@@ -1385,6 +1386,7 @@ type-check = [
     { name = "django-stubs-ext" },
     { name = "mypy" },
     { name = "mypy-extensions" },
+    { name = "types-psycopg2" },
     { name = "types-pyyaml" },
     { name = "typing-inspection" },
 ]
@@ -1461,6 +1463,7 @@ dev = [
     { name = "shellingham", specifier = "==1.5.4" },
     { name = "stevedore", specifier = "==5.6.0" },
     { name = "typer", specifier = "==0.20.1" },
+    { name = "types-psycopg2", specifier = ">=2.9.0" },
     { name = "types-pyyaml", specifier = "==6.0.12.20250915" },
     { name = "typing-inspection", specifier = "==0.4.2" },
     { name = "urllib3", specifier = "==2.6.3" },
@@ -1497,6 +1500,7 @@ type-check = [
     { name = "django-stubs-ext", specifier = "==5.2.8" },
     { name = "mypy", specifier = "==1.19.1" },
     { name = "mypy-extensions", specifier = "==1.1.0" },
+    { name = "types-psycopg2", specifier = ">=2.9.0" },
     { name = "types-pyyaml", specifier = "==6.0.12.20250915" },
     { name = "typing-inspection", specifier = "==0.4.2" },
 ]
@@ -1562,6 +1566,15 @@ dependencies = [
 sdist = { url = "https://pkgs.safetycli.com/package/skincare-filter/pypi/packages/6d/c1/933d30fd7a123ed981e2a1eedafceab63cb379db0402e438a13bc51bbb15/typer-0.20.1.tar.gz", hash = "sha256:68585eb1b01203689c4199bc440d6be616f0851e9f0eb41e4a778845c5a0fd5b", size = 105968, upload-time = "2025-12-19T16:48:56.302Z" }
 wheels = [
     { url = "https://pkgs.safetycli.com/package/skincare-filter/pypi/packages/c8/52/1f2df7e7d1be3d65ddc2936d820d4a3d9777a54f4204f5ca46b8513eff77/typer-0.20.1-py3-none-any.whl", hash = "sha256:4b3bde918a67c8e03d861aa02deca90a95bbac572e71b1b9be56ff49affdb5a8", size = 47381, upload-time = "2025-12-19T16:48:53.679Z" },
+]
+
+[[package]]
+name = "types-psycopg2"
+version = "2.9.0"
+source = { registry = "https://pkgs.safetycli.com/repository/skincare-filter/pypi/simple/" }
+sdist = { url = "https://pkgs.safetycli.com/package/skincare-filter/pypi/packages/ea/c5/4355c2e948e1c8e82174c6a5fa7907c93465c6742a872f24f6067f5ee9ed/types-psycopg2-2.9.0.tar.gz", hash = "sha256:6e15cdbae8944271ab5fe413a06b248b714666ba0af4162b62b35da6c7a74e8f", size = 13110, upload-time = "2021-07-15T18:19:39.744Z" }
+wheels = [
+    { url = "https://pkgs.safetycli.com/package/skincare-filter/pypi/packages/8d/78/3b4ce4dd2d9988a45a6750889996aa19533b6aa8635cb29990acd9f19c04/types_psycopg2-2.9.0-py3-none-any.whl", hash = "sha256:c1cd002bb62c044a02a88c48a06b62242d4bd8732d8dd8bf064b29fdaf7771e5", size = 15403, upload-time = "2021-07-15T18:19:38.186Z" },
 ]
 
 [[package]]

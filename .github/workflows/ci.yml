@@ -47,7 +47,7 @@ jobs:
 
       - name: Validate ${{ matrix.group }} group installs
         run: |
-          uv sync --group ${{ matrix.group }}
+          uv sync --frozen --group ${{ matrix.group }}
 
   # ============================================================================
   # Lint Job - Guards the test job
@@ -69,9 +69,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --group lint
+          uv sync --frozen --group lint
 
-      - name: Run pre-commit (ruff, ruff-format, mypy)
+      - name: Verify lockfile is up to date
+        run: |
+          uv lock --check
+
+      - name: Run pre-commit (ruff, ruff-format)
         run: |
           uv run pre-commit run --all-files
 
@@ -99,7 +103,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --group test
+          uv sync --frozen --group test
 
       - name: Run migrations
         run: |
@@ -147,7 +151,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --group type-check --group security
+          uv sync --frozen --group type-check --group security
+
+      - name: Run mypy
+        run: |
+          uv run mypy allergies users skincare_project
 
       - name: Run bandit
         run: |
@@ -274,7 +282,7 @@ jobs:
           echo "| Validate Groups | $VALIDATE_GROUPS_STATUS |" >> $GITHUB_STEP_SUMMARY
           echo "| Lint | $LINT_STATUS |" >> $GITHUB_STEP_SUMMARY
           echo "| Static Analysis | $STATIC_ANALYSIS_STATUS |" >> $GITHUB_STEP_SUMMARY
-          echo "| Test (Matrix) | $TEST_STATUS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Test (Python 3.13) | $TEST_STATUS |" >> $GITHUB_STEP_SUMMARY
 
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📦 Artifacts" >> $GITHUB_STEP_SUMMARY
