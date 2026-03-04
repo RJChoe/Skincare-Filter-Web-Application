@@ -22,6 +22,10 @@ permissions:
 env:
   PYTHONUNBUFFERED: "1"
   DJANGO_SETTINGS_MODULE: "skincare_project.settings"
+  # Dummy values for CI — settings.py raises ImproperlyConfigured if SECRET_KEY
+  # is absent, and defaults DEBUG=False which activates SECURE_SSL_REDIRECT etc.
+  SECRET_KEY: "django-insecure-ci-only-not-for-production-do-not-use"
+  DEBUG: "True"
 
 jobs:
   # ============================================================================
