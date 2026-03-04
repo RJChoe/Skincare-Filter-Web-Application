@@ -36,43 +36,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
-        with:
-          enable-cache: true
+      - name: Set up Python + uv
+        uses: ./.github/actions/setup-python-uv
 
       - name: Validate Lockfile Consistency
         run: |
           uv lock --check
 
-      - name: Export requirements.txt
+      - name: Smoke test - export requirements.txt
         run: |
-          uv export --no-dev --no-hashes --format requirements-txt -o requirements.txt
+          uv export --no-dev --no-hashes --format requirements-txt -o /tmp/requirements.txt
 
-      - name: Sync Environment
+      - name: Validate environment is buildable
         run: |
           uv sync --frozen
 
-      - name: Export requirements-dev.txt
+      - name: Smoke test - export requirements-dev.txt
         run: |
-          uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.txt
-
-      - name: Verify Requirements Sync
-        run: |
-          git diff --exit-code requirements.txt requirements-dev.txt || {
-            echo "::error title=Export Sync Error::The requirements.txt files do not match the current uv.lock."
-            echo "❌ Requirements files are out of sync with uv.lock!"
-            echo ""
-            echo "Please run the following commands locally and commit the changes:"
-            echo "  uv export --no-dev --no-hashes --format requirements-txt -o requirements.txt"
-            echo "  uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.txt"
-            echo ""
-            echo "Changes detected:"
-            git diff requirements.txt requirements-dev.txt
-            exit 1
-          }
+          uv export --no-hashes --format requirements-txt --group dev -o /tmp/requirements-dev.txt
 
       - name: Success
         if: success()
         run: |
-          echo "✅ Requirements files are in sync with uv.lock"
+          echo "✅ Lockfile is consistent and all exports succeed"

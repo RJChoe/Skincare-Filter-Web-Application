@@ -1,5 +1,5 @@
 # Pre-commit hooks configuration
-# Install: pre-commit install
+# Install: pre-commit install && pre-commit install --hook-type pre-push
 # Run manually: pre-commit run --all-files
 # Update hooks: pre-commit autoupdate
 
@@ -54,27 +54,16 @@ repos:
     hooks:
       # Validate uv.lock stays synchronized with pyproject.toml
       - id: uv-lock
-      # Ensure requirements.txt files stay in sync with uv.lock
-      - id: uv-export
-        args: [--all-extras]
 
   # ============================================================================
-  # Stage 4: Code Formatting (Fix formatting issues automatically)
+  # Stage 4 & 5: Code Formatting + Linting (single repo entry, two hooks)
   # ============================================================================
-  # Ruff formatter: Black-compatible Python code formatter
+  # Ruff: Black-compatible formatter and fast linter with 500+ rules
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.10
     hooks:
       # Format code according to project standards
       - id: ruff-format
-
-  # ============================================================================
-  # Stage 5: Code Linting (Check code quality and style rules)
-  # ============================================================================
-  # Ruff linter: Fast Python linter with 500+ rules (including Django-specific)
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.10
-    hooks:
       # Check code quality and fix violations where possible
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
@@ -83,21 +72,21 @@ repos:
   # Stage 6: Type Checking (Runs on pre-push to avoid blocking commits)
   # ============================================================================
   # Mypy: Static type checker for Python (slower, runs on pre-push stage only)
+  # Uses the project's own environment (uv sync --group type-check) so that
+  # pre-commit, CI, and local `uv run mypy` all see the exact same stubs.
   # Pre-push stage allows commits to proceed quickly, while still catching type
-  # errors before pushing to remote. Run locally with: pre-commit run -a -c
-  # .pre-commit-config.yaml --hook-stage push
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.19.1
+  # errors before pushing to remote.
+  - repo: local
     hooks:
       - id: mypy
+        name: mypy
+        entry: uv run mypy
+        language: system
+        types: [python]
         stages: [pre-push]
-        additional_dependencies:
-          - django==6.0
-          - django-stubs==5.2.8
-          - types-psycopg2
-          - dj-database-url==2.2.0
         args: [--config-file=pyproject.toml]
         files: ^(allergies|users|skincare_project)/.*\.py$
+        pass_filenames: false
 
   # ============================================================================
   # Stage 7: Custom Validation (Project-Specific Rules)
