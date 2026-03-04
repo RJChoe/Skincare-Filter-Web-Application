@@ -8,6 +8,7 @@ Home - Allergies Filter App
     <main>
         <h2>Product Ingredient Input</h2>
         <form method="post">
+            {% csrf_token %}
             <label for="ingredients">Enter product ingredients:</label>
             <textarea id="ingredients" name="ingredients" rows="4" cols="50"></textarea>
             <button type="submit">Filter Products</button>

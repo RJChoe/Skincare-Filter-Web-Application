@@ -14,9 +14,7 @@ dist/
 build/
 
 # Django database and media files
-# Note: db.sqlite3 is intentionally committed for dev convenience
-# *.sqlite3 is commented out to allow db.sqlite3 to be tracked
-# *.sqlite3
+*.sqlite3
 *.db
 media/
 staticfiles/
