@@ -186,6 +186,7 @@ tqdm==4.67.3
     # via nltk
 typer==0.20.1
     # via safety
+types-psycopg2==2.9.0
 types-pyyaml==6.0.12.20250915
     # via django-stubs
 typing-extensions==4.15.0
