@@ -25,51 +25,12 @@ logging.disable(logging.CRITICAL)
 # ============================================================================
 
 
-@pytest.fixture
-def user_email():
-    """Provide a test email address."""
-    return "test@example.com"
-
-
-@pytest.fixture
-def user_password():
-    """Provide a test password."""
-    return "SecurePassword123!"
-
-
-@pytest.fixture
-def custom_user(db, user_email, user_password):
-    """Create a basic custom user for testing."""
-    return User.objects.create_user(
-        email=user_email, username="testuser", password=user_password
-    )
-
-
-@pytest.fixture
-def allergen_contact(db):
-    """Create a contact allergen for testing."""
-    return Allergen.objects.create(
-        category=CATEGORY_CONTACT, allergen_key="sls", is_active=True
-    )
-
-
-@pytest.fixture
-def user_allergy(db, custom_user, allergen_contact):
-    """Create a UserAllergy instance for testing signals."""
-    return UserAllergy.objects.create(
-        user=custom_user,
-        allergen=allergen_contact,
-        severity_level="moderate",
-        is_confirmed=True,
-    )
-
-
-def create_test_image(format="JPEG", size_mb=1):
+def create_test_image(image_format: str = "JPEG", size_mb: int = 1) -> io.BytesIO:
     """
     Create a test image file in memory.
 
     Args:
-        format: Image format (JPEG, PNG, WEBP).
+        image_format: Image format (JPEG, PNG, WEBP).
         size_mb: Approximate file size in MB.
 
     Returns:
@@ -80,7 +41,7 @@ def create_test_image(format="JPEG", size_mb=1):
     img_io = io.BytesIO()
 
     # Save with appropriate format
-    save_format = "JPEG" if format == "JPEG" else format
+    save_format = "JPEG" if image_format == "JPEG" else image_format
     img.save(img_io, format=save_format, quality=85)
 
     # Adjust size if needed (for size validation tests)
@@ -88,7 +49,7 @@ def create_test_image(format="JPEG", size_mb=1):
         # Create larger image for size tests
         img_io = io.BytesIO(b"0" * (size_mb * 1024 * 1024))
 
-    img_io.name = f"test_image.{format.lower()}"
+    img_io.name = f"test_image.{image_format.lower()}"
     img_io.seek(0)
     return img_io
 
@@ -260,7 +221,7 @@ class TestCustomUserValidation:
 
     def test_image_size_exceeds_limit(self, custom_user):
         """Test that images over 5MB are rejected."""
-        large_image = create_test_image(format="JPEG", size_mb=6)
+        large_image = create_test_image(image_format="JPEG", size_mb=6)
 
         with pytest.raises(
             ValidationError, match="Image file size must not exceed 5MB"
@@ -270,19 +231,19 @@ class TestCustomUserValidation:
 
     def test_image_format_jpeg_valid(self, custom_user):
         """Test that JPEG format is accepted."""
-        jpeg_image = create_test_image(format="JPEG", size_mb=1)
+        jpeg_image = create_test_image(image_format="JPEG", size_mb=1)
         custom_user.profile_picture.save("test.jpg", jpeg_image, save=False)
         custom_user.full_clean()  # Should not raise
 
     def test_image_format_png_valid(self, custom_user):
         """Test that PNG format is accepted."""
-        png_image = create_test_image(format="PNG", size_mb=1)
+        png_image = create_test_image(image_format="PNG", size_mb=1)
         custom_user.profile_picture.save("test.png", png_image, save=False)
         custom_user.full_clean()  # Should not raise
 
     def test_image_format_webp_valid(self, custom_user):
         """Test that WebP format is accepted."""
-        webp_image = create_test_image(format="WEBP", size_mb=1)
+        webp_image = create_test_image(image_format="WEBP", size_mb=1)
         custom_user.profile_picture.save("test.webp", webp_image, save=False)
         custom_user.full_clean()  # Should not raise
 
