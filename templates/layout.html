@@ -17,11 +17,12 @@
 <body>
     <nav class="navbar">
         <div class="container">
-                <span class="brand"><a href="/">Allergies Filter App</a></span>
+                <span class="brand"><a href="{% url 'home' %}">Allergies Filter App</a></span>
                 <ul class="nav-links">
-                    <li><a href="/">Home 🏡</a></li>
-                    <li><a href="/product">Product Input 📚</a></li>
-                    <li><a href="/allergies/">Allergies List 🚨</a></li>
+                    <li><a href="{% url 'home' %}">Home 🏡</a></li>
+                    <li><a href="{% url 'product' %}">Product Input 📚</a></li>
+                    <li><a href="{% url 'allergies:list' %}">Allergies List 🚨</a></li>
+                    <li><a href="{% url 'user:list' %}">Users 👤</a></li>
                 </ul>
         </div>
     </nav>

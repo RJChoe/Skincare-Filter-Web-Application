@@ -1,25 +1,32 @@
-<!DOCTYPE html>
-{% load static %}
+{% extends 'layout.html' %}
 
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Allergy Input</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
+{% block title %}
+Profile — Allergies Filter App
+{% endblock %}
 
-<body>
-    <header>
-        <h1>Welcome User Allergy Input</h1>
-    </header>
+{% block content %}
+    <h2>My Profile</h2>
 
-    <main>
-        <p>Check out the <a href="/">Homepage</a></p>
-    </main>
+    <section class="profile">
+        {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" alt="Profile picture of {{ user.username }}">
+        {% endif %}
+
+        <ul>
+            <li><strong>Username:</strong> {{ user.username }}</li>
+            <li><strong>Email:</strong> {{ user.email }}</li>
+            <li><strong>Bio:</strong> {{ user.bio|default:"No bio provided." }}</li>
+            <li><strong>Phone:</strong> {{ user.phone_number|default:"Not set." }}</li>
+            <li><strong>Date of Birth:</strong> {{ user.date_of_birth|default:"Not set." }}</li>
+        </ul>
+    </section>
+
+    <nav class="profile-links">
+        <a href="{% url 'home' %}">Home</a> &middot;
+        <a href="{% url 'allergies:list' %}">Allergies List</a>
+    </nav>
 
     <footer>
-        <p>&copy; 2023 My Django Site</p>
+        <p>&copy; 2026 Allergies Filter App</p>
     </footer>
-</body>
-</html>
+{% endblock %}

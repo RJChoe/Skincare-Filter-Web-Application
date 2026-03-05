@@ -1,16 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User List</title>
-</head>
-<body>
-    <h1>User List</h1>
-    <ul>
-        <li>User 1</li>
-        <li>User 2</li>
-        <li>User 3</li>
-    </ul>
-</body>
-</html>
+{% extends 'layout.html' %}
+
+{% block title %}
+User List — Allergies Filter App
+{% endblock %}
+
+{% block content %}
+    <h2>User List</h2>
+
+    {% if users %}
+        <ul class="user-list">
+            {% for u in users %}
+                <li>{{ u.username }} &mdash; {{ u.email }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No users found.</p>
+    {% endif %}
+
+    <nav class="list-links">
+        <a href="{% url 'home' %}">Home</a> &middot;
+        <a href="{% url 'user:profile' %}">My Profile</a>
+    </nav>
+
+    <footer>
+        <p>&copy; 2026 Allergies Filter App</p>
+    </footer>
+{% endblock %}
