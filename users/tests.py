@@ -385,6 +385,130 @@ class TestAllergySignalBatching:
         assert timestamp.microsecond is not None
 
 
+# ============================================================================
+# Logging Tests
+# ============================================================================
+
+
+@pytest.mark.django_db
+class TestManagerLogging:
+    """Assert manager log messages never contain raw PII."""
+
+    @pytest.fixture(autouse=True)
+    def enable_logging(self):
+        """Re-enable logging and enable propagation so caplog can capture records.
+
+        Django's LOGGING config sets propagate=False on the 'users' logger, which
+        prevents records from reaching caplog's root-level handler. Temporarily
+        re-enabling propagation allows caplog to capture them.
+        """
+        logging.disable(logging.NOTSET)
+        users_logger = logging.getLogger("users")
+        original_propagate = users_logger.propagate
+        users_logger.propagate = True
+        yield
+        users_logger.propagate = original_propagate
+        logging.disable(logging.CRITICAL)
+
+    def test_create_user_success_logs_id_not_email(self, caplog, user_password):
+        """Successful creation logs user.id; raw email must not appear."""
+        email = "log_test_success@example.com"
+        with caplog.at_level(logging.INFO, logger="users"):
+            user = User.objects.create_user(
+                email=email, username="log_success", password=user_password
+            )
+
+        assert str(user.id) in caplog.text
+        assert email not in caplog.text
+
+    def test_create_user_invalid_email_logs_token_not_email(self, caplog):
+        """Invalid-email error logs a token; raw email must not appear."""
+        email = "not-an-email"
+        with caplog.at_level(logging.ERROR, logger="users"):
+            with pytest.raises(ValidationError):
+                User.objects.create_user(
+                    email=email, username="log_bad", password="pass123"
+                )
+
+        assert "token=" in caplog.text
+        assert email not in caplog.text
+
+    def test_create_user_debug_logs_token_not_email(self, caplog, user_password):
+        """Debug log during creation contains a token; raw email must not appear."""
+        email = "log_test_debug@example.com"
+        with caplog.at_level(logging.DEBUG, logger="users"):
+            User.objects.create_user(
+                email=email, username="log_debug", password=user_password
+            )
+
+        assert "token=" in caplog.text
+        assert email not in caplog.text
+
+    def test_create_superuser_logs_token_not_email(self, caplog, user_password):
+        """Superuser creation logs a token; raw email must not appear."""
+        email = "log_super@example.com"
+        with caplog.at_level(logging.INFO, logger="users"):
+            User.objects.create_superuser(
+                email=email, username="log_superuser", password=user_password
+            )
+
+        assert "token=" in caplog.text
+        assert email not in caplog.text
+
+    def test_token_is_consistent_for_same_email(self):
+        """The same email always produces the same token within a SECRET_KEY lifetime."""
+        from users._log_utils import email_token
+
+        email = "consistency@example.com"
+        assert email_token(email) == email_token(email)
+
+    def test_token_differs_for_different_emails(self):
+        """Different emails produce different tokens."""
+        from users._log_utils import email_token
+
+        assert email_token("a@example.com") != email_token("b@example.com")
+
+    def test_token_length_is_12(self):
+        """Token is exactly 12 characters."""
+        from users._log_utils import email_token
+
+        assert len(email_token("any@example.com")) == 12
+
+
+@pytest.mark.django_db
+class TestModelLogging:
+    """Assert model log messages never contain raw PII."""
+
+    @pytest.fixture(autouse=True)
+    def enable_logging(self):
+        """Re-enable logging and enable propagation so caplog can capture records.
+
+        Django's LOGGING config sets propagate=False on the 'users' logger, which
+        prevents records from reaching caplog's root-level handler. Temporarily
+        re-enabling propagation allows caplog to capture them.
+        """
+        logging.disable(logging.NOTSET)
+        users_logger = logging.getLogger("users")
+        original_propagate = users_logger.propagate
+        users_logger.propagate = True
+        yield
+        users_logger.propagate = original_propagate
+        logging.disable(logging.CRITICAL)
+
+    def test_future_dob_warning_logs_token_not_email(self, caplog, custom_user):
+        """Future DOB warning logs a token; raw email must not appear."""
+        from datetime import timedelta
+
+        custom_user.date_of_birth = date.today() + timedelta(days=1)
+
+        with caplog.at_level(logging.WARNING, logger="users"):
+            with pytest.raises(ValidationError):
+                custom_user.full_clean()
+
+        assert "token=" in caplog.text
+        assert custom_user.email not in caplog.text
+
+
 # Re-enable logging after tests
 def teardown_module():
     """Re-enable logging after all tests complete."""
