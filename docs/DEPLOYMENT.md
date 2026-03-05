@@ -7,12 +7,13 @@ This guide covers deploying the Skincare Allergy Filter application to productio
 ## Table of Contents
 
 1. [Pre-Deployment Checklist](#pre-deployment-checklist)
-2. [Environment Configuration](#environment-configuration)
-3. [Database Setup](#database-setup)
-4. [Static Files](#static-files)
-5. [WSGI Server Configuration](#wsgi-server-configuration)
-6. [Common Hosting Providers](#common-hosting-providers)
-7. [Post-Deployment](#post-deployment)
+2. [CI/CD Secrets](#cicd-secrets)
+3. [Environment Configuration](#environment-configuration)
+4. [Database Setup](#database-setup)
+5. [Static Files](#static-files)
+6. [WSGI Server Configuration](#wsgi-server-configuration)
+7. [Common Hosting Providers](#common-hosting-providers)
+8. [Post-Deployment](#post-deployment)
 
 ---
 
@@ -23,7 +24,7 @@ Before deploying to production, ensure:
 - [ ] All tests pass locally: `uv run pytest`
 - [ ] Coverage meets minimum threshold (50%)
 - [ ] Security scan passes: `uv run bandit -r allergies users skincare_project`
-- [ ] Dependencies are up to date and secure: `uv run safety check`
+- [ ] Dependencies are up to date and secure: `uv run safety scan --non-interactive`
 - [ ] `.env` file configured with production values
 - [ ] Database migrations are up to date
 - [ ] Static files collected
@@ -31,6 +32,43 @@ Before deploying to production, ensure:
 - [ ] Strong `SECRET_KEY` generated
 - [ ] `ALLOWED_HOSTS` configured correctly
 - [ ] HTTPS/SSL certificate obtained
+- [ ] `SAFETY_API_KEY` GitHub secret configured (see [CI/CD Secrets](#cicd-secrets))
+
+---
+
+## CI/CD Secrets
+
+The CI workflow uses GitHub Actions secrets for external service integrations. Unlike Variables, secrets are **masked (`***`) in all log output**, preventing accidental key exposure to anyone with read access to the repository.
+
+### Required Secrets
+
+| Secret | Required | Purpose |
+| :--- | :--- | :--- |
+| `SAFETY_API_KEY` | ✅ Yes | Authenticates `safety scan` for vulnerability checks |
+| `CODECOV_TOKEN` | ⚠️ Recommended | Uploads coverage reports to Codecov |
+
+### Setting Up `SAFETY_API_KEY`
+
+#### 1. Obtain an API key
+
+Register or log in at [safety.pyup.io](https://safety.pyup.io), then navigate to **Account Settings → API Keys → New API Key**.
+
+#### 2. Add the secret to GitHub
+
+1. Go to your repository on GitHub
+2. Navigate to **Settings → Secrets and variables → Actions**
+3. Click the **Secrets tab** — ⚠️ **not the Variables tab**: Variables are stored in plaintext and visible in workflow logs, which would expose your API key
+4. Click **"New repository secret"**
+5. Set the name to exactly `SAFETY_API_KEY`
+6. Paste your API key as the value
+7. Click **"Add secret"**
+
+#### 3. CI behaviour by authentication state
+
+| State | CI behaviour |
+| :--- | :--- |
+| Secret set and valid | ✅ Scan runs authenticated; results appear in step summary |
+| Secret missing or expired | ❌ Annotation step exits with code 1; `static-analysis` job fails; merge blocked via branch protection |
 
 ---
 
