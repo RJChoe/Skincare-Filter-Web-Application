@@ -163,7 +163,7 @@ jobs:
 
       - name: Run bandit
         run: |
-          uv run bandit -r . --severity-level high --confidence-level high -x .git,__pycache__,.venv,venv,migrations,.pytest_cache,htmlcov,.tox,build,dist,assets,media,static -f json -o bandit-output.json
+          uv run bandit -r . --severity-level high --confidence-level high -x .git,__pycache__,.venv,venv,migrations,.pytest_cache,htmlcov,.tox,build,dist,assets,media,static,.github/scripts -f json -o bandit-output.json
 
       - name: Upload bandit report
         if: ${{ always() }}
@@ -177,104 +177,15 @@ jobs:
         env:
           SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
         run: |
+          # python -m safety ensures the module is resolved from the uv-managed venv,
+          # not a system-level safety binary that could be a different version.
           # --non-interactive: bypasses the initialization prompt
           # --disable-optional-telemetry: keeps the scan private/fast
-          uv run safety scan --non-interactive --output json --disable-optional-telemetry > safety-output.json
+          uv run python -m safety scan --non-interactive --output json --disable-optional-telemetry > safety-output.json
 
       - name: Annotate safety results
         if: ${{ always() }}
-        shell: python
-        run: |
-          import json, os, sys
-          from pathlib import Path
-
-          summary_file = os.environ.get("GITHUB_STEP_SUMMARY", os.devnull)
-          report = Path("safety-output.json")
-
-          def write_summary(lines):
-              with open(summary_file, "a", encoding="utf-8") as f:
-                  f.write("\n".join(lines) + "\n")
-
-          if not report.exists() or report.stat().st_size == 0:
-              write_summary([
-                  "### \U0001f512 Safety Vulnerability Scan",
-                  "",
-                  "\u26a0\ufe0f No safety report found or report was empty.",
-              ])
-              sys.exit(0)
-
-          try:
-              data = json.loads(report.read_text(encoding="utf-8"))
-          except json.JSONDecodeError:
-              write_summary([
-                  "### \U0001f512 Safety Vulnerability Scan",
-                  "",
-                  "\u26a0\ufe0f Could not parse safety-output.json.",
-              ])
-              sys.exit(0)
-
-          # Auth check: Safety 3.x sets meta.authenticated = False when no API key is present.
-          # A missing key is a misconfigured security gate — fail the step so CI blocks the merge.
-          if data.get("meta", {}).get("authenticated") is False:
-              write_summary([
-                  "### 🔒 Safety Vulnerability Scan",
-                  "",
-                  "⚠️ Safety scan ran unauthenticated — `SAFETY_API_KEY` secret may be missing or expired.",
-                  "",
-                  "See [CI/CD Secrets](docs/DEPLOYMENT.md#cicd-secrets) for setup instructions.",
-              ])
-              sys.exit(1)
-
-          # Walk Safety 3.x schema:
-          # scan_results -> projects[] -> files[] -> results -> dependencies[] -> specifications[]
-          # -> vulnerabilities -> known_vulnerabilities[]
-          # Use .get() + `or {}` safe-navigation at every nullable level to prevent KeyError
-          # if Safety returns a partial response (e.g. zero projects or zero files scanned).
-          vulns_found = []
-          schema_reached = False
-          for project in data.get("scan_results", {}).get("projects", []):
-              for f in project.get("files", []):
-                  for dep in f.get("results", {}).get("dependencies", []):
-                      pkg_name = dep.get("name", "unknown")
-                      for spec in dep.get("specifications", []):
-                          schema_reached = True
-                          vuln_obj = spec.get("vulnerabilities") or {}
-                          for v in vuln_obj.get("known_vulnerabilities", []):
-                              vulns_found.append((pkg_name, v))
-
-          # Safety 2.x fallback: flat top-level "vulnerabilities" key
-          if not schema_reached:
-              legacy = data.get("vulnerabilities")
-              if legacy is not None:
-                  for v in legacy:
-                      pkg = v.get("package_name") or v.get("package", "unknown")
-                      vulns_found.append((pkg, v))
-                  schema_reached = True
-
-          lines = ["### 🔒 Safety Vulnerability Scan", ""]
-
-          if not schema_reached:
-              lines.append("⚠️ Could not identify vulnerability list (unexpected schema).")
-          elif not vulns_found:
-              lines.append("✅ No vulnerabilities found.")
-          else:
-              non_ignored = [(p, v) for p, v in vulns_found if not v.get("ignored")]
-              ignored_count = len(vulns_found) - len(non_ignored)
-              lines.append(f"❌ **{len(non_ignored)} active vulnerability(s) found** ({ignored_count} ignored by policy)")
-              lines.append("")
-              lines.append("| Package | Vuln ID | Affected Spec | Ignored |")
-              lines.append("| :--- | :--- | :--- | :--- |")
-              for pkg_name, v in vulns_found:
-                  pkg_cell  = f"`{pkg_name}`"
-                  vid_cell  = f"`{v.get('id', 'N/A')}`"
-                  spec_cell = f"`{v.get('vulnerable_spec', 'N/A')}`"
-                  ign       = v.get("ignored") or {}
-                  ign_cell  = f"`{ign['code']}`" if ign else "No"
-                  lines.append(f"| {pkg_cell} | {vid_cell} | {spec_cell} | {ign_cell} |")
-                  if not ign:
-                      print(f"::warning title=Safety::{pkg_name} vuln {v.get('id', 'N/A')} ({v.get('vulnerable_spec', '')})")
-
-          write_summary(lines)
+        run: uv run python .github/scripts/annotate_safety.py
 
       - name: Upload safety report
         if: ${{ always() }}

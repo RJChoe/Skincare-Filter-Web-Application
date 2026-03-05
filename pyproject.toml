@@ -190,6 +190,7 @@ ignore = [
 "**/settings*.py" = ["S105", "S106", "D100", "D104"]
 "**/apps.py" = ["F401", "D100", "D104"]
 "**/signals.py" = ["F401"]
+".github/scripts/*.py" = ["T20"]
 
 [tool.ruff.format]
 quote-style = "double"
