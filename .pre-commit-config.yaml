@@ -101,7 +101,7 @@ repos:
         language: system
         types: [python]
         files: .*/views\.py$
-        stages: [commit]
+        stages: [pre-commit]
         pass_filenames: true
         args:
           - -c
@@ -145,7 +145,7 @@ repos:
         language: system
         types: [python]
         files: ^(allergies|users)/migrations/[^/]+\.py$
-        stages: [commit]
+        stages: [pre-commit]
         pass_filenames: true
         args:
           - -c
