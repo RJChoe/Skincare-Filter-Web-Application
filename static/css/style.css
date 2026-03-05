@@ -128,3 +128,27 @@ h1 {
     font-size: 4rem;
     margin-bottom: 1rem;
 }
+
+/* Flash messages */
+.messages-container {
+    padding: 0.5rem 1rem;
+    max-height: 12rem;
+    overflow-y: auto;
+}
+
+.messages {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.messages li {
+    padding: 0.5rem;
+    margin-bottom: 0.25rem;
+    border-radius: 4px;
+}
+
+.messages li.warning { background-color: #fff3cd; color: #856404; }
+.messages li.error   { background-color: #f8d7da; color: #721c24; }
+.messages li.success { background-color: #d4edda; color: #155724; }
+.messages li.info    { background-color: #d1ecf1; color: #0c5460; }
