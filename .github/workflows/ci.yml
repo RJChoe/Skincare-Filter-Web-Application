@@ -177,9 +177,11 @@ jobs:
         env:
           SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
         run: |
+          # python -m safety ensures the module is resolved from the uv-managed venv,
+          # not a system-level safety binary that could be a different version.
           # --non-interactive: bypasses the initialization prompt
           # --disable-optional-telemetry: keeps the scan private/fast
-          uv run safety scan --non-interactive --output json --disable-optional-telemetry > safety-output.json
+          uv run python -m safety scan --non-interactive --output json --disable-optional-telemetry > safety-output.json
 
       - name: Annotate safety results
         if: ${{ always() }}
