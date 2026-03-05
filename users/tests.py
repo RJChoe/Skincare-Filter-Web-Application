@@ -395,19 +395,19 @@ class TestManagerLogging:
     """Assert manager log messages never contain raw PII."""
 
     @pytest.fixture(autouse=True)
-    def enable_logging(self):
-        """Re-enable logging and enable propagation so caplog can capture records.
+    def enable_logging(self, caplog):
+        """Re-enable logging and attach caplog's handler directly to the 'users' logger.
 
-        Django's LOGGING config sets propagate=False on the 'users' logger, which
-        prevents records from reaching caplog's root-level handler. Temporarily
-        re-enabling propagation allows caplog to capture them.
+        Django's LOGGING config sets propagate=False on the 'users' logger, so
+        records never reach caplog's root-level handler. Attaching caplog.handler
+        directly avoids mutating the propagation flag — production logging config
+        stays intact.
         """
         logging.disable(logging.NOTSET)
         users_logger = logging.getLogger("users")
-        original_propagate = users_logger.propagate
-        users_logger.propagate = True
+        users_logger.addHandler(caplog.handler)
         yield
-        users_logger.propagate = original_propagate
+        users_logger.removeHandler(caplog.handler)
         logging.disable(logging.CRITICAL)
 
     def test_create_user_success_logs_id_not_email(self, caplog, user_password):
@@ -480,19 +480,19 @@ class TestModelLogging:
     """Assert model log messages never contain raw PII."""
 
     @pytest.fixture(autouse=True)
-    def enable_logging(self):
-        """Re-enable logging and enable propagation so caplog can capture records.
+    def enable_logging(self, caplog):
+        """Re-enable logging and attach caplog's handler directly to the 'users' logger.
 
-        Django's LOGGING config sets propagate=False on the 'users' logger, which
-        prevents records from reaching caplog's root-level handler. Temporarily
-        re-enabling propagation allows caplog to capture them.
+        Django's LOGGING config sets propagate=False on the 'users' logger, so
+        records never reach caplog's root-level handler. Attaching caplog.handler
+        directly avoids mutating the propagation flag — production logging config
+        stays intact.
         """
         logging.disable(logging.NOTSET)
         users_logger = logging.getLogger("users")
-        original_propagate = users_logger.propagate
-        users_logger.propagate = True
+        users_logger.addHandler(caplog.handler)
         yield
-        users_logger.propagate = original_propagate
+        users_logger.removeHandler(caplog.handler)
         logging.disable(logging.CRITICAL)
 
     def test_future_dob_warning_logs_token_not_email(self, caplog, custom_user):
