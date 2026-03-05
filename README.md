@@ -302,6 +302,7 @@ This project's CI enforces consistency between local development and automated t
 - **uv-based commands:** All CI jobs use `uv run` for consistent Python/tool resolution
 - **Dependency group isolation:** Each CI job installs only required groups (test, lint, type-check, security)
 - **Lockfile validation:** The [uv-export workflow](.github/workflows/uv-export.yml) ensures `requirements.txt` files stay in sync with `uv.lock`
+- **Safety scan authentication:** `safety scan` requires a `SAFETY_API_KEY` repository secret — without it the `static-analysis` job fails and blocks the merge. See [CI/CD Secrets](docs/DEPLOYMENT.md#cicd-secrets) for setup.
 
 **Run the same checks locally:**
 
