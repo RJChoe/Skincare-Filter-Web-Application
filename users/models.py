@@ -10,6 +10,7 @@ from django.db import models
 from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 
+from ._log_utils import email_token
 from .managers import CustomUserManager
 from .validators import validate_image_format, validate_image_size, validate_minimum_age
 
@@ -104,7 +105,8 @@ class CustomUser(AbstractUser):
             # Check if date is not in the future
             if self.date_of_birth > today:
                 logger.warning(
-                    f"User {self.email} validation failed: date_of_birth {self.date_of_birth} is in the future"
+                    f"User validation failed [token={email_token(self.email)}]: "
+                    f"date_of_birth {self.date_of_birth} is in the future"
                 )
                 raise ValidationError(
                     {"date_of_birth": "Date of birth cannot be in the future."}

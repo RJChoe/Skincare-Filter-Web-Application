@@ -12,6 +12,7 @@ from PIL import Image
 
 from allergies.constants.choices import CATEGORY_CONTACT
 from allergies.models import Allergen, UserAllergy
+from users._log_utils import email_token
 
 User = get_user_model()
 
@@ -24,51 +25,12 @@ logging.disable(logging.CRITICAL)
 # ============================================================================
 
 
-@pytest.fixture
-def user_email():
-    """Provide a test email address."""
-    return "test@example.com"
-
-
-@pytest.fixture
-def user_password():
-    """Provide a test password."""
-    return "SecurePassword123!"
-
-
-@pytest.fixture
-def custom_user(db, user_email, user_password):
-    """Create a basic custom user for testing."""
-    return User.objects.create_user(
-        email=user_email, username="testuser", password=user_password
-    )
-
-
-@pytest.fixture
-def allergen_contact(db):
-    """Create a contact allergen for testing."""
-    return Allergen.objects.create(
-        category=CATEGORY_CONTACT, allergen_key="sls", is_active=True
-    )
-
-
-@pytest.fixture
-def user_allergy(db, custom_user, allergen_contact):
-    """Create a UserAllergy instance for testing signals."""
-    return UserAllergy.objects.create(
-        user=custom_user,
-        allergen=allergen_contact,
-        severity_level="moderate",
-        is_confirmed=True,
-    )
-
-
-def create_test_image(format="JPEG", size_mb=1):
+def create_test_image(image_format: str = "JPEG", size_mb: int = 1) -> io.BytesIO:
     """
     Create a test image file in memory.
 
     Args:
-        format: Image format (JPEG, PNG, WEBP).
+        image_format: Image format (JPEG, PNG, WEBP).
         size_mb: Approximate file size in MB.
 
     Returns:
@@ -79,7 +41,7 @@ def create_test_image(format="JPEG", size_mb=1):
     img_io = io.BytesIO()
 
     # Save with appropriate format
-    save_format = "JPEG" if format == "JPEG" else format
+    save_format = "JPEG" if image_format == "JPEG" else image_format
     img.save(img_io, format=save_format, quality=85)
 
     # Adjust size if needed (for size validation tests)
@@ -87,7 +49,7 @@ def create_test_image(format="JPEG", size_mb=1):
         # Create larger image for size tests
         img_io = io.BytesIO(b"0" * (size_mb * 1024 * 1024))
 
-    img_io.name = f"test_image.{format.lower()}"
+    img_io.name = f"test_image.{image_format.lower()}"
     img_io.seek(0)
     return img_io
 
@@ -259,7 +221,7 @@ class TestCustomUserValidation:
 
     def test_image_size_exceeds_limit(self, custom_user):
         """Test that images over 5MB are rejected."""
-        large_image = create_test_image(format="JPEG", size_mb=6)
+        large_image = create_test_image(image_format="JPEG", size_mb=6)
 
         with pytest.raises(
             ValidationError, match="Image file size must not exceed 5MB"
@@ -269,19 +231,19 @@ class TestCustomUserValidation:
 
     def test_image_format_jpeg_valid(self, custom_user):
         """Test that JPEG format is accepted."""
-        jpeg_image = create_test_image(format="JPEG", size_mb=1)
+        jpeg_image = create_test_image(image_format="JPEG", size_mb=1)
         custom_user.profile_picture.save("test.jpg", jpeg_image, save=False)
         custom_user.full_clean()  # Should not raise
 
     def test_image_format_png_valid(self, custom_user):
         """Test that PNG format is accepted."""
-        png_image = create_test_image(format="PNG", size_mb=1)
+        png_image = create_test_image(image_format="PNG", size_mb=1)
         custom_user.profile_picture.save("test.png", png_image, save=False)
         custom_user.full_clean()  # Should not raise
 
     def test_image_format_webp_valid(self, custom_user):
         """Test that WebP format is accepted."""
-        webp_image = create_test_image(format="WEBP", size_mb=1)
+        webp_image = create_test_image(image_format="WEBP", size_mb=1)
         custom_user.profile_picture.save("test.webp", webp_image, save=False)
         custom_user.full_clean()  # Should not raise
 
@@ -383,6 +345,96 @@ class TestAllergySignalBatching:
         # Verify timestamp has second precision (not truncated)
         assert timestamp.second is not None
         assert timestamp.microsecond is not None
+
+
+# ============================================================================
+# Logging Tests
+# ============================================================================
+
+
+@pytest.mark.django_db
+@pytest.mark.usefixtures("enable_users_logging")
+class TestManagerLogging:
+    """Assert manager log messages never contain raw PII."""
+
+    def test_create_user_success_logs_id_not_email(self, caplog, user_password):
+        """Successful creation logs user.id; raw email must not appear."""
+        email = "log_test_success@example.com"
+        with caplog.at_level(logging.INFO, logger="users"):
+            user = User.objects.create_user(
+                email=email, username="log_success", password=user_password
+            )
+
+        assert str(user.id) in caplog.text
+        assert email not in caplog.text
+
+    def test_create_user_invalid_email_logs_token_not_email(self, caplog):
+        """Invalid-email error logs a token; raw email must not appear."""
+        email = "not-an-email"
+        with caplog.at_level(logging.ERROR, logger="users"):
+            with pytest.raises(ValidationError):
+                User.objects.create_user(
+                    email=email, username="log_bad", password="pass123"
+                )
+
+        assert "token=" in caplog.text
+        assert email not in caplog.text
+
+    def test_create_user_debug_logs_token_not_email(self, caplog, user_password):
+        """Debug log during creation contains a token; raw email must not appear."""
+        email = "log_test_debug@example.com"
+        with caplog.at_level(logging.DEBUG, logger="users"):
+            User.objects.create_user(
+                email=email, username="log_debug", password=user_password
+            )
+
+        assert "token=" in caplog.text
+        assert email not in caplog.text
+
+    def test_create_superuser_logs_token_not_email(self, caplog, user_password):
+        """Superuser creation logs a token; raw email must not appear."""
+        email = "log_super@example.com"
+        with caplog.at_level(logging.INFO, logger="users"):
+            User.objects.create_superuser(
+                email=email, username="log_superuser", password=user_password
+            )
+
+        assert "token=" in caplog.text
+        assert email not in caplog.text
+
+
+@pytest.mark.django_db
+@pytest.mark.usefixtures("enable_users_logging")
+class TestModelLogging:
+    """Assert model log messages never contain raw PII."""
+
+    def test_future_dob_warning_logs_token_not_email(self, caplog, custom_user):
+        """Future DOB warning logs a token; raw email must not appear."""
+        custom_user.date_of_birth = date.today() + timedelta(days=1)
+
+        with caplog.at_level(logging.WARNING, logger="users"):
+            with pytest.raises(ValidationError):
+                custom_user.full_clean()
+
+        assert "token=" in caplog.text
+        assert custom_user.email not in caplog.text
+
+
+class TestEmailToken:
+    """Unit tests for email_token(). No database required."""
+
+    def test_token_is_consistent_for_same_email(self):
+        """The same email always produces the same token within a SECRET_KEY lifetime."""
+        email = "consistency@example.com"
+        assert email_token(email) == email_token(email)
+
+    def test_token_differs_for_different_emails(self):
+        """Different emails produce different tokens."""
+        assert email_token("a@example.com") != email_token("b@example.com")
+
+    def test_token_length_is_12(self):
+        """Token is exactly 12 characters."""
+        assert len(email_token("any@example.com")) == 12
 
 
 # Re-enable logging after tests

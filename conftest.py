@@ -4,6 +4,7 @@ This module provides reusable fixtures available to all test files in the projec
 Fixtures are organized by category: users, allergens, and authentication.
 """
 
+import logging
 import warnings
 
 import pytest
@@ -185,3 +186,25 @@ def unconfirmed_user_allergy(test_user, contact_allergen):
         user=test_user,
         allergen=contact_allergen,
     )
+
+
+# ============================================================================
+# Logging Fixtures
+# ============================================================================
+
+
+@pytest.fixture
+def enable_users_logging(caplog):
+    """Re-enable logging and attach caplog's handler directly to the 'users' logger.
+
+    Django's LOGGING config sets propagate=False on the 'users' logger, so
+    records never reach caplog's root-level handler. Attaching caplog.handler
+    directly avoids mutating the propagation flag — production logging config
+    stays intact.
+    """
+    logging.disable(logging.NOTSET)
+    users_logger = logging.getLogger("users")
+    users_logger.addHandler(caplog.handler)
+    yield
+    users_logger.removeHandler(caplog.handler)
+    logging.disable(logging.CRITICAL)

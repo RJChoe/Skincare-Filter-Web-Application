@@ -7,6 +7,8 @@ from django.contrib.auth.models import BaseUserManager
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
+from ._log_utils import email_token
+
 if TYPE_CHECKING:
     from users.models import CustomUser
 
@@ -52,12 +54,14 @@ class CustomUserManager(BaseUserManager["CustomUser"]):
         try:
             validate_email(email)
         except ValidationError as e:
-            logger.error(f"User creation failed: invalid email format '{email}'")
+            logger.error(
+                f"User creation failed: invalid email format [token={email_token(email)}]"
+            )
             raise ValidationError(f"Invalid email format: {e}") from e
 
         # Normalize email (lowercase domain)
         email = self.normalize_email(email)
-        logger.debug(f"Creating user with email: {email}, username: {username}")
+        logger.debug(f"Creating user [token={email_token(email)}]")
 
         # Create user instance
         user = self.model(email=email, username=username, **extra_fields)
@@ -67,10 +71,12 @@ class CustomUserManager(BaseUserManager["CustomUser"]):
 
         try:
             user.save(using=self._db)
-            logger.info(f"User created successfully: {user.id} ({email})")
+            logger.info(f"User created successfully: {user.id}")
             return user
         except Exception as e:
-            logger.error(f"Failed to save user {email}: {e}", exc_info=True)
+            logger.error(
+                f"Failed to save user [token={email_token(email)}]: {e}", exc_info=True
+            )
             raise
 
     def create_superuser(
@@ -108,5 +114,5 @@ class CustomUserManager(BaseUserManager["CustomUser"]):
             logger.error("Superuser creation failed: is_superuser must be True")
             raise ValueError("Superuser must have is_superuser=True.")
 
-        logger.info(f"Creating superuser with email: {email}")
+        logger.info(f"Creating superuser [token={email_token(email)}]")
         return self.create_user(email, username, password, **extra_fields)
