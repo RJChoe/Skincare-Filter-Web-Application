@@ -12,6 +12,7 @@ from PIL import Image
 
 from allergies.constants.choices import CATEGORY_CONTACT
 from allergies.models import Allergen, UserAllergy
+from users._log_utils import email_token
 
 User = get_user_model()
 
@@ -391,24 +392,9 @@ class TestAllergySignalBatching:
 
 
 @pytest.mark.django_db
+@pytest.mark.usefixtures("enable_users_logging")
 class TestManagerLogging:
     """Assert manager log messages never contain raw PII."""
-
-    @pytest.fixture(autouse=True)
-    def enable_logging(self, caplog):
-        """Re-enable logging and attach caplog's handler directly to the 'users' logger.
-
-        Django's LOGGING config sets propagate=False on the 'users' logger, so
-        records never reach caplog's root-level handler. Attaching caplog.handler
-        directly avoids mutating the propagation flag — production logging config
-        stays intact.
-        """
-        logging.disable(logging.NOTSET)
-        users_logger = logging.getLogger("users")
-        users_logger.addHandler(caplog.handler)
-        yield
-        users_logger.removeHandler(caplog.handler)
-        logging.disable(logging.CRITICAL)
 
     def test_create_user_success_logs_id_not_email(self, caplog, user_password):
         """Successful creation logs user.id; raw email must not appear."""
@@ -455,50 +441,14 @@ class TestManagerLogging:
         assert "token=" in caplog.text
         assert email not in caplog.text
 
-    def test_token_is_consistent_for_same_email(self):
-        """The same email always produces the same token within a SECRET_KEY lifetime."""
-        from users._log_utils import email_token
-
-        email = "consistency@example.com"
-        assert email_token(email) == email_token(email)
-
-    def test_token_differs_for_different_emails(self):
-        """Different emails produce different tokens."""
-        from users._log_utils import email_token
-
-        assert email_token("a@example.com") != email_token("b@example.com")
-
-    def test_token_length_is_12(self):
-        """Token is exactly 12 characters."""
-        from users._log_utils import email_token
-
-        assert len(email_token("any@example.com")) == 12
-
 
 @pytest.mark.django_db
+@pytest.mark.usefixtures("enable_users_logging")
 class TestModelLogging:
     """Assert model log messages never contain raw PII."""
 
-    @pytest.fixture(autouse=True)
-    def enable_logging(self, caplog):
-        """Re-enable logging and attach caplog's handler directly to the 'users' logger.
-
-        Django's LOGGING config sets propagate=False on the 'users' logger, so
-        records never reach caplog's root-level handler. Attaching caplog.handler
-        directly avoids mutating the propagation flag — production logging config
-        stays intact.
-        """
-        logging.disable(logging.NOTSET)
-        users_logger = logging.getLogger("users")
-        users_logger.addHandler(caplog.handler)
-        yield
-        users_logger.removeHandler(caplog.handler)
-        logging.disable(logging.CRITICAL)
-
     def test_future_dob_warning_logs_token_not_email(self, caplog, custom_user):
         """Future DOB warning logs a token; raw email must not appear."""
-        from datetime import timedelta
-
         custom_user.date_of_birth = date.today() + timedelta(days=1)
 
         with caplog.at_level(logging.WARNING, logger="users"):
@@ -507,6 +457,23 @@ class TestModelLogging:
 
         assert "token=" in caplog.text
         assert custom_user.email not in caplog.text
+
+
+class TestEmailToken:
+    """Unit tests for email_token(). No database required."""
+
+    def test_token_is_consistent_for_same_email(self):
+        """The same email always produces the same token within a SECRET_KEY lifetime."""
+        email = "consistency@example.com"
+        assert email_token(email) == email_token(email)
+
+    def test_token_differs_for_different_emails(self):
+        """Different emails produce different tokens."""
+        assert email_token("a@example.com") != email_token("b@example.com")
+
+    def test_token_length_is_12(self):
+        """Token is exactly 12 characters."""
+        assert len(email_token("any@example.com")) == 12
 
 
 # Re-enable logging after tests
