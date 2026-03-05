@@ -22,7 +22,9 @@
                     <li><a href="{% url 'home' %}">Home 🏡</a></li>
                     <li><a href="{% url 'product' %}">Product Input 📚</a></li>
                     <li><a href="{% url 'allergies:list' %}">Allergies List 🚨</a></li>
-                    <li><a href="{% url 'user:list' %}">Users 👤</a></li>
+                    {% if user.is_staff %}
+                    <li><a href="{% url 'users:list' %}">Users 👤</a></li>
+                    {% endif %}
                 </ul>
         </div>
     </nav>

@@ -39,14 +39,3 @@ urlpatterns = [
 # Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-# TO DO:
-# Add names to your URL patterns for better maintainability.
-# For example, change path('', views.home) to
-# path('', views.home, name='home').
-
-# Use named URLs in templates instead of hard-coded paths
-# (e.g., change <a href="/user"> to <a href="{% url 'user' %}">)
-# after you give that route a name.
-# Add a small test that asserts reverse('home') == '/' if you set
-# name='home' in your URLconf.
