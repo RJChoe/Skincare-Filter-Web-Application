@@ -55,3 +55,10 @@ class TestAllergiesListErrorHandling:
         assert response.status_code == 200
         # Note: caplog may not capture Django logger output in tests
         # The authenticated access is verified by status code above
+
+    def test_unauthenticated_access_message_rendered_in_html(self):
+        """Warning message must appear in the rendered HTML response."""
+        client = Client()
+        response = client.get(reverse("allergies:list"))
+
+        assert b"Please log in" in response.content
