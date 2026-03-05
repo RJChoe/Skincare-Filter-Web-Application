@@ -29,6 +29,7 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("allergies/", include("allergies.urls")),
     path("product/", views.product, name="product"),
+    path("users/", include("users.urls")),
     path(
         "favicon.ico",
         RedirectView.as_view(url="/static/favicon.svg", permanent=True),

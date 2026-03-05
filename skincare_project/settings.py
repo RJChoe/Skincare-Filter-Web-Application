@@ -74,6 +74,10 @@ INSTALLED_APPS = [
 # Set the custom user model reference
 AUTH_USER_MODEL = "users.CustomUser"
 
+# Authentication redirects
+LOGIN_URL = "/admin/login/"
+LOGIN_REDIRECT_URL = "user:profile"
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",

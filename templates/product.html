@@ -1,22 +1,20 @@
 {% extends 'layout.html'%}
 
 {% block title %}
-Home - Allergies Filter App
+Product Input — Allergies Filter App
 {% endblock %}
 
 {% block content %}
-    <main>
-        <h2>Product Ingredient Input</h2>
-        <form method="post">
-            {% csrf_token %}
-            <label for="ingredients">Enter product ingredients:</label>
-            <textarea id="ingredients" name="ingredients" rows="4" cols="50"></textarea>
-            <button type="submit">Filter Products</button>
-        </form>
-         <p> Go back to <a href= "/">Home Page</a></p>
-    </main>
+    <h2>Product Ingredient Input</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label for="ingredients">Enter product ingredients:</label>
+        <textarea id="ingredients" name="ingredients" rows="4" cols="50"></textarea>
+        <button type="submit">Filter Products</button>
+    </form>
+    <p>Go back to <a href="{% url 'home' %}">Home Page</a></p>
 
     <footer>
-        <p>&copy; 2025 My Django Site</p>
+        <p>&copy; 2026 Allergies Filter App</p>
     </footer>
 {% endblock %}
