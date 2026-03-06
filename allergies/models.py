@@ -18,7 +18,7 @@ from .constants.choices import (
     FLAT_ALLERGEN_LABEL_MAP,
 )
 
-# Python 3.14 type aliases
+# Python 3.12+ type aliases (PEP 695)
 type ReactionDetails = dict[str, str | list[str] | None]
 type AdminNotes = dict[str, str | int | None]
 
