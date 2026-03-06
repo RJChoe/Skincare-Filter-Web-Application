@@ -10,12 +10,10 @@ Allergies List
     <h2>{{ group_label }}</h2>
         <ul>
         {% for allergen in allergen_list %}
-            <li>{{ allergen }}</li>
+            <li>{{ allergen.1 }}</li>
         {% endfor %}
         </ul>
-        {% for allergen in allergen_list %}
-            <li>{{ allergen }}</li>
-        {% endfor %}
-    </ul>
-{% endfor %}
+    {% empty %}
+        <p>No allergies found.</p>
+    {% endfor %}
 {% endblock %}

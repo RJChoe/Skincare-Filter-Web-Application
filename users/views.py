@@ -14,11 +14,11 @@ logger = logging.getLogger(__name__)
 def profile(request: HttpRequest) -> HttpResponse:
     # minimal-view: no-logger-needed
     # Profile fields are available via the built-in {{ user }} context processor
-    return render(request, "user.html")
+    return render(request, "users/user.html")
 
 
 @user_passes_test(lambda u: u.is_staff)
 def user_list(request: HttpRequest) -> HttpResponse:
     # minimal-view: no-logger-needed
     users = CustomUser.objects.all()
-    return render(request, "user/user_list.html", {"users": users})
+    return render(request, "users/user_list.html", {"users": users})
