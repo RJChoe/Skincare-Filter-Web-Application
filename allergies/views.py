@@ -1,6 +1,7 @@
 import logging
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
@@ -11,18 +12,13 @@ logger = logging.getLogger(__name__)
 
 
 # Create your views here.
+@login_required
 def allergies_list(request: HttpRequest) -> HttpResponse:
     """Display list of user's allergies with error handling."""
     try:
         logger.info(
-            f"User {request.user.id if request.user.is_authenticated else 'anonymous'} accessed allergies list"
+            f"User {getattr(request.user, 'pk', 'unknown')} accessed allergies list"
         )
-
-        # Check authentication
-        if not request.user.is_authenticated:
-            logger.warning("Unauthenticated user attempted to access allergies list")
-            messages.warning(request, "Please log in to view your allergies.")
-            # For now, just render empty template. Later: redirect to login
 
         # Future: Fetch user allergies from database
         # user_allergies = UserAllergy.objects.select_related('allergen').filter(
@@ -39,7 +35,7 @@ def allergies_list(request: HttpRequest) -> HttpResponse:
     except Exception as e:
         # Catch unexpected errors
         logger.error(
-            f"Unexpected error in allergies_list for user {request.user.id if request.user.is_authenticated else 'anonymous'}: {e}",
+            f"Unexpected error in allergies_list for user {getattr(request.user, 'pk', 'anonymous')}: {e}",
             exc_info=True,
         )
         messages.error(request, "An unexpected error occurred. Please try again later.")
