@@ -1,6 +1,9 @@
+"""App configuration for the allergies app."""
+
 from django.apps import AppConfig
 
 
 class AllergiesConfig(AppConfig):
-    default_auto_field = "django.db.models.BigAutoField"
+    """Configuration for the allergies app."""
+
     name = "allergies"

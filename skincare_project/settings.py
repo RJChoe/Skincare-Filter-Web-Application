@@ -65,8 +65,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "phonenumber_field",
-    "users",
-    "allergies",  # depends on users
+    "users.apps.UsersConfig",
+    "allergies.apps.AllergiesConfig",  # depends on users
     "django_cleanup.apps.CleanupConfig",  # Must come after apps defining models
     #'products', ## Future app for skincare products
 ]
@@ -75,8 +75,9 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = "users.CustomUser"
 
 # Authentication redirects
-LOGIN_URL = "/admin/login/"
-LOGIN_REDIRECT_URL = "user:profile"
+# LOGIN_URL uses the admin namespace — update if a dedicated login view is added.
+LOGIN_URL = "admin:login"
+LOGIN_REDIRECT_URL = "users:profile"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
