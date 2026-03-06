@@ -56,3 +56,6 @@ class TestAllergiesListErrorHandling:
         response = client.get(reverse("allergies:list"))
 
         assert "next=" in response["Location"]
+
+
+# codecov-setup
