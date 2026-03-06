@@ -19,7 +19,9 @@ User List — Allergies Filter App
 
     <nav class="list-links">
         <a href="{% url 'home' %}">Home</a> &middot;
-        <a href="{% url 'user:profile' %}">My Profile</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'users:profile' %}">My Profile</a>
+        {% endif %}
     </nav>
 
     <footer>

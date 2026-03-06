@@ -8,7 +8,7 @@ Home - Allergies Filter App
     <h1>Welcome to the Allergies Filter App</h1>
     <p>This application helps you filter products based on your allergies.</p>
     <ul>
-        <li><a href="/product/">Go to Product Ingredient Input</a></li>
-        <li><a href="/allergies/">View Allergies List</a></li>
+        <li><a href="{% url 'product' %}">Go to Product Ingredient Input</a></li>
+        <li><a href="{% url 'allergies:list' %}">View Allergies List</a></li>
     </ul>
 {% endblock %}
