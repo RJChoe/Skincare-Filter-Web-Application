@@ -212,6 +212,7 @@ uv sync --group test
 
 # Install multiple groups
 uv sync --group test --group lint
+#
 
 # Install full dev environment
 uv sync --group dev
