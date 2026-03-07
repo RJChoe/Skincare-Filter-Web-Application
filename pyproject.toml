@@ -249,7 +249,9 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 testpaths = ["allergies/tests", "users/tests.py"]
 addopts = [
-    "--cov",
+    "--cov=allergies",
+    "--cov=users",
+    "--cov=skincare_project",
     "--cov-report=term-missing",
     "--cov-report=xml",
     "-ra",
@@ -284,13 +286,16 @@ omit = [
     "*/wsgi.py",
     "*/asgi.py",
     "*/settings.py",
+    "*/apps.py",
+    "*/conftest.py",
+    "*/check.py",
 ]
 
 [tool.coverage.report]
 precision = 2
 show_missing = true
 skip_covered = false
-fail_under = 50
+fail_under = 85
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",
