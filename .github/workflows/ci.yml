@@ -125,6 +125,10 @@ jobs:
           fi
           echo "✅ coverage.xml exists"
 
+      - name: Validate codecov.yml
+        run: |
+          curl --fail --data-binary @codecov.yml https://api.codecov.io/validate
+
       - name: Upload coverage to Codecov
         if: github.event.pull_request.head.repo.fork == false
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5
