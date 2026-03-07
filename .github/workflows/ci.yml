@@ -100,7 +100,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0  # Full history required for Codecov diff/patch coverage
 
       - name: Set up Python + uv
         uses: ./.github/actions/setup-python-uv
@@ -130,14 +130,14 @@ jobs:
           curl --fail --data-binary @codecov.yml https://api.codecov.io/validate
 
       - name: Upload coverage to Codecov
-        if: github.event.pull_request.head.repo.fork == false
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           flags: unittests
           name: codecov-umbrella
-          fail_ci_if_error: false
+          fail_ci_if_error: true
 
   # ============================================================================
   # Static Analysis Job - Guards the test job
