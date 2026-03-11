@@ -908,8 +908,6 @@ Common setup issues and quick fixes:
 ## Contact
     - Developer: Rebecca Jisoo Simpson
 
-    - Email: RJSimpson1004@gmail.com
-
     - GitHub: RJChoe
 
 ---
