@@ -33,6 +33,9 @@ if env_file.exists():
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # Raises ImproperlyConfigured if SECRET_KEY is not set in the environment.
+# Key rotation note: Rotating this key will invalidate current sessions and
+# reset email-to-log correlation hashes. This is intentional for privacy,
+# but means historical log analysis across rotation events will be limited.
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
