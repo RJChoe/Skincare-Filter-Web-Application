@@ -277,18 +277,21 @@ filterwarnings = [
 branch = true
 source = ["allergies", "users", "skincare_project"]
 omit = [
-    "*/migrations/*",
-    "*/tests/*",
-    "*/__pycache__/*",
-    "*/venv/*",
-    "*/.venv/*",
+    "**/migrations/*",
+    "**/tests/*",
+    "**/__pycache__/*",
+    "**/venv/*",
+    "**/.venv/*",
     "manage.py",
-    "*/wsgi.py",
-    "*/asgi.py",
-    "*/settings.py",
-    "*/apps.py",
-    "*/conftest.py",
-    "*/check.py",
+    "**/wsgi.py",
+    "**/asgi.py",
+    "**/settings.py",
+    "**/apps.py",
+    "**/conftest.py",
+    "**/check.py",
+    "**/htmlcov/*",
+    "**/dist/*",
+    "**/build/*",
 ]
 
 [tool.coverage.report]
