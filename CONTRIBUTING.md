@@ -315,6 +315,9 @@ All PRs must meet these criteria before merging:
 - [ ] **Gate 4: Forms validated** - If forms added, validation tested
 - [ ] **Gate 5: Tests complete** - Coverage meets 70% for new code
 
+### ✅ Architecture Updates
+
+Any change to the folder structure or core logic requires an update to [ARCHITECTURE.md](./ARCHITECTURE.md).
 ---
 
 ## Code Style
