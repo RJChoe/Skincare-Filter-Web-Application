@@ -353,7 +353,7 @@ If you don't have Python 3.13 installed:
 
 ```bash
 # Install python 3.13 (uv will download and manage it)
-uv python install 3.14
+uv python install 3.13
 
 # Verify installation
 uv python list
@@ -365,10 +365,10 @@ If you need to explicitly pin or change the Python version:
 
 ```bash
 # Pin to python 3.13 (updates .python-version)
-uv python pin 3.14
+uv python pin 3.13
 
 # Verify the pin
-cat .python-version    # Should output: 3.14
+cat .python-version    # Should output: 3.13
 ```
 
 ### Recreate Virtual Environment
