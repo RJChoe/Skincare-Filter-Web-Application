@@ -455,7 +455,7 @@ ssh -i your-key.pem ubuntu@your-ec2-ip
 
 ```bash
 sudo apt update
-sudo apt install python3.14 python3.14-venv postgresql nginx
+sudo apt install python3.13 python3.13-venv postgresql nginx
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
@@ -494,7 +494,7 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: PYTHON_VERSION
-        value: 3.14
+        value: 3.13
       - key: DATABASE_URL
         fromDatabase:
           name: skincare-db

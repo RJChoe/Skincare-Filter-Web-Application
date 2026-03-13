@@ -884,8 +884,8 @@ Common setup issues and quick fixes:
 
 - Python not found: Use uv to manage Python installations.
     ```bash
-    uv python install 3.14
-    uv python pin 3.14
+    uv python install 3.13
+    uv python pin 3.13
     uv venv
     uv sync --group dev
     ```
