@@ -11,6 +11,7 @@ Thank you for your interest in contributing to the Skincare Allergy Filter proje
 3. [Getting Started](#getting-started)
 4. [Pull Request Requirements](#pull-request-requirements)
 5. [Code Style](#code-style)
+6. [Core Logic Patterns](#core-logic-patterns)
 6. [Commit Messages](#commit-messages)
 7. [Testing](#testing)
 8. [For AI Agents](#for-ai-agents)
@@ -232,6 +233,7 @@ Otherwise, Django will COMMIT the transaction even if an exception occurred.
 3. Add CSRF protection in templates: `{% csrf_token %}`
 4. Add form validation with `clean()` methods
 5. Test form validation with comprehensive test coverage
+6. **⚠️ CRITICAL:** Ensure all validation and matching logic adheres to the [Core Logic Patterns](#core-logic-patterns) below.
 
 ### Gate 5: Complete Tests
 
@@ -324,6 +326,23 @@ All PRs must meet these criteria before merging:
 # Format code automatically
 ruff format .
 ```
+## Core Logic Patterns
+
+All backend contributions must adhere to the foundational logic patterns defined in [ARCHITECTURE.md](./ARCHITECTURE.md).
+
+1. "Search & Destroy" Matching
+
+    The primary objective of the filtering engine is the rapid identification of risk.
+
+    - Fail Fast: The algorithm should flag a product as "Unsafe" immediately upon detecting the first blacklisted ingredient.
+    - Identify Offender: The result must explicitly return the name of the detected allergen to the user.
+
+2. Mandatory Normalization
+
+    To prevent false negatives due to formatting or casing, all ingredient tokens must be processed before comparison:
+    - Lowercasing: Convert all input strings and database lookups to lowercase.
+    - Stripping: Remove all leading and trailing whitespace from tokens.
+    - Example: " Almond Oil " must be processed as "almond oil".
 
 **Linter:** Ruff with Django-specific rules
 ```bash
