@@ -352,7 +352,7 @@ The active version (marked with `<--`) should be 3.13.x to match `.python-versio
 If you don't have Python 3.13 installed:
 
 ```bash
-# Install Python 3.14 (uv will download and manage it)
+# Install python 3.13 (uv will download and manage it)
 uv python install 3.14
 
 # Verify installation
@@ -364,7 +364,7 @@ uv python list
 If you need to explicitly pin or change the Python version:
 
 ```bash
-# Pin to Python 3.14 (updates .python-version)
+# Pin to python 3.13 (updates .python-version)
 uv python pin 3.14
 
 # Verify the pin
@@ -399,7 +399,7 @@ uv sync --group dev
 
 **Solution:** Your system Python differs from the pinned version. Either:
 1. Activate the virtual environment before committing
-2. Install Python 3.14 system-wide
+2. Install python 3.13 system-wide
 3. Use `uv run` commands which automatically use the correct version
 
 </details>

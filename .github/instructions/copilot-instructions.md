@@ -8,7 +8,7 @@ The following are **banned in all generated code** for the current phase. Violat
 | `{% partialdef %}` / `{% partial %}` tags | Template partials not yet adopted | `# Future Refactor: template partials not yet adopted in this project` |
 | `django.tasks` / `@task` decorator | Background tasks not yet adopted | `# Future Refactor: background tasks not yet adopted in this project` |
 | `python -m pip install` / bare `pip install` | Always use `uv add` | N/A — never suggest pip directly |
-| Python 3.14-only features (T-strings, etc.) | Project targets Python 3.13 | N/A — not compatible |
+| python 3.13-only features (T-strings, etc.) | Project targets Python 3.13 | N/A — not compatible |
 
 ---
 
