@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
 name: 'Setup Python + uv'
 description: 'Installs Python (version from .python-version), uv, and verifies the version match.'
 
