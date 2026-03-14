@@ -10,7 +10,7 @@ This guide covers deploying the Skincare Allergy Filter application to productio
 1. [Pre-Deployment Checklist](#pre-deployment-checklist)
 2. [CI/CD Alignment](#cicd-alignment)
 3. [CI/CD Secrets](#cicd-secrets)
-4. [CI/CD Configurations](#cicd-configurations)
+4. [CI/CD Configuration](#cicd-configuration)
 5. [Environment Configuration](#environment-configuration)
 6. [Database Setup](#database-setup)
 7. [Static Files](#static-files)
@@ -156,37 +156,6 @@ uv sync --group dev
 # Update all dependencies
 uv lock --upgrade
 ```
-
-## Technical Decisions
-
-### Migrating from [project.optional-dependencies]
-
-If you have an existing development environment from before the PEP 735 migration:
-
-1. Remove your existing virtual environment:
-   ```bash
-   # On Windows
-   Remove-Item -Recurse -Force .venv
-
-   # On macOS/Linux
-   rm -rf .venv
-   ```
-
-2. Recreate the virtual environment:
-   ```bash
-   uv venv
-   ```
-
-3. Activate the virtual environment (see installation steps above)
-
-4. Install dependencies with the new group system:
-   ```bash
-   uv sync --group dev
-   ```
-
-The new structure allows faster CI builds by installing only required dependencies per job (e.g., only `--group test` for test jobs).
-
----
 
 ## Verify Setup
 
