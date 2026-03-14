@@ -36,6 +36,46 @@ Tests are organized using pytest markers defined in [pyproject.toml](../pyprojec
 
 **Default:** Tests without markers are treated as standard unit tests with database access.
 
+### Test Filtering with Markers
+
+The project uses pytest markers to categorize tests, allowing you to run specific subsets:
+
+#### Available Markers
+- `@pytest.mark.integration` - Integration tests that interact with multiple components
+- `@pytest.mark.slow` - Tests that take longer to execute
+
+#### Using Markers in Your Tests
+Add markers to test functions in files like `allergies/tests/test_models.py`:
+
+```python
+import pytest
+from allergies.models import Allergy
+
+@pytest.mark.slow
+def test_complex_allergen_matching():
+    # Test that takes significant time
+    pass
+
+@pytest.mark.integration
+def test_user_allergy_workflow():
+    # Test that spans multiple components
+    pass
+```
+
+#### Filtering Tests
+Run specific test subsets using the `-m` flag:
+
+```bash
+# Run only fast tests (exclude slow tests)
+uv run pytest -m "not slow"
+
+# Run only integration tests
+uv run pytest -m integration
+
+# Run all tests except integration tests
+uv run pytest -m "not integration"
+```
+
 ---
 
 ## Fixtures
