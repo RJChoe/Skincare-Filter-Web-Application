@@ -360,7 +360,55 @@ Coverage settings are defined in [pyproject.toml](../pyproject.toml#L302-L336).
 - **Refactoring:** Must not decrease coverage
 
 ---
+## Testing & Code Coverage
 
+<details>
+<summary><b>🧪 Click to expand testing & coverage details</b></summary>
+
+### Running Tests
+Execute the test suite:
+
+```bash
+uv run pytest
+```
+
+All test discovery, markers, and coverage settings are configured in `pyproject.toml`, so `pytest` automatically applies:
+- Test discovery from `allergies/tests` and `users/tests`
+- Coverage of `allergies`, `users`, and `skincare_project` packages
+- Coverage reports in terminal and XML (for CI)
+- Fail-under threshold of 75%
+
+### Code Coverage
+Test coverage is measured automatically when running pytest. The configuration in `pyproject.toml` includes:
+- **Branch coverage** (tests all control flow paths, not just lines)
+- **XML report** for CI/Codecov uploads
+- **Terminal report** showing coverage percentage and untested lines
+- **Omit patterns** to exclude migrations, tests, settings, and utility modules
+
+#### Coverage Targets
+| Phase | Target | When |
+|-------|--------|------|
+| Gate 4 start | 75% | Forms + matching logic added |
+| Gate 4 complete | 80% | Views + forms tested |
+| Gate 5 complete | 85% | Full feature coverage |
+
+#### Viewing Coverage Details
+To view an HTML coverage report for detailed line-by-line analysis:
+
+```bash
+# Generate HTML report (pytest runs with coverage automatically)
+uv run pytest
+# Then open htmlcov/index.html in your browser
+```
+
+The HTML report shows:
+- Which lines are covered/uncovered
+- Branch coverage details
+- Coverage summary by file
+
+</details>
+
+---
 ## AI Testing Guidelines
 
 ### For AI Agents Implementing Features
@@ -535,6 +583,29 @@ uv run pytest && pre-commit run --all-files
 | Gate 4 complete | 80% | Views + forms fully tested |
 | Gate 5 complete | 85% | Full feature coverage |
 | Production ready | 90%+ | E2E tests, performance tests added |
+
+---
+
+#### Terminal Output Example
+The `--cov-report=term-missing` flag produces output like:
+
+```
+Name                                Stmts   Miss Branch BrPart  Cover   Missing
+--------------------------------------------------------------------------------
+allergies/__init__.py                   0      0      0      0   100%
+allergies/models.py                    45      8     12      3    78%   23-27, 45, 67->69
+allergies/views.py                     32      5      8      1    82%   15-17, 42
+users/models.py                        28      0      6      0   100%
+users/views.py                         19      4      4      1    73%   8, 22-24
+--------------------------------------------------------------------------------
+TOTAL                                 124     17     30      5    82%
+```
+
+This shows:
+- **Stmts:** Total statements
+- **Miss:** Uncovered lines
+- **Branch/BrPart:** Branch coverage metrics
+- **Missing:** Specific line numbers and ranges not covered
 
 ---
 
