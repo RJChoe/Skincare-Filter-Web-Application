@@ -609,6 +609,19 @@ This shows:
 
 ---
 
+#### Automatic Coverage Threshold Enforcement
+The project enforces a **minimum 75% coverage threshold** via `fail_under = 75` in `pyproject.toml` under `[tool.coverage.report]`. This means:
+- **Local development:** Test suite fails if coverage drops below 75%
+- **CI/CD pipelines:** Builds fail automatically if coverage is insufficient
+- **Quality gate:** Prevents merging code that significantly reduces test coverage
+
+To bypass coverage checks temporarily (e.g., during development):
+```bash
+uv run pytest --no-cov
+```
+
+---
+
 ## Resources
 
 - **Pytest Documentation:** https://docs.pytest.org/
