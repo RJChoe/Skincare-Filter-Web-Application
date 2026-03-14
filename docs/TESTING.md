@@ -4,7 +4,7 @@
 
 This guide documents the testing strategy, fixture patterns, coverage expectations, and best practices for writing tests in the Skincare Allergy Filter project. All contributors (human and AI agents) must follow these guidelines to maintain code quality and reliability.
 
-**Current Coverage Target:** 50% (Phase 1 minimum) → 80% (Phase 2 goal)
+**Current Coverage Target:** 75% (current minimum) → 85% (Gate 5 completion)
 
 ---
 
@@ -35,6 +35,46 @@ Tests are organized using pytest markers defined in [pyproject.toml](../pyprojec
 - **`@pytest.mark.slow`** - Tests taking > 1 second (use sparingly)
 
 **Default:** Tests without markers are treated as standard unit tests with database access.
+
+### Test Filtering with Markers
+
+The project uses pytest markers to categorize tests, allowing you to run specific subsets:
+
+#### Available Markers
+- `@pytest.mark.integration` - Integration tests that interact with multiple components
+- `@pytest.mark.slow` - Tests that take longer to execute
+
+#### Using Markers in Your Tests
+Add markers to test functions in files like `allergies/tests/test_models.py`:
+
+```python
+import pytest
+from allergies.models import Allergy
+
+@pytest.mark.slow
+def test_complex_allergen_matching():
+    # Test that takes significant time
+    pass
+
+@pytest.mark.integration
+def test_user_allergy_workflow():
+    # Test that spans multiple components
+    pass
+```
+
+#### Filtering Tests
+Run specific test subsets using the `-m` flag:
+
+```bash
+# Run only fast tests (exclude slow tests)
+uv run pytest -m "not slow"
+
+# Run only integration tests
+uv run pytest -m integration
+
+# Run all tests except integration tests
+uv run pytest -m "not integration"
+```
 
 ---
 
@@ -303,8 +343,8 @@ uv run pytest --cov --cov-report=html
 # Open coverage report (Windows)
 start htmlcov/index.html
 
-# Fail if coverage is below threshold (50%)
-uv run pytest --cov --cov-fail-under=50
+# Fail if coverage is below threshold (75%)
+uv run pytest --cov --cov-fail-under=75
 ```
 
 ### Verbose Output
@@ -341,27 +381,104 @@ Coverage settings are defined in [pyproject.toml](../pyproject.toml#L302-L336).
 
 ### Current Settings
 
-- **Minimum Coverage:** 50% (`fail_under = 50`)
+- **Minimum Coverage:** 75% (`fail_under = 75`)
 - **Branch Coverage:** Enabled (`branch = true`)
 - **HTML Reports:** Output to `htmlcov/`
 - **Omitted Files:** Migrations, tests, `__pycache__`, venv, `manage.py`, ASGI/WSGI
 
-### Phase 1 vs Phase 2
-
-| Metric               | Phase 1 (Current) | Phase 2 (Goal)  |
-|----------------------|-------------------|-----------------|
-| Overall Coverage     | 50%               | 80%             |
-| New Code Coverage    | 70%               | 90%             |
-| Branch Coverage      | ✅ Enabled         | ✅ Enabled       |
+#### Coverage Targets
+| Gate | Target | Milestone |
+|------|--------|-----------|
+| Gate 4 start | 75% | Forms + matching logic added |
+| Gate 4 complete | 80% | Views + forms tested |
+| Gate 5 complete | 85% | Full feature coverage |
 
 **Coverage Rules for New Code:**
 
-- **New features:** Minimum 70% coverage required
+- **New features:** Minimum 80% coverage required
 - **Bug fixes:** Must include regression test
 - **Refactoring:** Must not decrease coverage
 
 ---
 
+### Configuration Files
+
+The coverage system is configured in `pyproject.toml`:
+
+#### `[tool.pytest.ini_options]`
+Controls pytest and coverage integration:
+- **Test discovery:** Defines `testpaths = ["allergies/tests", "users/tests"]`
+- **Coverage flags:** Enables `--cov`, `--cov-report=term-missing`, `--cov-report=xml`
+- **Markers:** Registers `integration`, `slow`, and `unit` markers
+- **Default flags:** Applies `-ra --strict-markers --strict-config --tb=short` for better test reporting
+
+#### `[tool.coverage.run]`
+Controls coverage.py behavior:
+- **Branch coverage:** Enables `branch = True` for decision coverage
+- **Source packages:** Defines `allergies`, `users`, and `skincare_project` as measured code
+- **Omit patterns:** Excludes `*/migrations/*`, `*/tests/*`, `*/__pycache__/*` from coverage
+
+#### `[tool.coverage.report]`
+Controls coverage reporting:
+- **Fail threshold:** Sets `fail_under = 75` to enforce minimum coverage
+- **Exclusions:** Ignores debug-only code, `TYPE_CHECKING` blocks, and pragma comments
+- **HTML output:** Configures `htmlcov/` directory via `[tool.coverage.html]`
+
+**For advanced customization, see:**
+- [pytest-cov documentation](https://pytest-cov.readthedocs.io/)
+- [coverage.py documentation](https://coverage.readthedocs.io/)
+
+---
+
+## Testing & Code Coverage
+
+<details>
+<summary><b>🧪 Click to expand testing & coverage details</b></summary>
+
+### Running Tests
+Execute the test suite:
+
+```bash
+uv run pytest
+```
+
+All test discovery, markers, and coverage settings are configured in `pyproject.toml`, so `pytest` automatically applies:
+- Test discovery from `allergies/tests` and `users/tests`
+- Coverage of `allergies`, `users`, and `skincare_project` packages
+- Coverage reports in terminal and XML (for CI)
+- Fail-under threshold of 75%
+
+### Code Coverage
+Test coverage is measured automatically when running pytest. The configuration in `pyproject.toml` includes:
+- **Branch coverage** (tests all control flow paths, not just lines)
+- **XML report** for CI/Codecov uploads
+- **Terminal report** showing coverage percentage and untested lines
+- **Omit patterns** to exclude migrations, tests, settings, and utility modules
+
+#### Coverage Targets
+| Phase | Target | When |
+|-------|--------|------|
+| Gate 4 start | 75% | Forms + matching logic added |
+| Gate 4 complete | 80% | Views + forms tested |
+| Gate 5 complete | 85% | Full feature coverage |
+
+#### Viewing Coverage Details
+To view an HTML coverage report for detailed line-by-line analysis:
+
+```bash
+# Generate HTML report (pytest runs with coverage automatically)
+uv run pytest
+# Then open htmlcov/index.html in your browser
+```
+
+The HTML report shows:
+- Which lines are covered/uncovered
+- Branch coverage details
+- Coverage summary by file
+
+</details>
+
+---
 ## AI Testing Guidelines
 
 ### For AI Agents Implementing Features
@@ -434,7 +551,7 @@ uv run pytest
 pre-commit run --all-files
 
 # Verify coverage meets minimum
-uv run pytest --cov --cov-fail-under=50
+uv run pytest --cov --cov-fail-under=75
 ```
 
 ---
@@ -530,12 +647,76 @@ uv run pytest && pre-commit run --all-files
 
 ### Coverage Milestones
 
-| Milestone        | Target | ETA     | Requirements                          |
-|------------------|--------|---------|---------------------------------------|
-| Phase 1 Complete | 50%    | Current | All apps have basic model/view tests  |
-| Phase 2 Start    | 60%    | Q2 2026 | Admin tests, error handling complete  |
-| Phase 2 Complete | 80%    | Q3 2026 | Integration tests, signal tests added |
-| Production Ready | 90%+   | Q4 2026 | E2E tests, performance tests added    |
+| Milestone | Target | Requirements |
+|-----------|--------|--------------|
+| Gate 4 start | 75% | Forms + matching logic added |
+| Gate 4 complete | 80% | Views + forms fully tested |
+| Gate 5 complete | 85% | Full feature coverage |
+| Production ready | 90%+ | E2E tests, performance tests added |
+
+---
+
+#### Terminal Output Example
+The `--cov-report=term-missing` flag produces output like:
+
+```
+Name                                Stmts   Miss Branch BrPart  Cover   Missing
+--------------------------------------------------------------------------------
+allergies/__init__.py                   0      0      0      0   100%
+allergies/models.py                    45      8     12      3    78%   23-27, 45, 67->69
+allergies/views.py                     32      5      8      1    82%   15-17, 42
+users/models.py                        28      0      6      0   100%
+users/views.py                         19      4      4      1    73%   8, 22-24
+--------------------------------------------------------------------------------
+TOTAL                                 124     17     30      5    82%
+```
+
+This shows:
+- **Stmts:** Total statements
+- **Miss:** Uncovered lines
+- **Branch/BrPart:** Branch coverage metrics
+- **Missing:** Specific line numbers and ranges not covered
+
+---
+
+#### Automatic Coverage Threshold Enforcement
+The project enforces a **minimum 75% coverage threshold** via `fail_under = 75` in `pyproject.toml` under `[tool.coverage.report]`. This means:
+- **Local development:** Test suite fails if coverage drops below 75%
+- **CI/CD pipelines:** Builds fail automatically if coverage is insufficient
+- **Quality gate:** Prevents merging code that significantly reduces test coverage
+
+To bypass coverage checks temporarily (e.g., during development):
+```bash
+uv run pytest --no-cov
+```
+
+---
+
+#### Viewing HTML Coverage Reports
+After generating the HTML report, open it in your browser:
+
+- Windows (PowerShell):
+    ```powershell
+    Invoke-Item htmlcov\index.html
+    ```
+
+- macOS:
+    ```bash
+    open htmlcov/index.html
+    ```
+
+- Linux:
+    ```bash
+    xdg-open htmlcov/index.html
+    ```
+
+The HTML report provides:
+- **File listing dashboard:** Overview of coverage by file with sortable columns
+- **Source code view:** Line-by-line highlighting (green = covered, red = missed)
+- **Search functionality:** Find specific files or code sections quickly
+- **Coverage statistics:** Detailed metrics including branch coverage percentages
+
+*Note: HTML report screenshot will be added in a future update.*
 
 ---
 
