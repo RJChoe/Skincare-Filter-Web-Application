@@ -487,7 +487,7 @@ The HTML report shows:
 
 - Write tests in parallel with feature implementation (Development Gate 5)
 - Tests must cover happy path, edge cases, and error scenarios
-- Minimum 70% coverage for new code
+- Minimum 80% coverage for new code
 
 **Rule 2: Use descriptive test names**
 
