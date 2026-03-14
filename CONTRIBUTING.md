@@ -76,14 +76,17 @@ pre-commit run --all-files
 # Or let pre-commit run automatically on git commit
 git commit -m "feat: add user allergy validation"
 ```
-### Pre-commit Hooks
-## Development Workflow
+### 6. Push & Create PR
+
+```bash
+# Push to your fork
+git push origin feature/your-feature-name
+
+# Create Pull Request on GitHub
+# Use the PR template and fill in all required sections
+```
 
 ### Pre-commit Hooks
-
-<details>
-<summary><b>🔧 Click to expand pre-commit hooks setup</b></summary>
-Automate code quality checks before each commit to maintain consistent standards and catch issues early.
 
 #### Setup
 Install and configure pre-commit hooks:
@@ -167,16 +170,6 @@ uv run pytest -m "not slow" && uv run ruff check . --fix && uv run ruff format .
 ```
 
 **Note:** While pre-commit hooks automate these checks, running them manually helps catch issues faster during development. See [Troubleshooting](#troubleshooting) for resolving common failures.
-
-### 6. Push & Create PR
-
-```bash
-# Push to your fork
-git push origin feature/your-feature-name
-
-# Create Pull Request on GitHub
-# Use the PR template and fill in all required sections
-```
 
 ---
 
@@ -422,6 +415,37 @@ Any change to the folder structure or core logic requires an update to [ARCHITEC
 # Format code automatically
 ruff format .
 ```
+### Dependency Migration Notes
+
+## Technical Decisions
+
+### Migrating from [project.optional-dependencies]
+
+If you have an existing development environment from before the PEP 735 migration:
+
+1. Remove your existing virtual environment:
+   ```bash
+   # On Windows
+   Remove-Item -Recurse -Force .venv
+
+   # On macOS/Linux
+   rm -rf .venv
+   ```
+
+2. Recreate the virtual environment:
+   ```bash
+   uv venv
+   ```
+
+3. Activate the virtual environment (see installation steps above)
+
+4. Install dependencies with the new group system:
+   ```bash
+   uv sync --group dev
+   ```
+
+The new structure allows faster CI builds by installing only required dependencies per job (e.g., only `--group test` for test jobs).
+
 ## Core Logic Patterns
 
 All backend contributions must adhere to the foundational logic patterns defined in [ARCHITECTURE.md](./ARCHITECTURE.md).
@@ -529,37 +553,6 @@ for ua in user_allergies:
 - **Pre-commit:** `.pre-commit-config.yaml`
 - **Python Version:** `.python-version` (pinned to 3.13)
 
----
-### Dependency Migration Notes
-
-## Technical Decisions
-
-### Migrating from [project.optional-dependencies]
-
-If you have an existing development environment from before the PEP 735 migration:
-
-1. Remove your existing virtual environment:
-   ```bash
-   # On Windows
-   Remove-Item -Recurse -Force .venv
-
-   # On macOS/Linux
-   rm -rf .venv
-   ```
-
-2. Recreate the virtual environment:
-   ```bash
-   uv venv
-   ```
-
-3. Activate the virtual environment (see installation steps above)
-
-4. Install dependencies with the new group system:
-   ```bash
-   uv sync --group dev
-   ```
-
-The new structure allows faster CI builds by installing only required dependencies per job (e.g., only `--group test` for test jobs).
 
 ---
 

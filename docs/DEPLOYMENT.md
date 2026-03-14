@@ -118,7 +118,6 @@ uv export --no-hashes --format requirements-txt -o requirements.txt
 uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.txt
 ```
 `uv.lock` is the source of truth for all dependency resolution. The `--no-hashes` flag ensures cross-platform compatibility.
-`uv.lock` is the source of truth for all dependency resolution.
 
 This project uses **PEP 735 dependency groups** for organized development dependencies:
 - `test` - Testing tools (pytest, pytest-cov, coverage)
@@ -158,8 +157,6 @@ uv sync --group dev
 uv lock --upgrade
 ```
 
-**Note:** The pre-commit hooks automatically validate that requirements files stay in sync with `uv.lock`. CI will fail if they drift.
-
 ## Technical Decisions
 
 ### Migrating from [project.optional-dependencies]
@@ -193,9 +190,6 @@ The new structure allows faster CI builds by installing only required dependenci
 
 ## Verify Setup
 
-<details>
-<summary><b>✅ Click to expand setup verification</b></summary>
-
 Quick checks to confirm your environment:
 
 ```bash
@@ -208,8 +202,6 @@ uv run python -c "import django; print(django.get_version())"
 # Verify uv installation
 uv --version
 ```
-
-</details>
 
 ---
 ## Pre-Deployment Checklist
@@ -299,9 +291,6 @@ Register or log in at [safety.pyup.io](https://safety.pyup.io), then navigate to
 ## CI/CD Configuration
 
 ### CI/CD Integration
-
-<details>
-<summary><b>⚙️ Click to expand CI/CD configuration</b></summary>
 
 #### GitHub Actions Workflow
 Automate testing and coverage reporting on pull requests to maintain code quality.
@@ -1009,11 +998,6 @@ uv run python manage.py check --deploy
 
 ### Python Version Issues
 
-## Troubleshooting Python Version
-
-<details>
-<summary><b>🔧 Python Version Issues</b></summary>
-
 **Important:** CI enforces `.python-version` matching (see [workflow](.github/workflows/ci.yml#L54-L64)). Always run `uv python pin 3.13` after cloning to ensure alignment.
 
 This project uses a `.python-version` file to pin Python 3.13 for local development. uv automatically detects and uses this version.
@@ -1113,4 +1097,4 @@ As your application grows:
 
 ## Support
 
-For deployment issues or questions, contact **RJSimpson1004@gmail.com** or open an issue on [GitHub](https://github.com/RJChoe/Skincare-Filter-Web-Application/issues).
+For deployment issues or questions, open an issue on [GitHub](https://github.com/RJChoe/Skincare-Filter-Web-Application/issues).
