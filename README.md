@@ -92,7 +92,7 @@ Get up and running in 5 minutes:
 
 <details>
 <summary><b>📦 Click to expand installation steps</b></summary>
-
+<!--
 How to install and set up your project:
 
 Note: This project uses [uv](https://docs.astral.sh/uv/) for dependency management, which provides fast, reliable installs with lockfile support.
@@ -261,11 +261,11 @@ If you have an existing development environment from before the PEP 735 migratio
    ```
 
 The new structure allows faster CI builds by installing only required dependencies per job (e.g., only `--group test` for test jobs).
-
+-->
 </details>
 
 ---
-
+<!--
 ## Verify Setup
 
 <details>
@@ -285,9 +285,9 @@ uv --version
 ```
 
 </details>
-
+-->
 ---
-
+<!--
 ## CI/CD Alignment
 
 This project's CI enforces consistency between local development and automated testing:
@@ -315,7 +315,7 @@ uv lock --check
 ```
 
 **Before committing:** Ensure `.python-version` exists (`uv python pin 3.13`) and pre-commit hooks are installed (`uv run pre-commit install`). CI will fail if Python versions mismatch or requirements files drift from `uv.lock`.
-
+-->
 ---
 
 ## Troubleshooting Python Version

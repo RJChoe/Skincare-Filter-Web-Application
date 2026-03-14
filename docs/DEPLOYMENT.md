@@ -6,23 +6,217 @@ This guide covers deploying the Skincare Allergy Filter application to productio
 
 ## Table of Contents
 
+0. [Local Development Setup](#local-development-setup)
 1. [Pre-Deployment Checklist](#pre-deployment-checklist)
-2. [CI/CD Secrets](#cicd-secrets)
-3. [Environment Configuration](#environment-configuration)
-4. [Database Setup](#database-setup)
-5. [Static Files](#static-files)
-6. [WSGI Server Configuration](#wsgi-server-configuration)
-7. [Common Hosting Providers](#common-hosting-providers)
-8. [Post-Deployment](#post-deployment)
+2. [CI/CD Alignment](#cicd-alignment)
+3. [CI/CD Secrets](#cicd-secrets)
+4. [Environment Configuration](#environment-configuration)
+5. [Database Setup](#database-setup)
+6. [Static Files](#static-files)
+7. [WSGI Server Configuration](#wsgi-server-configuration)
+8. [Common Hosting Providers](#common-hosting-providers)
+9. [Post-Deployment](#post-deployment)
+
+---
+## Local Development Setup
+How to install and set up your project:
+
+Note: This project uses [uv](https://docs.astral.sh/uv/) for dependency management, which provides fast, reliable installs with lockfile support.
+
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/RJChoe/Skincare-Filter-Web-Application.git
+    ```
+
+2. Navigate to the project folder:
+    ```bash
+    cd Skincare-Filter-Web-Application
+    ```
+
+3. Install uv (if not already installed):
+    ```bash
+    # macOS/Linux
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+
+    # Windows (PowerShell)
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+    # Or via pip
+    pip install uv
+    ```
+
+   **Windows users:** If the installation script fails, ensure PowerShell execution policy allows scripts. Run as Administrator if needed, or check `where.exe uv` to verify the installation path. Alternatively, use WSL2 for a Unix-like environment.
+
+   **Note:** `uv sync` may prune undeclared tools (pip/uv) inside the venv; this is expected behavior.
+
+4. Install Python 3.13 (if needed):
+    ```bash
+    uv python install 3.13
+    ```
+
+5. Pin Python version for this project:
+    ```bash
+    uv python pin 3.13
+    ```
+
+    This creates/updates `.python-version` which CI uses to enforce consistency (see [CI workflow](.github/workflows/ci.yml#L54-L64)).
+
+    Verify the pin:
+    ```bash
+    # Windows
+    type .python-version
+
+    # macOS/Linux
+    cat .python-version
+    ```
+    Output should show `3.13`.
+
+    **Note:** If `.python-version` doesn't exist, run `uv python pin 3.13` to generate it. This file ensures CI and local development use the same Python version.
+
+6. Create virtual environment (activation optional):
+    ```bash
+    # Create venv
+    uv venv
+
+    # Activate on Windows (PowerShell)
+    .venv\Scripts\Activate.ps1
+
+    # Activate on Windows (CMD)
+    .venv\Scripts\activate.bat
+
+    # Activate on macOS/Linux
+    source .venv/bin/activate
+    ```
+
+    **Note:** All commands in this README use `uv run`, which automatically uses the venv without manual activation. Activation is optional but shown for reference.
+
+7. Install all dependencies (runtime + dev):
+    ```bash
+    uv sync --group dev
+    ```
+
+8. Apply migrations:
+    ```bash
+    uv run python manage.py makemigrations allergies users
+    uv run python manage.py migrate
+    ```
+
+9. Run the development server:
+    ```bash
+    uv run python manage.py runserver
+    ```
+
+10. Open your browser and visit http://localhost:8000
+
+### Dependency Management with uv
+
+**Note:** `requirements.txt` and `requirements-dev.txt` are not committed —
+generate them on demand from `uv.lock`:
+```bash
+uv export --no-hashes --format requirements-txt -o requirements.txt
+uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.txt
+```
+`uv.lock` is the source of truth for all dependency resolution. The `--no-hashes` flag ensures cross-platform compatibility.
+`uv.lock` is the source of truth for all dependency resolution.
+
+This project uses **PEP 735 dependency groups** for organized development dependencies:
+- `test` - Testing tools (pytest, pytest-cov, coverage)
+- `lint` - Code formatting and linting (ruff, pre-commit)
+- `type-check` - Type checking tools (mypy, django-stubs)
+- `security` - Security scanning (bandit, safety)
+- `dev` - Full development environment (includes all groups above)
+
+**Adding dependencies:**
+```bash
+# Add a runtime dependency
+uv add package-name
+
+# Add a dependency to a specific group
+uv add --group test pytest-mock
+uv add --group lint pylint
+uv add --group type-check types-requests
+uv add --group security semgrep
+```
+
+**Installing specific groups:**
+```bash
+# Install only test dependencies
+uv sync --group test
+
+# Install multiple groups
+uv sync --group test --group lint
+#
+
+# Install full dev environment
+uv sync --group dev
+```
+
+**Updating dependencies:**
+```bash
+# Update all dependencies
+uv lock --upgrade
+```
+
+**Note:** The pre-commit hooks automatically validate that requirements files stay in sync with `uv.lock`. CI will fail if they drift.
+
+## Technical Decisions
+
+### Migrating from [project.optional-dependencies]
+
+If you have an existing development environment from before the PEP 735 migration:
+
+1. Remove your existing virtual environment:
+   ```bash
+   # On Windows
+   Remove-Item -Recurse -Force .venv
+
+   # On macOS/Linux
+   rm -rf .venv
+   ```
+
+2. Recreate the virtual environment:
+   ```bash
+   uv venv
+   ```
+
+3. Activate the virtual environment (see installation steps above)
+
+4. Install dependencies with the new group system:
+   ```bash
+   uv sync --group dev
+   ```
+
+The new structure allows faster CI builds by installing only required dependencies per job (e.g., only `--group test` for test jobs).
 
 ---
 
+## Verify Setup
+
+<details>
+<summary><b>✅ Click to expand setup verification</b></summary>
+
+Quick checks to confirm your environment:
+
+```bash
+# Check Python version (should be 3.13)
+uv run python -V
+
+# Check Django version (should be 6.0)
+uv run python -c "import django; print(django.get_version())"
+
+# Verify uv installation
+uv --version
+```
+
+</details>
+
+---
 ## Pre-Deployment Checklist
 
 Before deploying to production, ensure:
 
 - [ ] All tests pass locally: `uv run pytest`
-- [ ] Coverage meets minimum threshold (50%)
+- [ ] Coverage meets minimum threshold (75%)
 - [ ] Security scan passes: `uv run bandit -r allergies users skincare_project`
 - [ ] Dependencies are up to date and secure: `uv run safety scan --non-interactive`
 - [ ] `.env` file configured with production values
@@ -33,6 +227,36 @@ Before deploying to production, ensure:
 - [ ] `ALLOWED_HOSTS` configured correctly
 - [ ] HTTPS/SSL certificate obtained
 - [ ] `SAFETY_API_KEY` GitHub secret configured (see [CI/CD Secrets](#cicd-secrets))
+
+---
+
+## CI/CD Alignment
+
+This project's CI enforces consistency between local development and automated testing:
+
+- **Python 3.13 enforcement:** CI verifies `.python-version` matches the active interpreter ([see workflow](.github/workflows/ci.yml#L54-L64))
+- **uv-based commands:** All CI jobs use `uv run` for consistent Python/tool resolution
+- **Dependency group isolation:** Each CI job installs only required groups (test, lint, type-check, security)
+- **Lockfile validation:** The [uv-export workflow](.github/workflows/uv-export.yml) ensures `requirements.txt` files stay in sync with `uv.lock`
+- **Safety scan authentication:** `safety scan` requires a `SAFETY_API_KEY` repository secret — without it the `static-analysis` job fails and blocks the merge. See [CI/CD Secrets](docs/DEPLOYMENT.md#cicd-secrets) for setup.
+
+**Run the same checks locally:**
+
+```bash
+# Verify Python version matches .python-version
+uv run python --version
+
+# Run pre-commit (same as CI lint job)
+uv run pre-commit run --all-files
+
+# Run tests (same as CI test job)
+uv run pytest
+
+# Validate lockfile sync
+uv lock --check
+```
+
+**Before committing:** Ensure `.python-version` exists (`uv python pin 3.13`) and pre-commit hooks are installed (`uv run pre-commit install`). CI will fail if Python versions mismatch or requirements files drift from `uv.lock`.
 
 ---
 
