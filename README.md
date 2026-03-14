@@ -603,6 +603,7 @@ Controls coverage reporting:
 </details>
 
 ---
+<!--
 ## Development Workflow
 
 ### Pre-commit Hooks
@@ -663,7 +664,7 @@ This configuration runs:
 - **Fast tests:** Runs non-slow tests (typically ~5-10 seconds)
 
 **Note:** Pre-commit hooks run automatically before each commit. If checks fail, the commit is blocked until issues are resolved.
-
+-->
 </details>
 
 ### Fail Fast Checklist

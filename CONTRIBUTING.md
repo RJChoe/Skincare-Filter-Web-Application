@@ -76,6 +76,67 @@ pre-commit run --all-files
 # Or let pre-commit run automatically on git commit
 git commit -m "feat: add user allergy validation"
 ```
+### Pre-commit Hooks
+## Development Workflow
+
+### Pre-commit Hooks
+
+<details>
+<summary><b>🔧 Click to expand pre-commit hooks setup</b></summary>
+Automate code quality checks before each commit to maintain consistent standards and catch issues early.
+
+#### Setup
+Install and configure pre-commit hooks:
+
+```bash
+# Install pre-commit (included in dev/lint groups)
+uv sync --group lint
+
+# Set up git hooks
+uv run pre-commit install
+
+# Run manually on all files
+uv run pre-commit run --all-files
+```
+
+#### Configuration
+Create `.pre-commit-config.yaml` in your project root:
+
+```yaml
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.1
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+
+  - repo: local
+    hooks:
+      - id: pytest-fast
+        name: pytest-fast
+        entry: uv run pytest -m "not slow" --tb=short
+        language: system
+        pass_filenames: false
+        always_run: true
+```
+
+This configuration runs:
+- **Ruff Linter:** Checks code quality (500+ rules, including Django-specific checks)
+- **Ruff Formatter:** Auto-formats Python code (Black-compatible)
+- **File hygiene:** Removes trailing whitespace, ensures newlines at end of files
+- **Fast tests:** Runs non-slow tests (typically ~5-10 seconds)
+
+**Note:** Pre-commit hooks run automatically before each commit. If checks fail, the commit is blocked until issues are resolved.
 
 ### 6. Push & Create PR
 
