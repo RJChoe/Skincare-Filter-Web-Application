@@ -426,7 +426,7 @@ Result Page
 -->
 
 ---
-
+<!--
 ## Testing & Code Coverage
 
 <details>
@@ -473,8 +473,8 @@ The HTML report shows:
 - Branch coverage details
 - Coverage summary by file
 
-</details>
-
+</details> -->
+<!-->
 #### Terminal Output Example
 The `--cov-report=term-missing` flag produces output like:
 
@@ -494,9 +494,9 @@ This shows:
 - **Stmts:** Total statements
 - **Miss:** Uncovered lines
 - **Branch/BrPart:** Branch coverage metrics
-- **Missing:** Specific line numbers and ranges not covered
+- **Missing:** Specific line numbers and ranges not covered -->
 
-#### Automatic Coverage Threshold Enforcement
+<!-- #### Automatic Coverage Threshold Enforcement
 The project enforces a **minimum 75% coverage threshold** via `fail_under = 75` in `pyproject.toml` under `[tool.coverage.report]`. This means:
 - **Local development:** Test suite fails if coverage drops below 75%
 - **CI/CD pipelines:** Builds fail automatically if coverage is insufficient
@@ -505,9 +505,9 @@ The project enforces a **minimum 75% coverage threshold** via `fail_under = 75` 
 To bypass coverage checks temporarily (e.g., during development):
 ```bash
 uv run pytest --no-cov
-```
+``` -->
 
-#### Viewing HTML Coverage Reports
+<!-- #### Viewing HTML Coverage Reports
 After generating the HTML report, open it in your browser:
 
 - Windows (PowerShell):
@@ -531,8 +531,8 @@ The HTML report provides:
 - **Search functionality:** Find specific files or code sections quickly
 - **Coverage statistics:** Detailed metrics including branch coverage percentages
 
-*Note: HTML report screenshot will be added in a future update.*
-
+*Note: HTML report screenshot will be added in a future update.* -->
+<!--
 ### Test Filtering with Markers
 
 The project uses pytest markers to categorize tests, allowing you to run specific subsets:
@@ -572,8 +572,8 @@ uv run pytest -m integration
 # Run all tests except integration tests
 uv run pytest -m "not integration"
 ```
-
-### Configuration Files
+-->
+<!-- ### Configuration Files
 
 The coverage system is configured in `pyproject.toml`:
 
@@ -599,7 +599,7 @@ Controls coverage reporting:
 **For advanced customization, see:**
 - [pytest-cov documentation](https://pytest-cov.readthedocs.io/)
 - [coverage.py documentation](https://coverage.readthedocs.io/)
-
+-->
 </details>
 
 ---
