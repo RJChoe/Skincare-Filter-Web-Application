@@ -4,7 +4,7 @@
 
 This guide documents the testing strategy, fixture patterns, coverage expectations, and best practices for writing tests in the Skincare Allergy Filter project. All contributors (human and AI agents) must follow these guidelines to maintain code quality and reliability.
 
-**Current Coverage Target:** 50% (Phase 1 minimum) → 80% (Phase 2 goal)
+**Current Coverage Target:** 75% (current minimum) → 85% (Gate 5 completion)
 
 ---
 
@@ -303,8 +303,8 @@ uv run pytest --cov --cov-report=html
 # Open coverage report (Windows)
 start htmlcov/index.html
 
-# Fail if coverage is below threshold (50%)
-uv run pytest --cov --cov-fail-under=50
+# Fail if coverage is below threshold (75%)
+uv run pytest --cov --cov-fail-under=75
 ```
 
 ### Verbose Output
@@ -341,22 +341,21 @@ Coverage settings are defined in [pyproject.toml](../pyproject.toml#L302-L336).
 
 ### Current Settings
 
-- **Minimum Coverage:** 50% (`fail_under = 50`)
+- **Minimum Coverage:** 75% (`fail_under = 75`)
 - **Branch Coverage:** Enabled (`branch = true`)
 - **HTML Reports:** Output to `htmlcov/`
 - **Omitted Files:** Migrations, tests, `__pycache__`, venv, `manage.py`, ASGI/WSGI
 
-### Phase 1 vs Phase 2
-
-| Metric               | Phase 1 (Current) | Phase 2 (Goal)  |
-|----------------------|-------------------|-----------------|
-| Overall Coverage     | 50%               | 80%             |
-| New Code Coverage    | 70%               | 90%             |
-| Branch Coverage      | ✅ Enabled         | ✅ Enabled       |
+#### Coverage Targets
+| Gate | Target | Milestone |
+|------|--------|-----------|
+| Gate 4 start | 75% | Forms + matching logic added |
+| Gate 4 complete | 80% | Views + forms tested |
+| Gate 5 complete | 85% | Full feature coverage |
 
 **Coverage Rules for New Code:**
 
-- **New features:** Minimum 70% coverage required
+- **New features:** Minimum 80% coverage required
 - **Bug fixes:** Must include regression test
 - **Refactoring:** Must not decrease coverage
 
@@ -434,7 +433,7 @@ uv run pytest
 pre-commit run --all-files
 
 # Verify coverage meets minimum
-uv run pytest --cov --cov-fail-under=50
+uv run pytest --cov --cov-fail-under=75
 ```
 
 ---
@@ -530,12 +529,12 @@ uv run pytest && pre-commit run --all-files
 
 ### Coverage Milestones
 
-| Milestone        | Target | ETA     | Requirements                          |
-|------------------|--------|---------|---------------------------------------|
-| Phase 1 Complete | 50%    | Current | All apps have basic model/view tests  |
-| Phase 2 Start    | 60%    | Q2 2026 | Admin tests, error handling complete  |
-| Phase 2 Complete | 80%    | Q3 2026 | Integration tests, signal tests added |
-| Production Ready | 90%+   | Q4 2026 | E2E tests, performance tests added    |
+| Milestone | Target | Requirements |
+|-----------|--------|--------------|
+| Gate 4 start | 75% | Forms + matching logic added |
+| Gate 4 complete | 80% | Views + forms fully tested |
+| Gate 5 complete | 85% | Full feature coverage |
+| Production ready | 90%+ | E2E tests, performance tests added |
 
 ---
 
