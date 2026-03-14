@@ -622,6 +622,34 @@ uv run pytest --no-cov
 
 ---
 
+#### Viewing HTML Coverage Reports
+After generating the HTML report, open it in your browser:
+
+- Windows (PowerShell):
+    ```powershell
+    Invoke-Item htmlcov\index.html
+    ```
+
+- macOS:
+    ```bash
+    open htmlcov/index.html
+    ```
+
+- Linux:
+    ```bash
+    xdg-open htmlcov/index.html
+    ```
+
+The HTML report provides:
+- **File listing dashboard:** Overview of coverage by file with sortable columns
+- **Source code view:** Line-by-line highlighting (green = covered, red = missed)
+- **Search functionality:** Find specific files or code sections quickly
+- **Coverage statistics:** Detailed metrics including branch coverage percentages
+
+*Note: HTML report screenshot will be added in a future update.*
+
+---
+
 ## Resources
 
 - **Pytest Documentation:** https://docs.pytest.org/
