@@ -12,10 +12,10 @@ Thank you for your interest in contributing to the Skincare Allergy Filter proje
 4. [Pull Request Requirements](#pull-request-requirements)
 5. [Code Style](#code-style)
 6. [Core Logic Patterns](#core-logic-patterns)
-6. [Commit Messages](#commit-messages)
-7. [Testing](#testing)
-8. [For AI Agents](#for-ai-agents)
-9. [Questions & Support](#questions--support)
+7. [Commit Messages](#commit-messages)
+8. [Testing](#testing)
+9. [For AI Agents](#for-ai-agents)
+10. [Questions & Support](#questions--support)
 
 ---
 
