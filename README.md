@@ -317,7 +317,7 @@ uv lock --check
 **Before committing:** Ensure `.python-version` exists (`uv python pin 3.13`) and pre-commit hooks are installed (`uv run pre-commit install`). CI will fail if Python versions mismatch or requirements files drift from `uv.lock`.
 -->
 ---
-
+<!--
 ## Troubleshooting Python Version
 
 <details>
@@ -394,7 +394,7 @@ uv sync --group dev
 1. Activate the virtual environment before committing
 2. Install python 3.13 system-wide
 3. Use `uv run` commands which automatically use the correct version
-
+-->
 </details>
 
 ---
@@ -695,7 +695,7 @@ uv run pytest -m "not slow" && uv run ruff check . --fix && uv run ruff format .
 ```
 
 **Note:** While pre-commit hooks automate these checks, running them manually helps catch issues faster during development. See [Troubleshooting](#troubleshooting) for resolving common failures.
-
+<!--
 ### CI/CD Integration
 
 <details>
@@ -846,7 +846,7 @@ Track and visualize coverage trends across commits and pull requests.
 
 **For more advanced configuration, see:**
 - [Codecov documentation](https://docs.codecov.com/)
-
+-->
 </details>
 
 -------
