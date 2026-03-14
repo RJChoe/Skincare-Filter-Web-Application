@@ -736,7 +736,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.11', '3.12', '3.13']
+        python-version: ['3.13']
 
     steps:
     - uses: actions/checkout@v5
@@ -770,7 +770,7 @@ jobs:
 
 This workflow:
 - **Triggers:** Only on PRs to `main` and `develop` branches
-- **Matrix testing:** Tests Python 3.11, 3.12, and 3.13 on Ubuntu
+- **Matrix testing:** Tests Python 3.13 on Ubuntu
 - **Job names:** Uses "build" and "test" for status check references
 - **Coverage enforcement:** Fails if coverage drops below 75% (via `pyproject.toml`)
 
