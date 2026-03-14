@@ -95,7 +95,7 @@ _Disclaimer: This tool is not a substitute for professional medical advice._
   - [django-environ](https://django-environ.readthedocs.io/) for environment management
   - [pytest](https://docs.pytest.org/) for testing
   - [bandit](https://bandit.readthedocs.io/) for security scanning
-  - [safety](https://pyup.io/safety/) for dependency vulnerability checks
+  - [safety](https://pyup.io/safety/) for dependency vulnerability checks (advisory-only until Gate 5 — runs in CI but will not block merges)
 
 ## Key Design Decisions & ADRs
 - **Why Django?**
@@ -138,6 +138,7 @@ _Disclaimer: This tool is not a substitute for professional medical advice._
 
 ## References to Other Documentation
 - [README.md](./README.md) — Project overview, features, workflow diagram
+- [.github/instructions/copilot-instructions.md](.github/instructions/copilot-instructions.md) — AI agent instructions, current Gate status, critical field names
 - [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) — Production deployment checklist and CI/CD secrets
 - [docs/SECURITY.md](./docs/SECURITY.md) — Security best practices and environment variable management
 - [docs/TESTING.md](./docs/TESTING.md) — Testing strategy, coverage targets, fixture patterns

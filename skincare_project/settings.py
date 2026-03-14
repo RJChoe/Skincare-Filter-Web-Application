@@ -67,7 +67,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "phonenumber_field",
     "users.apps.UsersConfig",
     "allergies.apps.AllergiesConfig",  # depends on users
     "django_cleanup.apps.CleanupConfig",  # Must come after apps defining models

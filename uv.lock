@@ -378,18 +378,6 @@ wheels = [
 ]
 
 [[package]]
-name = "django-phonenumber-field"
-version = "8.4.0"
-source = { registry = "https://pkgs.safetycli.com/repository/skincare-filter/pypi/simple/" }
-dependencies = [
-    { name = "django" },
-]
-sdist = { url = "https://pkgs.safetycli.com/package/skincare-filter/pypi/packages/87/bf/8aa60c9834773b955dff1ddea842e361e8daaf6b0945d5bfc29fc66d53ab/django_phonenumber_field-8.4.0.tar.gz", hash = "sha256:2b83e843dac35eec6a69880a166487235b737a71a1e38c9a52e5ad67d6996083", size = 45512, upload-time = "2025-11-24T15:09:51.904Z" }
-wheels = [
-    { url = "https://pkgs.safetycli.com/package/skincare-filter/pypi/packages/8b/a3/f6b85a9246e22cf719752ad83f5e95aa9ba12419b2f9eff70f20d30e55df/django_phonenumber_field-8.4.0-py3-none-any.whl", hash = "sha256:7a1cb3a6456edb54d879f11ffa0acb227ded08c93b587035d0f28093f0e46511", size = 69528, upload-time = "2025-11-24T15:09:45.479Z" },
-]
-
-[[package]]
 name = "django-stubs"
 version = "5.2.8"
 source = { registry = "https://pkgs.safetycli.com/repository/skincare-filter/pypi/simple/" }
@@ -722,15 +710,6 @@ source = { registry = "https://pkgs.safetycli.com/repository/skincare-filter/pyp
 sdist = { url = "https://pkgs.safetycli.com/package/skincare-filter/pypi/packages/ca/bc/f35b8446f4531a7cb215605d100cd88b7ac6f44ab3fc94870c120ab3adbf/pathspec-0.12.1.tar.gz", hash = "sha256:a482d51503a1ab33b1c67a6c3813a26953dbdc71c31dacaef9a838c4e29f5712", size = 51043, upload-time = "2023-12-10T22:30:45Z" }
 wheels = [
     { url = "https://pkgs.safetycli.com/package/skincare-filter/pypi/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl", hash = "sha256:a0d503e138a4c123b27490a4f7beda6a01c6f288df0e4a8b79c7eb0dc7b4cc08", size = 31191, upload-time = "2023-12-10T22:30:43.14Z" },
-]
-
-[[package]]
-name = "phonenumbers"
-version = "9.0.24"
-source = { registry = "https://pkgs.safetycli.com/repository/skincare-filter/pypi/simple/" }
-sdist = { url = "https://pkgs.safetycli.com/package/skincare-filter/pypi/packages/5e/bf/277ae37edb6f5189937223cc3b2a21b8de9d70ac2d0eb684cf33ba055fdd/phonenumbers-9.0.24.tar.gz", hash = "sha256:97c38e4b5b8af992c75de01bd9c0f84e61701a9c900fd84f49744714910a4dc3", size = 2298138, upload-time = "2026-02-13T11:28:57.724Z" }
-wheels = [
-    { url = "https://pkgs.safetycli.com/package/skincare-filter/pypi/packages/2a/c7/b01beac6077df7261d92c6b52408617690147144d8946f6f6ecb7d9766ab/phonenumbers-9.0.24-py2.py3-none-any.whl", hash = "sha256:fa86ab7112ef8b286a811392311bd76bbbae7d1d271c2ed26cf73f2e9fa4d3c6", size = 2584198, upload-time = "2026-02-13T11:28:55.334Z" },
 ]
 
 [[package]]
@@ -1284,8 +1263,6 @@ dependencies = [
     { name = "django" },
     { name = "django-cleanup" },
     { name = "django-environ" },
-    { name = "django-phonenumber-field" },
-    { name = "phonenumbers" },
     { name = "pillow" },
     { name = "psycopg2-binary" },
     { name = "sqlparse" },
@@ -1374,8 +1351,6 @@ requires-dist = [
     { name = "django", specifier = "==6.0.2" },
     { name = "django-cleanup", specifier = ">=9.0.0" },
     { name = "django-environ", specifier = ">=0.12.0" },
-    { name = "django-phonenumber-field", specifier = ">=8.4.0" },
-    { name = "phonenumbers", specifier = ">=9.0.24" },
     { name = "pillow", specifier = ">=12.1.1" },
     { name = "psycopg2-binary", specifier = "==2.9.11" },
     { name = "sqlparse", specifier = "==0.5.5" },

@@ -184,7 +184,14 @@ Note: This project uses [uv](https://docs.astral.sh/uv/) for dependency manageme
 
 ### Dependency Management with uv
 
-This project uses `uv.lock` as the source of truth for dependencies. The `requirements.txt` and `requirements-dev.txt` files are auto-exported from the lockfile for compatibility.
+**Note:** `requirements.txt` and `requirements-dev.txt` are not committed —
+generate them on demand from `uv.lock`:
+```bash
+uv export --no-hashes --format requirements-txt -o requirements.txt
+uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.txt
+```
+`uv.lock` is the source of truth for all dependency resolution. The `--no-hashes` flag ensures cross-platform compatibility.
+`uv.lock` is the source of truth for all dependency resolution.
 
 This project uses **PEP 735 dependency groups** for organized development dependencies:
 - `test` - Testing tools (pytest, pytest-cov, coverage)
@@ -222,25 +229,11 @@ uv sync --group dev
 ```bash
 # Update all dependencies
 uv lock --upgrade
-
-# Export to requirements files (done automatically by pre-commit)
-uv export --no-hashes --format requirements-txt -o requirements.txt
-uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.txt
 ```
 
 **Note:** The pre-commit hooks automatically validate that requirements files stay in sync with `uv.lock`. CI will fail if they drift.
 
 ## Technical Decisions
-
-### Why `--no-hashes`?
-
-We use the `--no-hashes` flag when exporting requirements for several reasons:
-
-- **Cross-platform compatibility**: Hash values can differ between operating systems and Python implementations, causing installation failures in different environments
-- **Cleaner diffs**: Without hashes, requirement file changes show only meaningful version updates rather than extensive hash changes, making code reviews more focused
-- **CI/CD efficiency**: Simplified requirements files reduce merge conflicts and make automated dependency updates more reliable
-
-While this trades some security for practicality, our locked `uv.lock` file still maintains full integrity verification with hashes for reproducible builds.
 
 ### Migrating from [project.optional-dependencies]
 
@@ -450,7 +443,7 @@ All test discovery, markers, and coverage settings are configured in `pyproject.
 - Test discovery from `allergies/tests` and `users/tests`
 - Coverage of `allergies`, `users`, and `skincare_project` packages
 - Coverage reports in terminal and XML (for CI)
-- Fail-under threshold of 50%
+- Fail-under threshold of 75%
 
 ### Code Coverage
 Test coverage is measured automatically when running pytest. The configuration in `pyproject.toml` includes:
@@ -462,9 +455,9 @@ Test coverage is measured automatically when running pytest. The configuration i
 #### Coverage Targets
 | Phase | Target | When |
 |-------|--------|------|
-| Phase 1 | 50% | Foundation testing |
-| Phase 2 | 70% | Views + users tests added |
-| Phase 3 | 85% | Project maturity |
+| Gate 4 start | 75% | Forms + matching logic added |
+| Gate 4 complete | 80% | Views + forms tested |
+| Gate 5 complete | 85% | Full feature coverage |
 
 #### Viewing Coverage Details
 To view an HTML coverage report for detailed line-by-line analysis:
@@ -504,8 +497,8 @@ This shows:
 - **Missing:** Specific line numbers and ranges not covered
 
 #### Automatic Coverage Threshold Enforcement
-The project enforces a **minimum 50% coverage threshold** via `fail_under = 50` in `pyproject.toml` under `[tool.coverage.report]`. This means:
-- **Local development:** Test suite fails if coverage drops below 50%
+The project enforces a **minimum 75% coverage threshold** via `fail_under = 75` in `pyproject.toml` under `[tool.coverage.report]`. This means:
+- **Local development:** Test suite fails if coverage drops below 75%
 - **CI/CD pipelines:** Builds fail automatically if coverage is insufficient
 - **Quality gate:** Prevents merging code that significantly reduces test coverage
 
@@ -599,7 +592,7 @@ Controls coverage.py behavior:
 
 #### `[tool.coverage.report]`
 Controls coverage reporting:
-- **Fail threshold:** Sets `fail_under = 50` to enforce minimum coverage
+- **Fail threshold:** Sets `fail_under = 75` to enforce minimum coverage
 - **Exclusions:** Ignores debug-only code, `TYPE_CHECKING` blocks, and pragma comments
 - **HTML output:** Configures `htmlcov/` directory via `[tool.coverage.html]`
 
@@ -736,7 +729,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.11', '3.12', '3.13']
+        python-version: ['3.13']
 
     steps:
     - uses: actions/checkout@v5
@@ -770,9 +763,9 @@ jobs:
 
 This workflow:
 - **Triggers:** Only on PRs to `main` and `develop` branches
-- **Matrix testing:** Tests Python 3.11, 3.12, and 3.13 on Ubuntu
+- **Matrix testing:** Tests Python 3.13 on Ubuntu
 - **Job names:** Uses "build" and "test" for status check references
-- **Coverage enforcement:** Fails if coverage drops below 50% (via `pyproject.toml`)
+- **Coverage enforcement:** Fails if coverage drops below 75% (via `pyproject.toml`)
 
 #### Branch Protection Rules
 Enforce quality standards by requiring all checks to pass before merging.
@@ -786,8 +779,7 @@ Enforce quality standards by requiring all checks to pass before merging.
    - ☑ **Require status checks to pass before merging**
    - ☑ **Require branches to be up to date before merging**
 5. In **Status checks that are required**, select:
-   - `build` (from GitHub Actions workflow)
-   - `test` (from GitHub Actions workflow)
+   - `ci-success` (from GitHub Actions workflow — aggregates all jobs)
    - `codecov/project` (from Codecov integration)
 6. Click **Create** or **Save changes**
 
@@ -827,13 +819,13 @@ Track and visualize coverage trends across commits and pull requests.
      status:
        project:
          default:
-           target: 80%           # Target coverage percentage
+           target: 75%           # Target coverage percentage
            threshold: 5%         # Allow coverage to drop 5% before failing
        patch:
          default:
-           target: 70%           # New code should have 70% coverage
+           target: 80%           # New code should have 80% coverage
 
-     range: 50..100              # Coverage color coding (red at 50%, green at 100%)
+     range: 75..100              # Coverage color coding (red at 75%, green at 100%)
 
    comment:
      layout: "header, diff, files"
@@ -846,7 +838,7 @@ Track and visualize coverage trends across commits and pull requests.
 
    This configuration:
    - Fails PR if overall coverage drops more than 5%
-   - Requires 70% coverage on newly added code
+   - Requires 80% coverage on newly added code
    - Posts coverage report comments on PRs
 
 5. **Verify badge:**
@@ -865,7 +857,7 @@ Track and visualize coverage trends across commits and pull requests.
 
 Common setup issues and quick fixes:
 
-- **Coverage below 50% threshold:** If tests fail with "coverage is below 50%":
+- **Coverage below 75% threshold:** If tests fail with "coverage is below 75%":
     - **Temporary bypass:** Run tests without coverage: `uv run pytest --no-cov`
     - **Adjust threshold:** Temporarily lower `fail_under` value in `pyproject.toml` under `[tool.coverage.report]` (remember to restore it)
     - **Add tests:** Write additional tests to increase coverage before committing

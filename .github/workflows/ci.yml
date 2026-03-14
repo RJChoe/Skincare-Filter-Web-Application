@@ -177,7 +177,9 @@ jobs:
           path: bandit-output.json
 
       - name: Run safety via uv
+        # Before (advisory)
         continue-on-error: true
+        # After (hard gate — delete the line entirely)
         env:
           SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
         run: |

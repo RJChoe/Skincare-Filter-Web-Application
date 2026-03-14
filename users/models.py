@@ -8,7 +8,6 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
-from phonenumber_field.modelfields import PhoneNumberField
 
 from ._log_utils import email_token
 from .managers import CustomUserManager
@@ -38,12 +37,6 @@ class CustomUser(AbstractUser):
         blank=True,
         default="",
         help_text="User biography or personal description",
-    )
-
-    phone_number = PhoneNumberField(
-        blank=True,
-        null=True,
-        help_text="Contact phone number (US format: (555) 123-4567)",
     )
 
     date_of_birth = models.DateField(
