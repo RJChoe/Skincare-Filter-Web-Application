@@ -360,6 +360,36 @@ Coverage settings are defined in [pyproject.toml](../pyproject.toml#L302-L336).
 - **Refactoring:** Must not decrease coverage
 
 ---
+
+### Configuration Files
+
+The coverage system is configured in `pyproject.toml`:
+
+#### `[tool.pytest.ini_options]`
+Controls pytest and coverage integration:
+- **Test discovery:** Defines `testpaths = ["allergies/tests", "users/tests"]`
+- **Coverage flags:** Enables `--cov`, `--cov-report=term-missing`, `--cov-report=xml`
+- **Markers:** Registers `integration`, `slow`, and `unit` markers
+- **Default flags:** Applies `-ra --strict-markers --strict-config --tb=short` for better test reporting
+
+#### `[tool.coverage.run]`
+Controls coverage.py behavior:
+- **Branch coverage:** Enables `branch = True` for decision coverage
+- **Source packages:** Defines `allergies`, `users`, and `skincare_project` as measured code
+- **Omit patterns:** Excludes `*/migrations/*`, `*/tests/*`, `*/__pycache__/*` from coverage
+
+#### `[tool.coverage.report]`
+Controls coverage reporting:
+- **Fail threshold:** Sets `fail_under = 75` to enforce minimum coverage
+- **Exclusions:** Ignores debug-only code, `TYPE_CHECKING` blocks, and pragma comments
+- **HTML output:** Configures `htmlcov/` directory via `[tool.coverage.html]`
+
+**For advanced customization, see:**
+- [pytest-cov documentation](https://pytest-cov.readthedocs.io/)
+- [coverage.py documentation](https://coverage.readthedocs.io/)
+
+---
+
 ## Testing & Code Coverage
 
 <details>
