@@ -277,6 +277,8 @@ Wait for maintainer approval before starting work.
 
 ## Pull Request Requirements
 
+> **Note:** Codecov coverage reports only appear on PRs from within the repository. Forked PRs will not receive a Codecov comment — this is expected security behaviour, not a failure.
+
 All PRs must meet these criteria before merging:
 
 ### ✅ Code Quality

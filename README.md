@@ -184,7 +184,14 @@ Note: This project uses [uv](https://docs.astral.sh/uv/) for dependency manageme
 
 ### Dependency Management with uv
 
-This project uses `uv.lock` as the source of truth for dependencies. The `requirements.txt` and `requirements-dev.txt` files are auto-exported from the lockfile for compatibility.
+**Note:** `requirements.txt` and `requirements-dev.txt` are not committed —
+generate them on demand from `uv.lock`:
+```bash
+uv export --no-hashes --format requirements-txt -o requirements.txt
+uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.txt
+```
+`uv.lock` is the source of truth for all dependency resolution. The `--no-hashes` flag ensures cross-platform compatibility.
+`uv.lock` is the source of truth for all dependency resolution.
 
 This project uses **PEP 735 dependency groups** for organized development dependencies:
 - `test` - Testing tools (pytest, pytest-cov, coverage)
@@ -222,25 +229,11 @@ uv sync --group dev
 ```bash
 # Update all dependencies
 uv lock --upgrade
-
-# Export to requirements files (done automatically by pre-commit)
-uv export --no-hashes --format requirements-txt -o requirements.txt
-uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.txt
 ```
 
 **Note:** The pre-commit hooks automatically validate that requirements files stay in sync with `uv.lock`. CI will fail if they drift.
 
 ## Technical Decisions
-
-### Why `--no-hashes`?
-
-We use the `--no-hashes` flag when exporting requirements for several reasons:
-
-- **Cross-platform compatibility**: Hash values can differ between operating systems and Python implementations, causing installation failures in different environments
-- **Cleaner diffs**: Without hashes, requirement file changes show only meaningful version updates rather than extensive hash changes, making code reviews more focused
-- **CI/CD efficiency**: Simplified requirements files reduce merge conflicts and make automated dependency updates more reliable
-
-While this trades some security for practicality, our locked `uv.lock` file still maintains full integrity verification with hashes for reproducible builds.
 
 ### Migrating from [project.optional-dependencies]
 
@@ -786,8 +779,7 @@ Enforce quality standards by requiring all checks to pass before merging.
    - ☑ **Require status checks to pass before merging**
    - ☑ **Require branches to be up to date before merging**
 5. In **Status checks that are required**, select:
-   - `build` (from GitHub Actions workflow)
-   - `test` (from GitHub Actions workflow)
+   - `ci-success` (from GitHub Actions workflow — aggregates all jobs)
    - `codecov/project` (from Codecov integration)
 6. Click **Create** or **Save changes**
 
