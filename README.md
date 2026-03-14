@@ -191,7 +191,6 @@ uv export --no-hashes --format requirements-txt -o requirements.txt
 uv export --no-hashes --format requirements-txt --group dev -o requirements-dev.txt
 ```
 `uv.lock` is the source of truth for all dependency resolution. The `--no-hashes` flag ensures cross-platform compatibility.
-`uv.lock` is the source of truth for all dependency resolution.
 
 This project uses **PEP 735 dependency groups** for organized development dependencies:
 - `test` - Testing tools (pytest, pytest-cov, coverage)
@@ -231,8 +230,8 @@ uv sync --group dev
 uv lock --upgrade
 ```
 
-**Note:** The pre-commit hooks automatically validate that requirements files stay in sync with `uv.lock`. CI will fail if they drift.
 
+<!--
 ## Technical Decisions
 
 ### Migrating from [project.optional-dependencies]
@@ -667,6 +666,7 @@ This configuration runs:
 -->
 </details>
 
+<!--
 ### Fail Fast Checklist
 Catch issues in ~10-15 seconds before committing. Run these manual checks during active development to verify code quality before pre-commit hooks execute.
 
@@ -696,6 +696,7 @@ uv run pytest -m "not slow" && uv run ruff check . --fix && uv run ruff format .
 ```
 
 **Note:** While pre-commit hooks automate these checks, running them manually helps catch issues faster during development. See [Troubleshooting](#troubleshooting) for resolving common failures.
+-->
 <!--
 ### CI/CD Integration
 

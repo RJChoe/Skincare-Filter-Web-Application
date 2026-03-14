@@ -138,6 +138,36 @@ This configuration runs:
 
 **Note:** Pre-commit hooks run automatically before each commit. If checks fail, the commit is blocked until issues are resolved.
 
+### Fail Fast Checklist
+Catch issues in ~10-15 seconds before committing. Run these manual checks during active development to verify code quality before pre-commit hooks execute.
+
+#### Quick Verification Commands
+
+- **Run fast tests** — Verify core logic without slow integration tests:
+    ```bash
+    uv run pytest -m "not slow"
+    ```
+
+- **Lint with Ruff** — Check code quality and formatting:
+    ```bash
+    uv run ruff check . --fix
+    uv run ruff format . --check
+    ```
+
+- **Confirm migrations applied** — Check database migration status:
+    ```bash
+    uv run python manage.py showmigrations
+    ```
+
+#### Power User Tip
+Run all checks sequentially with a single command:
+
+```bash
+uv run pytest -m "not slow" && uv run ruff check . --fix && uv run ruff format . --check && uv run python manage.py showmigrations
+```
+
+**Note:** While pre-commit hooks automate these checks, running them manually helps catch issues faster during development. See [Troubleshooting](#troubleshooting) for resolving common failures.
+
 ### 6. Push & Create PR
 
 ```bash
@@ -498,6 +528,38 @@ for ua in user_allergies:
 - **Tool Config:** `pyproject.toml` ([tool.ruff], [tool.pytest.ini_options], [tool.coverage.*])
 - **Pre-commit:** `.pre-commit-config.yaml`
 - **Python Version:** `.python-version` (pinned to 3.13)
+
+---
+### Dependency Migration Notes
+
+## Technical Decisions
+
+### Migrating from [project.optional-dependencies]
+
+If you have an existing development environment from before the PEP 735 migration:
+
+1. Remove your existing virtual environment:
+   ```bash
+   # On Windows
+   Remove-Item -Recurse -Force .venv
+
+   # On macOS/Linux
+   rm -rf .venv
+   ```
+
+2. Recreate the virtual environment:
+   ```bash
+   uv venv
+   ```
+
+3. Activate the virtual environment (see installation steps above)
+
+4. Install dependencies with the new group system:
+   ```bash
+   uv sync --group dev
+   ```
+
+The new structure allows faster CI builds by installing only required dependencies per job (e.g., only `--group test` for test jobs).
 
 ---
 
