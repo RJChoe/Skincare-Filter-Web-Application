@@ -10,12 +10,13 @@ This guide covers deploying the Skincare Allergy Filter application to productio
 1. [Pre-Deployment Checklist](#pre-deployment-checklist)
 2. [CI/CD Alignment](#cicd-alignment)
 3. [CI/CD Secrets](#cicd-secrets)
-4. [Environment Configuration](#environment-configuration)
-5. [Database Setup](#database-setup)
-6. [Static Files](#static-files)
-7. [WSGI Server Configuration](#wsgi-server-configuration)
-8. [Common Hosting Providers](#common-hosting-providers)
-9. [Post-Deployment](#post-deployment)
+4. [CI/CD Configurations](#cicd-configurations)
+5. [Environment Configuration](#environment-configuration)
+6. [Database Setup](#database-setup)
+7. [Static Files](#static-files)
+8. [WSGI Server Configuration](#wsgi-server-configuration)
+9. [Common Hosting Providers](#common-hosting-providers)
+10. [Post-Deployment](#post-deployment)
 
 ---
 ## Local Development Setup
@@ -293,6 +294,160 @@ Register or log in at [safety.pyup.io](https://safety.pyup.io), then navigate to
 | :--- | :--- |
 | Secret set and valid | ✅ Scan runs authenticated; results appear in step summary |
 | Secret missing or expired | ❌ Annotation step exits with code 1; `static-analysis` job fails; merge blocked via branch protection |
+
+---
+## CI/CD Configuration
+
+### CI/CD Integration
+
+<details>
+<summary><b>⚙️ Click to expand CI/CD configuration</b></summary>
+
+#### GitHub Actions Workflow
+Automate testing and coverage reporting on pull requests to maintain code quality.
+
+**Note:** The example below shows a simplified workflow for learning purposes. This project's actual CI workflow is [.github/workflows/ci.yml](.github/workflows/ci.yml), which includes 5 specialized jobs (dependencies, lint, test, type-check, security) for comprehensive quality enforcement.
+
+**First, create the workflow directory** (if it doesn't exist):
+
+```bash
+# Windows: New-Item -ItemType Directory -Force -Path .github\workflows
+mkdir -p .github/workflows
+```
+
+**Example simplified workflow (`.github/workflows/test.yml`):**
+
+```yaml
+name: Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.13']
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        uv sync --group test
+
+    - name: Run migrations
+      run: |
+        uv run python manage.py migrate
+
+    - name: Run tests with coverage
+      run: |
+        uv run pytest
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
+```
+
+This workflow:
+- **Triggers:** Only on PRs to `main` and `develop` branches
+- **Matrix testing:** Tests Python 3.13 on Ubuntu
+- **Job names:** Uses "build" and "test" for status check references
+- **Coverage enforcement:** Fails if coverage drops below 75% (via `pyproject.toml`)
+
+#### Branch Protection Rules
+Enforce quality standards by requiring all checks to pass before merging.
+
+**Setup in GitHub repository settings:**
+
+1. Navigate to **Settings → Branches**
+2. Click **Add rule** (or edit existing rule)
+3. Enter branch name pattern: `main` (repeat for `develop`)
+4. Enable these settings:
+   - ☑ **Require status checks to pass before merging**
+   - ☑ **Require branches to be up to date before merging**
+5. In **Status checks that are required**, select:
+   - `ci-success` (from GitHub Actions workflow — aggregates all jobs)
+   - `codecov/project` (from Codecov integration)
+6. Click **Create** or **Save changes**
+
+**Admin Override Process:**
+If emergency merges are needed despite failed checks, repository admins can override protection. This requires:
+- Maintainer review and approval
+- Documented justification in PR comments explaining the urgency
+- Post-merge remediation plan committing to fix coverage or tests within a specific timeframe
+
+This setup ensures coverage drops and test failures block merges, maintaining code quality standards.
+
+#### Codecov Integration
+Track and visualize coverage trends across commits and pull requests.
+
+**Step-by-step setup:**
+
+1. **Sign up for Codecov:**
+   - Visit [codecov.io](https://codecov.io/) and sign in with your GitHub account
+   - Authorize Codecov to access your repositories
+
+2. **Link your repository:**
+   - Select `RJChoe/Skincare-Filter-Web-Application` from your repository list
+   - Codecov will provide an upload token
+
+3. **Add Codecov token to GitHub:**
+   - Go to repository **Settings → Secrets and variables → Actions**
+   - Click **New repository secret**
+   - Name: `CODECOV_TOKEN`
+   - Value: Paste the token from Codecov
+   - Click **Add secret**
+
+4. **Configure coverage thresholds (optional):**
+   Create `.codecov.yml` in project root:
+
+   ```yaml
+   coverage:
+     status:
+       project:
+         default:
+           target: 75%           # Target coverage percentage
+           threshold: 5%         # Allow coverage to drop 5% before failing
+       patch:
+         default:
+           target: 80%           # New code should have 80% coverage
+
+     range: 75..100              # Coverage color coding (red at 75%, green at 100%)
+
+   comment:
+     layout: "header, diff, files"
+     behavior: default
+
+   ignore:
+     - "*/migrations/*"
+     - "*/tests/*"
+   ```
+
+   This configuration:
+   - Fails PR if overall coverage drops more than 5%
+   - Requires 80% coverage on newly added code
+   - Posts coverage report comments on PRs
+
+5. **Verify badge:**
+   The badge at the top of this README updates automatically after each push.
+
+**For more advanced configuration, see:**
+- [Codecov documentation](https://docs.codecov.com/)
 
 ---
 
@@ -851,6 +1006,85 @@ sudo journalctl -u skincare_filter -n 50
 # Test WSGI application
 uv run python manage.py check --deploy
 ```
+
+### Python Version Issues
+
+## Troubleshooting Python Version
+
+<details>
+<summary><b>🔧 Python Version Issues</b></summary>
+
+**Important:** CI enforces `.python-version` matching (see [workflow](.github/workflows/ci.yml#L54-L64)). Always run `uv python pin 3.13` after cloning to ensure alignment.
+
+This project uses a `.python-version` file to pin Python 3.13 for local development. uv automatically detects and uses this version.
+
+### Check Your Python Version
+
+```bash
+# List all installed Python versions managed by uv
+uv python list
+
+# Example output:
+# cpython-3.13.0-windows-x86_64-none    <-- active
+# cpython-3.12.1-windows-x86_64-none
+```
+
+The active version (marked with `<--`) should be 3.13.x to match `.python-version`.
+
+### Install Python 3.13
+
+If you don't have Python 3.13 installed:
+
+```bash
+# Install python 3.13 (uv will download and manage it)
+uv python install 3.13
+
+# Verify installation
+uv python list
+```
+
+### Pin Python Version
+
+If you need to explicitly pin or change the Python version:
+
+```bash
+# Pin to python 3.13 (updates .python-version)
+uv python pin 3.13
+
+# Verify the pin
+cat .python-version    # Should output: 3.13
+```
+
+### Recreate Virtual Environment
+
+If your virtual environment is using the wrong Python version:
+
+```bash
+# Remove existing venv
+Remove-Item -Recurse -Force .venv    # Windows PowerShell
+rm -rf .venv                          # macOS/Linux
+
+# Create new venv with correct Python version
+uv venv --python 3.13
+
+# Reinstall dependencies
+uv sync --group dev
+```
+
+### Common Issues
+
+**Issue:** `python --version` shows wrong version despite `.python-version`
+
+**Solution:** The `.python-version` file is for uv's Python management. To ensure consistency:
+- Always use `uv run python` instead of `python` directly
+- Or activate your venv: `.venv\Scripts\Activate.ps1` (Windows) / `source .venv/bin/activate` (Linux/macOS)
+
+**Issue:** Pre-commit hook fails with version mismatch
+
+**Solution:** Your system Python differs from the pinned version. Either:
+1. Activate the virtual environment before committing
+2. Install python 3.13 system-wide
+3. Use `uv run` commands which automatically use the correct version
 
 ---
 
