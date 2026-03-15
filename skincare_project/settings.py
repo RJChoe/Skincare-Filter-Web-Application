@@ -29,7 +29,7 @@ if env_file.exists():
 
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # Raises ImproperlyConfigured if SECRET_KEY is not set in the environment.
