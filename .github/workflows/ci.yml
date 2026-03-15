@@ -115,7 +115,9 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          uv run pytest
+          # --cov=. tells it to measure the current directory
+          # --cov-report=xml tells it to generate the coverage.xml file
+          uv run pytest --cov=. --cov-report=xml
 
       - name: Verify coverage.xml generated
         run: |
