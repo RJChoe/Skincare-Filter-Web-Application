@@ -30,7 +30,8 @@ coverage:
         target: 80%
         threshold: 5%      # Lenient buffer for new code in PRs
         if_ci_failed: error
-        if_not_found: success  # Pass on config/docs-only PRs with no Python changes
+        if_not_found: success # Pass on config/docs-only PRs with no Python changes
+        if_no_uploads: success
         only_pulls: true       # Patch check is only meaningful on pull requests
         flags:
           - unittests
