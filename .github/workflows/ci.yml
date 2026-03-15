@@ -260,9 +260,3 @@ jobs:
             echo "One or more required jobs failed or were cancelled."
             exit 1
           fi
-      - name: Debug coverage.xml
-        run: |
-          echo "=== Coverage XML head ==="
-          head -50 coverage.xml
-          echo "=== Line count ==="
-            wc -l coverage.xml
