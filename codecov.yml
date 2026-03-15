@@ -6,10 +6,6 @@ codecov:
   strict_yaml_branch: main
   # Do not post Codecov statuses if the CI build itself failed
   require_ci_to_pass: true
-  notify:
-    # Wait for all other CI jobs to finish before Codecov posts its status
-    wait_for_ci: true
-    after_n_builds: 1
 
 coverage:
   precision: 2
