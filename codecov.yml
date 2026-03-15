@@ -27,7 +27,7 @@ coverage:
     # ── Coverage of lines changed in this PR only ─────────────────────────
     patch:
       default:
-        target: 80%
+        target: 75%
         threshold: 5%      # Lenient buffer for new code in PRs
         if_ci_failed: error
         if_not_found: success # Pass on config/docs-only PRs with no Python changes

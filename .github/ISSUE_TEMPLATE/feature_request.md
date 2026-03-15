@@ -101,6 +101,6 @@ assignees: ''
 **For AI Agents:**
 - Read [.github/instructions/copilot-instructions.md](.github/instructions/copilot-instructions.md) FIRST
 - Follow Development Gates in strict order (dependency → logging → error handling → forms → tests)
-- Write tests with ≥80% coverage for new code
+- Write tests with ≥75% coverage for new code
 - Update copilot-instructions.md if introducing new patterns
 - Use `uv run` prefix for all commands

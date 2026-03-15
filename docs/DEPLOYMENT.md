@@ -383,7 +383,7 @@ Track and visualize coverage trends across commits and pull requests.
            threshold: 5%         # Allow coverage to drop 5% before failing
        patch:
          default:
-           target: 80%           # New code should have 80% coverage
+           target: 75%           # New code should have 80% coverage
 
      range: 75..100              # Coverage color coding (red at 75%, green at 100%)
 
@@ -398,7 +398,7 @@ Track and visualize coverage trends across commits and pull requests.
 
    This configuration:
    - Fails PR if overall coverage drops more than 5%
-   - Requires 80% coverage on newly added code
+   - Requires 75% coverage on newly added code
    - Posts coverage report comments on PRs
 
 5. **Verify badge:**

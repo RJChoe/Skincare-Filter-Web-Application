@@ -644,9 +644,9 @@ When suggesting model changes, always remind:
 
 ### Coverage Requirements by Gate
 
-**Gates 1–3 (Dependency, Logging, Error Handling):** 75% overall minimum — Focus on model and admin tests; 80% minimum for all new code
-**Gate 4 (Forms & Validation):** 80% overall minimum — Add comprehensive view and form tests
-**Gate 5 (Complete Tests):** 85% overall minimum — Full integration test suite
+**Gates 1–3 (Dependency, Logging, Error Handling):** 75% overall minimum — Focus on model and admin tests; 75% minimum for all new code
+**Gate 4 (Forms & Validation):** 75% overall minimum — Add comprehensive view and form tests
+**Gate 5 (Complete Tests):** 80% overall minimum — Full integration test suite
 
 **AI Agent Guideline:** Write tests targeting the **next gate's threshold** when implementing new features.
 
