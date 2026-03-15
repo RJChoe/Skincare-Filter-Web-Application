@@ -138,6 +138,7 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: true
+          verbose: true
 
   # ============================================================================
   # Static Analysis Job - Guards the test job
@@ -259,3 +260,9 @@ jobs:
             echo "One or more required jobs failed or were cancelled."
             exit 1
           fi
+      - name: Debug coverage.xml
+        run: |
+          echo "=== Coverage XML head ==="
+          head -50 coverage.xml
+          echo "=== Line count ==="
+            wc -l coverage.xml
