@@ -63,6 +63,10 @@ prerelease = "if-necessary"
 # Environment markers for cross-platform support
 environments = ["platform_system == 'Windows'", "platform_system != 'Windows'"]
 
+[[tool.uv.index]]
+url = "https://pkgs.safetycli.com/repository/public/pypi/simple/"
+default = true
+
 # ============================================================================
 # PEP 735 Dependency Groups
 # ============================================================================
