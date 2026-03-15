@@ -326,7 +326,7 @@ Otherwise, Django will COMMIT the transaction even if an exception occurred.
 1. Write tests for all new features (minimum 80% coverage for new code)
 2. Test happy path, edge cases, and error scenarios
 3. Add integration tests with `@pytest.mark.integration`
-4. Ensure overall coverage meets 75% minimum (raises to 85% at Gate 5 completion)
+4. Ensure overall coverage meets 75% minimum (raises to 80% at Gate 5 completion)
 5. Run tests before committing: `uv run pytest`
 
 **See [docs/TESTING.md](docs/TESTING.md) for comprehensive testing guide.**
@@ -636,7 +636,7 @@ uv run pytest -m "not slow"    # Exclude slow tests
 
 ### Test Requirements
 
-- **Minimum Coverage:** 80% for new code, 75% overall (raises to 85% at Gate 5 completion)
+- **Minimum Coverage:** 80% for new code, 75% overall (raises to 80% at Gate 5 completion)
 - **Test Categories:** Unit tests (fast), integration tests (`@pytest.mark.integration`), slow tests (`@pytest.mark.slow`)
 - **Fixtures:** Use shared fixtures from [conftest.py](conftest.py) at project root
 - **Naming:** Descriptive test names: `test_<action>_<expected_result>`

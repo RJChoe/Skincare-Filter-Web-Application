@@ -75,7 +75,7 @@ assignees: ''
 - [ ] **Gate 2:** Logging added to all new modules
 - [ ] **Gate 3:** Error handling implemented (`@transaction.atomic`, try-except)
 - [ ] **Gate 4:** Forms created with validation (if applicable)
-- [ ] **Gate 5:** Tests written (minimum 70% coverage for new code)
+- [ ] **Gate 5:** Tests written (minimum 80% coverage for new code)
 
 ## Security Considerations
 
@@ -101,6 +101,6 @@ assignees: ''
 **For AI Agents:**
 - Read [.github/instructions/copilot-instructions.md](.github/instructions/copilot-instructions.md) FIRST
 - Follow Development Gates in strict order (dependency → logging → error handling → forms → tests)
-- Write tests with ≥70% coverage for new code
+- Write tests with ≥80% coverage for new code
 - Update copilot-instructions.md if introducing new patterns
 - Use `uv run` prefix for all commands

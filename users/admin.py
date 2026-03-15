@@ -34,7 +34,7 @@ class CustomUserAdmin(UserAdmin):
     )
 
     # Search
-    search_fields = ("email", "username", "phone_number")
+    search_fields = ("email", "username")
     ordering = ("-date_joined",)
 
     # Detail View
@@ -45,11 +45,10 @@ class CustomUserAdmin(UserAdmin):
             {
                 "fields": (
                     "username",
-                    "phone_number",
                     "date_of_birth",
                     "age",
                     "bio",
-                    "profile_picture",
+                    "profile_picture",  # YAGNI should remove
                 )
             },
         ),
