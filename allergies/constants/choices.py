@@ -15,14 +15,15 @@ CATEGORY_OTHER: Final[CategoryKey] = (
     "other"  # <-- String Value stored in DB (self.category)
 )
 
+# <-- Category label (displayed via self.get_category_display())
 # --- Category Choices (For the Model field) ---
 CATEGORY_CHOICES = [
     (CATEGORY_FOOD, "Food Allergens"),
     (CATEGORY_CONTACT, "Contact/Topical Allergens"),
     (CATEGORY_INHALANT, "Inhalant Allergens"),
-    # <-- Category label (displayed via self.get_category_display())
     (CATEGORY_OTHER, "Other Allergens"),
 ]
+
 
 # --- choices/specific allergen lists (Key-Value Pairs for the database) ---
 ## alphabetical ##

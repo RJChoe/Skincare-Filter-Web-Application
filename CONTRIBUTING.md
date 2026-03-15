@@ -323,10 +323,10 @@ Otherwise, Django will COMMIT the transaction even if an exception occurred.
 
 **In parallel with Gate 4:**
 
-1. Write tests for all new features (minimum 80% coverage for new code)
+1. Write tests for all new features (minimum 75% coverage for new code)
 2. Test happy path, edge cases, and error scenarios
 3. Add integration tests with `@pytest.mark.integration`
-4. Ensure overall coverage meets 75% minimum (raises to 85% at Gate 5 completion)
+4. Ensure overall coverage meets 75% minimum (raises to 80% at Gate 5 completion)
 5. Run tests before committing: `uv run pytest`
 
 **See [docs/TESTING.md](docs/TESTING.md) for comprehensive testing guide.**
@@ -367,7 +367,7 @@ All PRs must meet these criteria before merging:
 
 ### ✅ Code Quality
 
-- [ ] **Tests added/updated** - Minimum 80% coverage for new code
+- [ ] **Tests added/updated** - Minimum 75% coverage for new code
 - [ ] **Tests pass locally** - `uv run pytest` succeeds
 - [ ] **Pre-commit hooks pass** - `pre-commit run --all-files` succeeds
 - [ ] **No linting errors** - Ruff passes with `--fix` applied
@@ -399,7 +399,7 @@ All PRs must meet these criteria before merging:
 - [ ] **Gate 2: Logging** - All views/models have logging
 - [ ] **Gate 3: Error handling** - Try-except blocks added, `@transaction.atomic` used
 - [ ] **Gate 4: Forms validated** - If forms added, validation tested
-- [ ] **Gate 5: Tests complete** - Coverage meets 80% for new code
+- [ ] **Gate 5: Tests complete** - Coverage meets 75% for new code
 
 ### ✅ Architecture Updates
 
@@ -636,7 +636,7 @@ uv run pytest -m "not slow"    # Exclude slow tests
 
 ### Test Requirements
 
-- **Minimum Coverage:** 80% for new code, 75% overall (raises to 85% at Gate 5 completion)
+- **Minimum Coverage:** 75% for new code, 75% overall (raises to 80% at Gate 5 completion)
 - **Test Categories:** Unit tests (fast), integration tests (`@pytest.mark.integration`), slow tests (`@pytest.mark.slow`)
 - **Fixtures:** Use shared fixtures from [conftest.py](conftest.py) at project root
 - **Naming:** Descriptive test names: `test_<action>_<expected_result>`
@@ -651,7 +651,7 @@ uv run pytest -m "not slow"    # Exclude slow tests
 
 1. **Read [.github/instructions/copilot-instructions.md](.github/instructions/copilot-instructions.md) FIRST** before making any changes
 2. **Respect Development Gates** - Follow strict priority order (dependency → logging → error handling → forms → tests)
-3. **Never skip tests** - All new features require tests with minimum 80% coverage
+3. **Never skip tests** - All new features require tests with minimum 75% coverage
 4. **Update copilot-instructions.md** - Document any new patterns or architectural decisions
 5. **Use `uv run` prefix** - Never ask users to "activate venv"; always use `uv run <command>`
 
@@ -698,7 +698,7 @@ When assigned a bug report:
 ✅ **Do:**
 - Follow Development Gates in order
 - Add logging and error handling first
-- Write tests with ≥80% coverage for new code
+- Write tests with ≥75% coverage for new code
 - Use environment variables for secrets
 - Log user IDs only (not emails/passwords)
 - Use `pathlib.Path` for file operations

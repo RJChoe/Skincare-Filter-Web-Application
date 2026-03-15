@@ -4,7 +4,7 @@
 
 This guide documents the testing strategy, fixture patterns, coverage expectations, and best practices for writing tests in the Skincare Allergy Filter project. All contributors (human and AI agents) must follow these guidelines to maintain code quality and reliability.
 
-**Current Coverage Target:** 75% (current minimum) → 85% (Gate 5 completion)
+**Current Coverage Target:** 75% (current minimum) → 80% (Gate 5 completion)
 
 ---
 
@@ -390,12 +390,12 @@ Coverage settings are defined in [pyproject.toml](../pyproject.toml#L302-L336).
 | Gate | Target | Milestone |
 |------|--------|-----------|
 | Gate 4 start | 75% | Forms + matching logic added |
-| Gate 4 complete | 80% | Views + forms tested |
-| Gate 5 complete | 85% | Full feature coverage |
+| Gate 4 complete | 75% | Views + forms tested |
+| Gate 5 complete | 80% | Full feature coverage |
 
 **Coverage Rules for New Code:**
 
-- **New features:** Minimum 80% coverage required
+- **New features:** Minimum 75% coverage required
 - **Bug fixes:** Must include regression test
 - **Refactoring:** Must not decrease coverage
 
@@ -438,7 +438,7 @@ Controls coverage reporting:
 
 - Write tests in parallel with feature implementation (Development Gate 5)
 - Tests must cover happy path, edge cases, and error scenarios
-- Minimum 80% coverage for new code
+- Minimum 75% coverage for new code
 
 **Rule 2: Use descriptive test names**
 
@@ -601,8 +601,8 @@ uv run pytest && pre-commit run --all-files
 | Milestone | Target | Requirements |
 |-----------|--------|--------------|
 | Gate 4 start | 75% | Forms + matching logic added |
-| Gate 4 complete | 80% | Views + forms fully tested |
-| Gate 5 complete | 85% | Full feature coverage |
+| Gate 4 complete | 75% | Views + forms fully tested |
+| Gate 5 complete | 80% | Full feature coverage |
 | Production ready | 90%+ | E2E tests, performance tests added |
 
 ---

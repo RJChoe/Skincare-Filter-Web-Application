@@ -414,7 +414,7 @@ Example response:
 2. Complete [allergies/tests/test_models.py](allergies/tests/test_models.py) TODO at line 59
 3. Add view tests for [allergies/views.py](allergies/views.py)
 4. Add integration tests with `@pytest.mark.integration`
-5. Ensure coverage meets 50% minimum (current phase 1 threshold)
+5. Ensure coverage meets 75% minimum (current threshold)
 
 **After Gates 1-3 Complete:** Can implement product safety check POST handler and user management features.
 
@@ -642,19 +642,19 @@ When suggesting model changes, always remind:
 
 ## 🧪 Testing & Fixture Reference
 
-### Coverage Requirements by Phase
+### Coverage Requirements by Gate
 
-**Phase 1 (Current):** 50% minimum — Focus on model and admin tests
-**Phase 2 (Q2 2026):** 70% minimum — Add comprehensive view and form tests
-**Phase 3 (Q3 2026):** 90% minimum — Full integration test suite
+**Gates 1–3 (Dependency, Logging, Error Handling):** 75% overall minimum — Focus on model and admin tests; 75% minimum for all new code
+**Gate 4 (Forms & Validation):** 75% overall minimum — Add comprehensive view and form tests
+**Gate 5 (Complete Tests):** 80% overall minimum — Full integration test suite
 
-**AI Agent Guideline:** Write tests targeting the **next phase threshold** when implementing new features.
+**AI Agent Guideline:** Write tests targeting the **next gate's threshold** when implementing new features.
 
 ### Coverage Targets by Module Type
 
-- **Models:** 80% minimum (test all custom methods, properties, validation logic)
-- **Views:** 70% minimum (test GET, POST, error cases, authentication)
-- **Forms:** 80% minimum (test validation, clean methods, error messages)
+- **Models:** 75% minimum (test all custom methods, properties, validation logic)
+- **Views:** 75% minimum (test GET, POST, error cases, authentication)
+- **Forms:** 75% minimum (test validation, clean methods, error messages)
 - **Integration Tests:** Mark with `@pytest.mark.integration` for any test spanning multiple apps (e.g., `users` + `allergies`) or testing end-to-end workflows. `--strict-markers` is enforced in [pyproject.toml](pyproject.toml) — only use registered markers (`integration`, `slow`, `unit`).
 
 ### Fixture Reference ([conftest.py](conftest.py))
@@ -987,7 +987,7 @@ Example response:
 - **Testing:** Use `pytest` for all new features. Place tests in `app/tests/` and run via `uv run pytest`.
 - **Gate 1 (Lint):** Pre-commit (Ruff + Mypy) must pass.
 - **Gate 2 (Test):** Pytest suite must pass.
-- **Gate 3 (Coverage):** Codecov enforces a minimum threshold based on the project phase (currently 50%).
+- **Gate 3 (Coverage):** Codecov enforces a minimum threshold based on the project phase (currently 75%).
 - **Instruction:** If CI fails on 'Static Analysis', prioritize fixing Ruff/Mypy errors before modifying logic.
 
 
