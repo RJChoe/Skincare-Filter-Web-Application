@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="{% block meta_description %}Skincare Allergy Filter — safely check product ingredients against your known allergens.{% endblock %}" />
+    <title>{% block title %}SkinSafe{% endblock %} | Skincare Allergy Filter</title>
+
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- ===== Header ===== -->
+    <header class="site-header">
+        <div class="container header-inner">
+
+            <a href="{% url 'home' %}" class="brand" aria-label="SkinSafe home">
+                <span class="brand-icon" aria-hidden="true">🌿</span>
+                <span class="brand-name">SkinSafe</span>
+            </a>
+
+            <button
+                class="nav-toggle"
+                aria-controls="primary-nav"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+                type="button"
+            >
+                <span class="hamburger-bar"></span>
+                <span class="hamburger-bar"></span>
+                <span class="hamburger-bar"></span>
+            </button>
+
+            <nav id="primary-nav" class="primary-nav" aria-label="Primary navigation">
+                <ul class="nav-list" role="list">
+                    <li>
+                        <a href="{% url 'home' %}"
+                           class="nav-link{% if request.resolver_match.url_name == 'home' %} nav-link--active{% endif %}">
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'product' %}"
+                           class="nav-link{% if request.resolver_match.url_name == 'product' %} nav-link--active{% endif %}">
+                            Check a Product
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'allergies:list' %}"
+                           class="nav-link{% if request.resolver_match.app_name == 'allergies' %} nav-link--active{% endif %}">
+                            My Allergies
+                        </a>
+                    </li>
+
+                    {% if user.is_authenticated %}
+                        <li class="nav-divider" role="separator" aria-hidden="true"></li>
+                        <li>
+                            <span class="nav-username">{{ user.username }}</span>
+                        </li>
+                        <li>
+                            {# POST logout protects against CSRF / login-CSRF attacks #}
+                            <form method="post" action="{% url 'admin:logout' %}" class="logout-form">
+                                {% csrf_token %}
+                                <button type="submit" class="nav-link nav-link--logout">
+                                    Log out
+                                </button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li>
+                            <a href="{% url 'admin:login' %}?next={{ request.path }}"
+                               class="nav-link nav-link--cta">
+                                Log in
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+
+        </div>
+    </header>
+
+    <!-- ===== Flash messages ===== -->
+    {% if messages %}
+        <div class="messages-container" aria-live="polite" aria-atomic="false">
+            <div class="container">
+                {% for message in messages %}
+                    <div class="alert alert--{{ message.tags|default:'info' }}" role="alert">
+                        <span class="alert__icon" aria-hidden="true">
+                            {% if message.tags == 'error' %}⚠️
+                            {% elif message.tags == 'warning' %}⚡
+                            {% elif message.tags == 'success' %}✅
+                            {% else %}ℹ️
+                            {% endif %}
+                        </span>
+                        <span class="alert__body">{{ message }}</span>
+                        <button
+                            class="alert__dismiss"
+                            type="button"
+                            aria-label="Dismiss"
+                            onclick="this.closest('.alert').remove()"
+                        >&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- ===== Main content ===== -->
+    <main id="main-content" class="main-content">
+        {% block breadcrumbs %}{% endblock %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ===== Footer ===== -->
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <p class="footer-disclaimer">
+                <strong>Disclaimer:</strong> SkinSafe is a helper tool and is
+                <strong>not</strong> a substitute for professional medical advice.
+                Always consult a dermatologist for severe allergies.
+            </p>
+            <p class="footer-copy">
+                &copy; {% now "Y" %} SkinSafe &mdash; Skincare Allergy Filter
+            </p>
+        </div>
+    </footer>
+
+    <!-- Mobile nav toggle -->
+    <script>
+        (function () {
+            var toggle = document.querySelector('.nav-toggle');
+            var nav    = document.querySelector('#primary-nav');
+            if (!toggle || !nav) return;
+
+            toggle.addEventListener('click', function () {
+                var expanded = this.getAttribute('aria-expanded') === 'true';
+                this.setAttribute('aria-expanded', String(!expanded));
+                nav.classList.toggle('is-open', !expanded);
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!nav.contains(e.target) && !toggle.contains(e.target)) {
+                    toggle.setAttribute('aria-expanded', 'false');
+                    nav.classList.remove('is-open');
+                }
+            });
+        })();
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
