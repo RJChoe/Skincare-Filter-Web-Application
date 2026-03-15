@@ -138,7 +138,7 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: true
-          verbose: true
+          override_commit: ${{ github.event.pull_request.head.sha }}
 
   # ============================================================================
   # Static Analysis Job - Guards the test job
