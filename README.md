@@ -4,7 +4,8 @@
 Disclaimer: This app is a helper tool and not a substitute for professional medical advice. Always consult a dermatologist for severe allergies.
 
 ---
-
+<!-- comment establish commit
+-->
 ## Project Overview
 The **Skincare Allergy Filter** is a Django-based web application that cross-references product ingredient lists against personal allergens and returns a safety recommendation.
 
