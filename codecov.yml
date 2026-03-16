@@ -16,13 +16,13 @@ coverage:
   status:
     # ── Overall project coverage vs. base commit ──────────────────────────
     project:
-      default:
+      filter-main-check:
         target: 75%
         threshold: 2%      # Allow up to a 2% drop before failing
         if_ci_failed: error
         if_not_found: success
-        flags:
-          - unittests
+        #flags:
+        #  - unittests
 
     # ── Coverage of lines changed in this PR only ─────────────────────────
     patch:
