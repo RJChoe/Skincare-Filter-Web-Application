@@ -23,6 +23,7 @@ Purpose: Make AI coding agents productive immediately in this Django repo by doc
 - Project: `skincare_project/` with apps: `allergies/`, `users/`.
 - Auth: Custom user `users.CustomUser` (configured via `AUTH_USER_MODEL`).
 - Domain: Predefined `Allergen` catalog; `UserAllergy` links a user to an `Allergen` with extra fields (severity_level, is_confirmed, source_info, JSON reaction details).
+- Planned: AllergenAlias (or equivalent) — a many-to-one table mapping alternate ingredient names (INCI names, common names, abbreviations) to a canonical Allergen.allergen_key. All matching logic should be designed to accommodate this lookup stage between tokenization and comparison.
 
 ## 🚀 Quick Start for AI Agents
 
@@ -379,6 +380,10 @@ Example response:
 - 🚫 **Product Safety Check POST Handler:** Cannot implement until logging + error handling exist in [skincare_project/views.py](skincare_project/views.py).
 - 🚫 **User Forms & Validation:** Cannot implement until `UserAllergyForm` created with proper error surfacing.
 - 🚫 **Users App Routing:** Cannot include [users/urls.py](users/urls.py) until views have logging and error handling.
+
+### Planned Future Features (Post-Gates)
+
+- Synonym Mapper / AllergenAlias: Many-to-one alias table mapping all known surface forms of an ingredient to a canonical allergen_key. Required before the product safety check can be considered production-accurate. Not yet designed — no model, migration, or service layer exists.
 
 ## Development Gates (Strict Priority Order)
 
@@ -994,9 +999,11 @@ Example response:
 
 ## Extension Points
 - Product safety check: implement POST handling in [skincare_project/views.py](skincare_project/views.py) `product` view.
-  - Parse user-provided ingredient list.
-  - Compare against active `UserAllergy` for `request.user` (join via `select_related('allergen')`).
-  - Return matches (include severity_level, source_info, user_reaction_details).
+  - Parse and tokenize the ingredient list.
+  - Normalize tokens (lowercase, strip whitespace).
+  - Resolve aliases via AllergenAlias lookup (planned — design the view's service layer to accept this as an injectable step).
+  - Compare resolved keys against active UserAllergy for request.user.
+  - Return matches with severity_level, source_info, user_reaction_details.
 - Users app routing: include [users/urls.py](users/urls.py) in project URLs; link from layout using `{% url 'user:list' %}`.
 
 ## Practical Snippets
@@ -1006,6 +1013,12 @@ Example response:
 - Current user allergies with labels:
   - `from allergies.models import UserAllergy`
   - `qs = UserAllergy.objects.select_related('allergen').filter(user=request.user, is_active=True)`
+<!--
+Phase 1: exact allergen_key match only.
+Phase 2 (Synonym Mapper): resolve ingredient tokens to canonical allergen_keys
+via AllergenAlias before this filter — do not extend this snippet until that
+model exists.
+ -->
   - `for ua in qs: label = ua.allergen.allergen_label`
 
 ## Gotchas
