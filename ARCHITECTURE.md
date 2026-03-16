@@ -5,7 +5,7 @@
 > (For example: use `path()` for URL routing, async views, and new ORM features; avoid legacy patterns from Django 4.x or earlier.)
 
 ## Product Vision & Purpose
-The Skincare Allergy Filter empowers users to make safer skincare choices by cross-referencing product ingredient lists against their personal allergens. The goal is to provide clear, actionable safety recommendations, helping users avoid allergic reactions and make informed decisions.
+The Skincare Allergy Filter empowers users to make safer skincare choices by checking product ingredient lists against a personal allergen profile. Phase 1 delivers fast, normalized exact matching. Phase 2 — the strategic focus — replaces naive string comparison with an alias-aware Synonym Mapper so that 'Vitamin C', 'L-Ascorbic Acid', and 'Ascorbate' all resolve to the same allergen record regardless of how a brand labels it.
 _Disclaimer: This tool is not a substitute for professional medical advice._
 
 ## Project Summary
@@ -59,6 +59,7 @@ _Disclaimer: This tool is not a substitute for professional medical advice._
 3. **Normalization:** Convert all tokens to lowercase and strip whitespace to ensure consistent matching (e.g., "Almond Oil" matches "almond oil").
 4. **Matching:** Cross-reference normalized tokens against the UserAllergen database to determine if any allergens are present.
     - **Note on Future Normalization:** Plan for a "Synonym Mapper" (e.g., Vitamin C → Ascorbic Acid). The system should eventually support many-to-one aliases for ingredients.
+5. **Alias Resolution (Planned — Synonym Mapper)**: Before matching, resolve each normalized token against a many-to-one alias table. All known surface forms of a compound (INCI name, common name, abbreviation) map to a single canonical allergen_key. This stage is deliberately separated from normalization so it can be developed, tested, and toggled independently.
 
 **Verdict:**
 - “Search & Destroy” Logic: Prioritize the core matching algorithm. The system’s primary goal is rapid identification of blacklisted ingredients. Once an allergen is detected, the process should immediately flag the product as "Unsafe" and identify the offending ingredient.
@@ -122,6 +123,7 @@ _Disclaimer: This tool is not a substitute for professional medical advice._
 
 **Decision Trigger — The “Celery” Threshold:**
 - If real-world testing shows OCR or ingredient parsing consistently exceeds 5.0 seconds, or if concurrent uploads cause server timeouts, migrate to an asynchronous task queue (e.g., Celery with Redis/RabbitMQ).
+- Alias resolution against a large synonym table (e.g., full INCI database) is a second trigger: if lookup latency exceeds 1.0 second per request, move alias resolution to a background pre-computation step or cached lookup layer rather than inline in the request cycle.
 - This migration will decouple heavy processing from the main request cycle, improving scalability and user experience.
 
 **Future-Proofing:**
@@ -131,12 +133,12 @@ _Disclaimer: This tool is not a substitute for professional medical advice._
 ---
 
 **Future Considerations:**
-- Ingredient Aliasing: Implement a "Synonym Mapper" or "Alias" system in the Allergen model to handle multiple names for the same chemical. This ensures robust matching as naming conventions vary between brands.
 - The system is designed to be input-agnostic. While the MVP uses manual text entry, the backend logic expects a standard string, allowing for future integration of OCR or barcode scanning without refactoring the core matching engine.
 
 ---
 
 ## References to Other Documentation
+- [PRODUCT.md](./PRODUCT.md) — User-facing product scope, feature status, known limitations
 - [README.md](./README.md) — Project overview, features, workflow diagram
 - [.github/instructions/copilot-instructions.md](.github/instructions/copilot-instructions.md) — AI agent instructions, current Gate status, critical field names
 - [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) — Production deployment checklist and CI/CD secrets
