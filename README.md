@@ -4,23 +4,37 @@
 Disclaimer: This app is a helper tool and not a substitute for professional medical advice. Always consult a dermatologist for severe allergies.
 
 ---
-<!-- comment establish commit
--->
+
 ## Project Overview
-The **Skincare Allergy Filter** is a Django-based web application that cross-references product ingredient lists against personal allergens and returns a safety recommendation.
+The Skincare Allergy Filter provides an instant safety check by cross-referencing product ingredient lists against a user's personal allergen profile to flag potential sensitivities. The next milestone is the implementation of the Synonym Mapper, an intelligent alias-aware engine designed to resolve the industry-wide problem of ingredient labeling variability by mapping chemical synonyms and INCI names to single canonical allergens.
 
 ---
 
 ## ⚙️ Project Workflow Diagram
 
-Diagram flow of data through application
+Diagram flow of data through application represents Phase 1 (exact matching) and Phase 2 (alias resolution) will extend the pipeline.
 ![Detailed workflow of the application components](./assets/workflow_allergy_filter.png)
 
 ---
 ## Features
-- **Personal Allergy Input:** Users can list their known allergens.
-- **Ingredient Check:** Users can input a skincare product's ingredient list.
-- **Safety Alert:** The app notifies whether the product is safe or contains allergens.
+
+### ✅ Built
+- **Personal allergen profile** — Select from a catalog of 80+ ingredients across four categories (contact/topical, food, inhalant, other); record severity, source, and reaction history per allergen
+- **Ingredient safety check** — Paste any product's ingredient list; the app tokenizes, normalizes (case-insensitive, whitespace-stripped), and cross-references it against the user's active profile
+- **Fail-fast detection** — Flags a product unsafe at the first allergen match and names the offending ingredient
+- **Admin catalog management** — Activate/deactivate allergens, bulk actions with audit logging
+- **User authentication** — Account creation and login via a custom user model
+
+### 🔄 In Progress
+- **Allergy profile forms** — User-facing create/edit forms with dynamic allergen selection (category → specific allergen cascading)
+- **Test coverage** — Comprehensive tests for allergy profile CRUD and form validation
+
+### 📋 Planned
+- **Alias-Aware Matching (Synonym Mapper)** — The core technical next step. Maps every known surface form of an ingredient (INCI name, common name, abbreviation) to a single canonical allergen record, so "Vitamin C", "L-Ascorbic Acid", and "Ascorbate" all match the same allergy. Transforms the product from a string checker into an intelligent ingredient safety tool.
+- **Product check form** — Full POST handling and result display on the product page
+- **User management pages** — Profile view, edit, and list
+- **Image/OCR capture** — Photograph a product label instead of typing the ingredient list
+- **Barcode scanning** — Automatic ingredient lookup from a product barcode
 
 ---
 
@@ -93,6 +107,7 @@ Get up and running in 5 minutes:
 
 | Guide | Description |
 |-------|-------------|
+| [Product Overview](PRODUCT.md) | Feature scope, user flows, known limitations |
 | [Installation & Deployment](docs/DEPLOYMENT.md) | Local setup, CI/CD, hosting providers |
 | [Testing & Coverage](docs/TESTING.md) | Running tests, coverage targets, patterns |
 | [ARCHITECTURE](ARCHITECTURE.md) | System design, data flow, decisions |
