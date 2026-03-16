@@ -28,6 +28,14 @@ type AdminNotes = dict[str, str | int | None]
 class Allergen(models.Model):
     """Pre-defined catalog of allergens/ingredients.
     Admins can manage this list, users select from it.
+
+    allergen_key is the canonical identifier for this compound.
+    A planned AllergenAlias model will map many alternate names
+    (INCI names, common names, abbreviations) to this key.
+
+    Do not treat allergen_key as a display value —
+    use allergen_label for display and
+    allergen_key as the stable matching target.
     """
 
     # Primary Selection: broad category (user selects first)
