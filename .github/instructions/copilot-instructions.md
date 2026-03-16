@@ -53,7 +53,7 @@ Purpose: Make AI coding agents productive immediately in this Django repo by doc
 **UserAllergy Model Fields:**
 - ✅ `severity_level` (CharField with choices: `mild`, `moderate`, `severe`, `unknown`) — NOT "severity"
 - ✅ `is_confirmed` (BooleanField) — NOT "confirmation" or "confirmation_status"
-- ✅ `source_info` (CharField with choices: `medical_professional`, `self_reported`, `testing`, `family_history`) — NOT "source"
+- ✅ `source_info` (CharField with choices: `self_reported`, `medical_professional`,`allergy_test`, `family_history`) — NOT "source"
 - ✅ `user_reaction_details` (JSONField) — User-facing notes
 - ✅ `admin_notes` (JSONField) — Admin-facing notes
 - ✅ `symptom_onset_date` (DateField, nullable)

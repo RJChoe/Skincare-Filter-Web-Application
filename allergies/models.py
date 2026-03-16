@@ -18,7 +18,9 @@ from .constants.choices import (
     FLAT_ALLERGEN_LABEL_MAP,
 )
 
-# Python 3.12+ type aliases (PEP 695)
+# Python 3.13 type aliases (PEP 695) — used as return/parameter annotations
+# in forms.py and views.py, not on the field declarations themselves
+# (django-stubs does not support freeform JSONField body annotations).
 type ReactionDetails = dict[str, str | list[str] | None]
 type AdminNotes = dict[str, str | int | None]
 
@@ -109,21 +111,21 @@ class UserAllergy(models.Model):
 
     class SourceInfo(models.TextChoices):
         SELF_REPORTED = "self_reported", "Self-Reported"
-        DOCTOR_DIAGNOSED = "doctor_diagnosed", "Doctor Diagnosed"
-        ALLERGY_TEST = "allergy_test", "Allergy Test"
+        MEDICAL_PROFESSIONAL = "medical_professional", "Medical Professional"
+        ALLERGY_TEST = "allergy_test", "Formal Allergy Test"
         FAMILY_HISTORY = "family_history", "Family History"
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="allergic_users",
+        related_name="user_allergies",
         help_text="The user who has this allergy",
     )
 
     allergen = models.ForeignKey(
         Allergen,
         on_delete=models.CASCADE,
-        related_name="user_allergens",
+        related_name="user_allergy_entries",
         help_text="The allergen this user is allergic to",
     )
 
@@ -140,7 +142,7 @@ class UserAllergy(models.Model):
 
     is_confirmed = models.BooleanField(
         default=False,
-        db_index=False,
+        # No standalone index — covered by user_allergy_user_idx and user_allergy_alrgn_idx
         help_text="Clinically confirmed: True/False",
     )
 
@@ -172,7 +174,7 @@ class UserAllergy(models.Model):
 
     is_active = models.BooleanField(
         default=True,
-        db_index=False,
+        # No standalone index — covered by user_allergy_user_idx and user_allergy_alrgn_idx
         help_text=("Inactive user allergies won't be considered in assessments"),
     )
 
@@ -206,6 +208,7 @@ class UserAllergy(models.Model):
         ]
 
     def __str__(self) -> str:
+        # Requires select_related('user', 'allergen') to avoid N+1 queries
         return f"{self.user.username} - {self.allergen}"
 
     def save(self, *args: Any, **kwargs: Any) -> None:
@@ -216,9 +219,24 @@ class UserAllergy(models.Model):
         super().save(*args, **kwargs)
 
     def clean(self) -> None:
-        """Validate model fields."""
         super().clean()
         if self.symptom_onset_date and self.symptom_onset_date > timezone.now().date():
             raise ValidationError(
                 {"symptom_onset_date": "Symptom onset date cannot be in the future"}
             )
+
+        # Guard JSONField structure — reject unknown keys per the canonical schema
+        allowed_reaction_keys = {"symptom", "severity", "date"}
+        if self.user_reaction_details:
+            unknown = self.user_reaction_details.keys() - allowed_reaction_keys
+            if unknown:
+                raise ValidationError(
+                    {"user_reaction_details": f"Unknown keys: {sorted(unknown)}"}
+                )
+        allowed_admin_keys = {"verified_by", "verification_date"}
+        if self.admin_notes:
+            unknown = self.admin_notes.keys() - allowed_admin_keys
+            if unknown:
+                raise ValidationError(
+                    {"admin_notes": f"Unknown keys: {sorted(unknown)}"}
+                )
