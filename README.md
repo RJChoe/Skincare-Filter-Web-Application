@@ -95,6 +95,7 @@ Get up and running in 5 minutes:
 |-------|-------------|
 | [Installation & Deployment](docs/DEPLOYMENT.md) | Local setup, CI/CD, hosting providers |
 | [Testing & Coverage](docs/TESTING.md) | Running tests, coverage targets, patterns |
+| [ARCHITECTURE](ARCHITECTURE.md) | System design, data flow, decisions |
 | [Contributing](CONTRIBUTING.md) | Development workflow, code style, gates |
 | [Security](docs/SECURITY.md) | Environment variables, production hardening |
 
