@@ -138,6 +138,8 @@ jobs:
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          # FORCE THE SHA TO MATCH YOUR PR HEAD
+          override_commit: ${{ github.event.pull_request.head.sha }}
           files: ./coverage.xml
           flags: unittests
           name: codecov-umbrella
