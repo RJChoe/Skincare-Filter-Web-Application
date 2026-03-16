@@ -18,7 +18,9 @@ from .constants.choices import (
     FLAT_ALLERGEN_LABEL_MAP,
 )
 
-# Python 3.12+ type aliases (PEP 695)
+# Python 3.13 type aliases (PEP 695) — used as return/parameter annotations
+# in forms.py and views.py, not on the field declarations themselves
+# (django-stubs does not support freeform JSONField body annotations).
 type ReactionDetails = dict[str, str | list[str] | None]
 type AdminNotes = dict[str, str | int | None]
 
@@ -116,14 +118,14 @@ class UserAllergy(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="allergic_users",
+        related_name="user_allergies",
         help_text="The user who has this allergy",
     )
 
     allergen = models.ForeignKey(
         Allergen,
         on_delete=models.CASCADE,
-        related_name="user_allergens",
+        related_name="user_allergy_entries",
         help_text="The allergen this user is allergic to",
     )
 
