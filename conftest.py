@@ -195,16 +195,15 @@ def unconfirmed_user_allergy(test_user, contact_allergen):
 
 @pytest.fixture
 def enable_users_logging(caplog):
-    """Re-enable logging and attach caplog's handler directly to the 'users' logger.
+    """Attach caplog's handler to the 'users' logger for log-assertion tests.
 
-    Django's LOGGING config sets propagate=False on the 'users' logger, so
-    records never reach caplog's root-level handler. Attaching caplog.handler
-    directly avoids mutating the propagation flag — production logging config
-    stays intact.
+    Does not touch logging.disable() — uses logger-level gating instead,
+    which is test-local and safe for parallel execution.
     """
-    logging.disable(logging.NOTSET)
     users_logger = logging.getLogger("users")
+    original_level = users_logger.level
+    users_logger.setLevel(logging.DEBUG)
     users_logger.addHandler(caplog.handler)
     yield
     users_logger.removeHandler(caplog.handler)
-    logging.disable(logging.CRITICAL)
+    users_logger.setLevel(original_level)
