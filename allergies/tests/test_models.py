@@ -22,6 +22,7 @@ def allergen_food(db):
     return Allergen.objects.create(category=CATEGORY_FOOD, allergen_key="peanut")
 
 
+@pytest.mark.django_db
 class TestAllergenModel:
     # Assumption: The AllergenExposure.__str__ method is implemented like this:
     # def __str__(self):

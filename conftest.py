@@ -70,7 +70,7 @@ def custom_user(test_user):
     warnings.warn(
         "custom_user is deprecated; use test_user instead. Will be removed in v1.0.0.",
         DeprecationWarning,
-        stacklevel=2,
+        stacklevel=3,  # was 2 — pytest adds an extra frame for fixture injection
     )
     return test_user
 
@@ -110,7 +110,7 @@ def contact_allergen(db):
 
 
 @pytest.fixture
-def allergen_contact(contact_allergen):
+def allergen_contact(db, contact_allergen):
     """Alias for contact_allergen fixture for backward compatibility.
 
     This fixture exists to support existing tests that use 'allergen_contact'.
@@ -119,7 +119,7 @@ def allergen_contact(contact_allergen):
     warnings.warn(
         "allergen_contact is deprecated; use contact_allergen instead. Will be removed in v1.0.0.",
         DeprecationWarning,
-        stacklevel=2,
+        stacklevel=3,  # was 2 — pytest adds an extra frame for fixture injection
     )
     return contact_allergen
 
@@ -138,7 +138,7 @@ def food_allergen(db):
 
 
 @pytest.fixture
-def allergen_food(food_allergen):
+def allergen_food(db, food_allergen):
     """Alias for food_allergen fixture for backward compatibility.
 
     This fixture exists to support existing tests that use 'allergen_food'.
@@ -147,7 +147,7 @@ def allergen_food(food_allergen):
     warnings.warn(
         "allergen_food is deprecated; use food_allergen instead. Will be removed in v1.0.0.",
         DeprecationWarning,
-        stacklevel=2,
+        stacklevel=3,  # was 2 — pytest adds an extra frame for fixture injection
     )
     return food_allergen
 
@@ -195,16 +195,27 @@ def unconfirmed_user_allergy(test_user, contact_allergen):
 
 @pytest.fixture
 def enable_users_logging(caplog):
-    """Re-enable logging and attach caplog's handler directly to the 'users' logger.
+    """Attach caplog's handler to the 'users' logger for log-assertion tests.
 
-    Django's LOGGING config sets propagate=False on the 'users' logger, so
-    records never reach caplog's root-level handler. Attaching caplog.handler
-    directly avoids mutating the propagation flag — production logging config
-    stays intact.
+    Does not touch logging.disable() — uses logger-level gating instead,
+    which is test-local and safe for parallel execution.
     """
-    logging.disable(logging.NOTSET)
     users_logger = logging.getLogger("users")
+    original_level = users_logger.level
+    users_logger.setLevel(logging.DEBUG)
     users_logger.addHandler(caplog.handler)
     yield
     users_logger.removeHandler(caplog.handler)
-    logging.disable(logging.CRITICAL)
+    users_logger.setLevel(original_level)
+
+
+@pytest.fixture
+def enable_allergies_logging(caplog):
+    """Attach caplog's handler to the 'allergies' logger for log-assertion tests."""
+    allergies_logger = logging.getLogger("allergies")
+    original_level = allergies_logger.level
+    allergies_logger.setLevel(logging.DEBUG)
+    allergies_logger.addHandler(caplog.handler)
+    yield
+    allergies_logger.removeHandler(caplog.handler)
+    allergies_logger.setLevel(original_level)

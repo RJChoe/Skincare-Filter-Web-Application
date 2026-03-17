@@ -31,10 +31,10 @@ Purpose: Make AI coding agents productive immediately in this Django repo by doc
 
 **✅ Completed Development Gates:**
 - **Gate 1 (Dependencies):** `django-environ` installed and configured
-- **Gate 2 (Logging):** Comprehensive logging in [allergies/admin.py](allergies/admin.py#L12), [allergies/views.py](allergies/views.py), [users/tests.py](users/tests.py)
-- **Gate 3 (Error Handling):** Try-except blocks with transaction management in views and admin actions
 
 **⏳ In Progress / Not Started:**
+- **Gate 2 (Logging):** Comprehensive logging in [allergies/admin.py](allergies/admin.py#L12), [allergies/views.py](allergies/views.py), [users/tests.py](users/tests.py)
+- **Gate 3 (Error Handling):** Try-except blocks with transaction management in views and admin actions
 - **Gate 4 (Forms):** ❌ No `forms.py` files exist yet
 - **Gate 5 (Tests):** 🚧 Comprehensive user tests (382 lines) exist, but [allergies/tests/test_models.py](allergies/tests/test_models.py#L59) has TODO for `UserAllergy` model tests
 

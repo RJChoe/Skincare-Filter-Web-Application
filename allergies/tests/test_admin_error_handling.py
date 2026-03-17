@@ -10,6 +10,7 @@ from users.models import CustomUser
 
 
 @pytest.mark.django_db
+@pytest.mark.usefixtures("enable_allergies_logging")
 class TestAllergenAdminActions:
     """Test error handling in AllergenAdmin actions."""
 
@@ -55,7 +56,6 @@ class TestAllergenAdminActions:
         assert not allergen2.is_active
 
         # Verify logging occurred (check stderr output)
-        # Note: caplog may not capture Django logger output in tests
         # The functionality is tested by the assert above
 
     def test_activate_allergens_success(self):
