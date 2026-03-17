@@ -288,7 +288,7 @@ class TestAllergySignalBatching:
 
         # Update the UserAllergy
         with transaction.atomic():
-            user_allergy.severity = "severe"
+            user_allergy.severity_level = UserAllergy.SeverityLevel.SEVERE
             user_allergy.save()
 
         # Refresh user from database
