@@ -70,7 +70,7 @@ def custom_user(test_user):
     warnings.warn(
         "custom_user is deprecated; use test_user instead. Will be removed in v1.0.0.",
         DeprecationWarning,
-        stacklevel=2,
+        stacklevel=3,  # was 2 — pytest adds an extra frame for fixture injection
     )
     return test_user
 
@@ -119,7 +119,7 @@ def allergen_contact(contact_allergen):
     warnings.warn(
         "allergen_contact is deprecated; use contact_allergen instead. Will be removed in v1.0.0.",
         DeprecationWarning,
-        stacklevel=2,
+        stacklevel=3,  # was 2 — pytest adds an extra frame for fixture injection
     )
     return contact_allergen
 
@@ -147,7 +147,7 @@ def allergen_food(food_allergen):
     warnings.warn(
         "allergen_food is deprecated; use food_allergen instead. Will be removed in v1.0.0.",
         DeprecationWarning,
-        stacklevel=2,
+        stacklevel=3,  # was 2 — pytest adds an extra frame for fixture injection
     )
     return food_allergen
 
