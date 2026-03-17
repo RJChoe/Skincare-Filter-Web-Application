@@ -15,7 +15,7 @@ from allergies.models import Allergen, UserAllergy
 from users._log_utils import email_token
 
 User = get_user_model()
-
+# empty comit to push CI trigger
 # ============================================================================
 # Fixtures
 # ============================================================================
