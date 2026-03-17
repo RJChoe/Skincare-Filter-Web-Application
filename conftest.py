@@ -110,7 +110,7 @@ def contact_allergen(db):
 
 
 @pytest.fixture
-def allergen_contact(contact_allergen):
+def allergen_contact(db, contact_allergen):
     """Alias for contact_allergen fixture for backward compatibility.
 
     This fixture exists to support existing tests that use 'allergen_contact'.
@@ -138,7 +138,7 @@ def food_allergen(db):
 
 
 @pytest.fixture
-def allergen_food(food_allergen):
+def allergen_food(db, food_allergen):
     """Alias for food_allergen fixture for backward compatibility.
 
     This fixture exists to support existing tests that use 'allergen_food'.
