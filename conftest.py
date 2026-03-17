@@ -207,3 +207,15 @@ def enable_users_logging(caplog):
     yield
     users_logger.removeHandler(caplog.handler)
     users_logger.setLevel(original_level)
+
+
+@pytest.fixture
+def enable_allergies_logging(caplog):
+    """Attach caplog's handler to the 'allergies' logger for log-assertion tests."""
+    allergies_logger = logging.getLogger("allergies")
+    original_level = allergies_logger.level
+    allergies_logger.setLevel(logging.DEBUG)
+    allergies_logger.addHandler(caplog.handler)
+    yield
+    allergies_logger.removeHandler(caplog.handler)
+    allergies_logger.setLevel(original_level)
