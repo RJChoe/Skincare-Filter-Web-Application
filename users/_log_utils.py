@@ -28,6 +28,8 @@ def email_token(email: str) -> str:
     Returns:
         str: A 12-character lowercase hex string.
     """
+    if not email:
+        return "000000000000"  # Sentinel — distinguishable, non-colliding
     return hmac.new(
         settings.SECRET_KEY.encode(),
         email.encode(),
