@@ -18,7 +18,7 @@ allergies/tests/
     test_models.py           # Allergen, UserAllergy model tests
     test_views_error_handling.py
     test_admin_error_handling.py
-    test_exceptions.py
+    test_models.py
 
 users/
     tests.py                 # CustomUser model tests, signals, validators
