@@ -148,14 +148,12 @@ class UserAllergyAdmin(admin.ModelAdmin):
         """Mark user allergies as confirmed with logging."""
         try:
             count = queryset.count()
-            logger.info(
-                f"Admin {request.user.id} ({request.user.username}) confirming {count} user allergies"
-            )
+            logger.info(f"Admin {request.user.id} confirming {count} user allergies")
 
             updated = queryset.update(is_confirmed=True)
 
             logger.info(
-                f"Successfully confirmed {updated} user allergies by admin {request.user.username}"
+                f"Successfully confirmed {updated} user allergies by admin {request.user.id}"
             )
             self.message_user(
                 request,
@@ -164,7 +162,7 @@ class UserAllergyAdmin(admin.ModelAdmin):
             )
         except Exception as e:
             logger.error(
-                f"Error confirming allergies by admin {request.user.id} ({request.user.username}): {e}",
+                f"Error confirming allergies by admin {request.user.id}: {e}",
                 exc_info=True,
             )
             self.message_user(
@@ -176,14 +174,12 @@ class UserAllergyAdmin(admin.ModelAdmin):
         """Mark user allergies as unconfirmed with logging."""
         try:
             count = queryset.count()
-            logger.info(
-                f"Admin {request.user.id} ({request.user.username}) unconfirming {count} user allergies"
-            )
+            logger.info(f"Admin {request.user.id} unconfirming {count} user allergies")
 
             updated = queryset.update(is_confirmed=False)
 
             logger.info(
-                f"Successfully unconfirmed {updated} user allergies by admin {request.user.username}"
+                f"Successfully unconfirmed {updated} user allergies by admin {request.user.id}"
             )
             self.message_user(
                 request,
@@ -192,7 +188,7 @@ class UserAllergyAdmin(admin.ModelAdmin):
             )
         except Exception as e:
             logger.error(
-                f"Error unconfirming allergies by admin {request.user.id} ({request.user.username}): {e}",
+                f"Error unconfirming allergies by admin {request.user.id}: {e}",
                 exc_info=True,
             )
             self.message_user(
