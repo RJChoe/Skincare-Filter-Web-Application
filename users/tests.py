@@ -16,10 +16,6 @@ from users._log_utils import email_token
 
 User = get_user_model()
 
-# Disable logging during tests to reduce noise
-logging.disable(logging.CRITICAL)
-
-
 # ============================================================================
 # Fixtures
 # ============================================================================

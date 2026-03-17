@@ -246,6 +246,7 @@ ignore_errors = true
 # ============================================================================
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "skincare_project.settings"
+log_level = "WARNING" # suppress INFO/DEBUG noise in non-logging tests
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
