@@ -431,9 +431,3 @@ class TestEmailToken:
     def test_token_length_is_12(self):
         """Token is exactly 12 characters."""
         assert len(email_token("any@example.com")) == 12
-
-
-# Re-enable logging after tests
-def teardown_module():
-    """Re-enable logging after all tests complete."""
-    logging.disable(logging.NOTSET)
