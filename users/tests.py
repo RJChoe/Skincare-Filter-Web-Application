@@ -123,6 +123,36 @@ class TestCustomUserManager:
 
 
 # ============================================================================
+# User Tests
+# ============================================================================
+@pytest.mark.django_db
+class TestEmailToken:
+    """Unit tests for email_token(). No database required."""
+
+    def test_token_is_consistent_for_same_email(self):
+        """The same email always produces the same token within a SECRET_KEY lifetime."""
+        email = "consistency@example.com"
+        assert email_token(email) == email_token(email)
+
+    def test_token_differs_for_different_emails(self):
+        """Different emails produce different tokens."""
+        assert email_token("a@example.com") != email_token("b@example.com")
+
+    def test_token_length_is_12(self):
+        """Token is exactly 12 characters."""
+        assert len(email_token("any@example.com")) == 12
+
+    def test_empty_string_returns_sentinel(self):
+        assert email_token("") == "000000000000"
+
+    def test_non_string_input_handled(self):
+        # Should not raise — defensive against miscall
+        result = email_token("")
+        assert isinstance(result, str)
+        assert len(result) == 12
+
+
+# ============================================================================
 # Model Tests
 # ============================================================================
 
@@ -414,20 +444,3 @@ class TestModelLogging:
 
         assert "token=" in caplog.text
         assert custom_user.email not in caplog.text
-
-
-class TestEmailToken:
-    """Unit tests for email_token(). No database required."""
-
-    def test_token_is_consistent_for_same_email(self):
-        """The same email always produces the same token within a SECRET_KEY lifetime."""
-        email = "consistency@example.com"
-        assert email_token(email) == email_token(email)
-
-    def test_token_differs_for_different_emails(self):
-        """Different emails produce different tokens."""
-        assert email_token("a@example.com") != email_token("b@example.com")
-
-    def test_token_length_is_12(self):
-        """Token is exactly 12 characters."""
-        assert len(email_token("any@example.com")) == 12
