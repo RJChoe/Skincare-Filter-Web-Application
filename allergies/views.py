@@ -16,9 +16,7 @@ logger = logging.getLogger(__name__)
 def allergies_list(request: HttpRequest) -> HttpResponse:
     """Display list of user's allergies with error handling."""
     try:
-        logger.info(
-            f"User {getattr(request.user, 'pk', 'unknown')} accessed allergies list"
-        )
+        logger.info(f"User {getattr(request.user.pk)} accessed allergies list")
 
         # Future: Fetch user allergies from database
         # user_allergies = UserAllergy.objects.select_related('allergen').filter(
