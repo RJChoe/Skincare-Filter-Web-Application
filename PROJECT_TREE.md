@@ -29,9 +29,6 @@ Skincare Project Structure:
  📦allergies
  ┣ 📂constants
  ┃ ┗ 📜choices.py
- ┣ 📂migrations
- ┃ ┣ 📜0001_initial.py
- ┃ ┗ 📜__init__.py
  ┣ 📂templates
  ┃ ┗ 📂allergies
  ┃ ┃ ┗ 📜allergies_list.html
