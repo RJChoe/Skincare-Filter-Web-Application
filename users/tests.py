@@ -163,31 +163,31 @@ class TestEmailToken:
 class TestCustomUserModel:
     """Tests for CustomUser model functionality."""
 
-    def test_str_representation(self, custom_user):
+    def test_str_representation(self, test_user):
         """Test that __str__ returns the email."""
-        assert str(custom_user) == custom_user.email
+        assert str(test_user) == test_user.email
 
-    def test_email_uniqueness(self, custom_user, user_password):
+    def test_email_uniqueness(self, test_user, user_password):
         """Test that duplicate emails are not allowed."""
         with pytest.raises(ValidationError):
             User.objects.create_user(
-                email=custom_user.email,
+                email=test_user.email,
                 username="another_user",
                 password=user_password,
             )
 
-    def test_get_age_with_birthdate(self, custom_user):
+    def test_get_age_with_birthdate(self, test_user):
         """Test age calculation when date_of_birth is set."""
         # Set birthdate to 25 years ago
-        custom_user.date_of_birth = date.today() - timedelta(days=25 * 365)
-        custom_user.save()
+        test_user.date_of_birth = date.today() - timedelta(days=25 * 365)
+        test_user.save()
 
-        age = custom_user.get_age()
+        age = test_user.get_age()
         assert age in [24, 25]  # Account for leap years and exact day
 
-    def test_get_age_without_birthdate(self, custom_user):
+    def test_get_age_without_birthdate(self, test_user):
         """Test that get_age returns None when date_of_birth is not set."""
-        assert custom_user.get_age() is None
+        assert test_user.get_age() is None
 
 
 # ============================================================================
@@ -201,7 +201,7 @@ class TestCustomUserValidation:
     """Tests for CustomUser field validation."""
 
     @pytest.fixture(autouse=True)
-    def close_profile_picture(self, custom_user):
+    def close_profile_picture(self, test_user):
         """Close any open FieldFile handle on profile_picture after each test.
 
         Django's FieldFile.save() opens the saved file internally and does not
@@ -209,81 +209,81 @@ class TestCustomUserValidation:
         is garbage-collected. Explicitly closing here prevents that.
         """
         yield
-        if custom_user.profile_picture:
-            custom_user.profile_picture.close()
+        if test_user.profile_picture:
+            test_user.profile_picture.close()
 
-    def test_date_of_birth_future_invalid(self, custom_user):
+    def test_date_of_birth_future_invalid(self, test_user):
         """Test that future date_of_birth raises ValidationError."""
-        custom_user.date_of_birth = date.today() + timedelta(days=1)
+        test_user.date_of_birth = date.today() + timedelta(days=1)
 
         with pytest.raises(
             ValidationError, match="Date of birth cannot be in the future"
         ):
-            custom_user.full_clean()
+            test_user.full_clean()
 
-    def test_date_of_birth_today_valid(self, custom_user):
+    def test_date_of_birth_today_valid(self, test_user):
         """Test that today's date as date_of_birth is valid (edge case)."""
-        custom_user.date_of_birth = date.today()
+        test_user.date_of_birth = date.today()
 
         with pytest.raises(
             ValidationError, match="You must be at least 13 years old"
         ):  # COPPA
-            custom_user.full_clean()
+            test_user.full_clean()
 
-    def test_minimum_age_under_13_invalid(self, custom_user):
+    def test_minimum_age_under_13_invalid(self, test_user):
         """Test that users under 13 years old are rejected (COPPA)."""
         # Set birthdate to 10 years ago
-        custom_user.date_of_birth = date.today() - timedelta(days=10 * 365)
+        test_user.date_of_birth = date.today() - timedelta(days=10 * 365)
 
         with pytest.raises(ValidationError, match="You must be at least 13 years old"):
-            custom_user.full_clean()
+            test_user.full_clean()
 
-    def test_minimum_age_13_valid(self, custom_user):
+    def test_minimum_age_13_valid(self, test_user):
         """Test that users exactly 13 years old are accepted."""
         # Set birthdate to exactly 13 years ago
-        custom_user.date_of_birth = date.today() - timedelta(
+        test_user.date_of_birth = date.today() - timedelta(
             days=13 * 365 + 4
         )  # +leap days
 
-        custom_user.full_clean()  # Should not raise
+        test_user.full_clean()  # Should not raise
 
-    def test_image_size_exceeds_limit(self, custom_user):
+    def test_image_size_exceeds_limit(self, test_user):
         """Test that images over 5MB are rejected."""
         large_image = create_test_image(image_format="JPEG", size_mb=6)
 
         with pytest.raises(
             ValidationError, match="Image file size must not exceed 5MB"
         ):
-            custom_user.profile_picture.save("large.jpg", large_image, save=False)
-            custom_user.full_clean()
+            test_user.profile_picture.save("large.jpg", large_image, save=False)
+            test_user.full_clean()
 
-    def test_image_format_jpeg_valid(self, custom_user):
+    def test_image_format_jpeg_valid(self, test_user):
         """Test that JPEG format is accepted."""
         jpeg_image = create_test_image(image_format="JPEG", size_mb=1)
-        custom_user.profile_picture.save("test.jpg", jpeg_image, save=False)
-        custom_user.full_clean()  # Should not raise
+        test_user.profile_picture.save("test.jpg", jpeg_image, save=False)
+        test_user.full_clean()  # Should not raise
 
-    def test_image_format_png_valid(self, custom_user):
+    def test_image_format_png_valid(self, test_user):
         """Test that PNG format is accepted."""
         png_image = create_test_image(image_format="PNG", size_mb=1)
-        custom_user.profile_picture.save("test.png", png_image, save=False)
-        custom_user.full_clean()  # Should not raise
+        test_user.profile_picture.save("test.png", png_image, save=False)
+        test_user.full_clean()  # Should not raise
 
-    def test_image_format_webp_valid(self, custom_user):
+    def test_image_format_webp_valid(self, test_user):
         """Test that WebP format is accepted."""
         webp_image = create_test_image(image_format="WEBP", size_mb=1)
-        custom_user.profile_picture.save("test.webp", webp_image, save=False)
-        custom_user.full_clean()  # Should not raise
+        test_user.profile_picture.save("test.webp", webp_image, save=False)
+        test_user.full_clean()  # Should not raise
 
-    def test_phone_number_us_format_valid(self, custom_user):
+    def test_phone_number_us_format_valid(self, test_user):
         """Test that US phone number format is accepted."""
-        custom_user.phone_number = "+12024561414"
-        custom_user.full_clean()  # Should not raise
+        test_user.phone_number = "+12024561414"
+        test_user.full_clean()  # Should not raise
 
-    def test_phone_number_optional(self, custom_user):
+    def test_phone_number_optional(self, test_user):
         """Test that phone_number can be blank."""
-        custom_user.phone_number = ""
-        custom_user.full_clean()  # Should not raise
+        test_user.phone_number = ""
+        test_user.full_clean()  # Should not raise
 
 
 # ============================================================================
@@ -295,28 +295,28 @@ class TestCustomUserValidation:
 class TestAllergySignalBatching:
     """Tests for allergy timestamp signal handlers."""
 
-    def test_allergies_updated_at_on_create(self, custom_user, allergen_contact):
+    def test_allergies_updated_at_on_create(self, test_user, allergen_contact):
         """Test that allergies_updated_at is set when UserAllergy is created."""
-        assert custom_user.allergies_updated_at is None
+        assert test_user.allergies_updated_at is None
 
         # Create a UserAllergy
         with transaction.atomic():
             UserAllergy.objects.create(
-                user=custom_user,
+                user=test_user,
                 allergen=allergen_contact,
                 severity_level="mild",
                 is_confirmed=True,
             )
 
         # Refresh user from database
-        custom_user.refresh_from_db()
-        assert custom_user.allergies_updated_at is not None
+        test_user.refresh_from_db()
+        assert test_user.allergies_updated_at is not None
 
-    def test_allergies_updated_at_on_update(self, custom_user, user_allergy):
+    def test_allergies_updated_at_on_update(self, test_user, user_allergy):
         """Test that allergies_updated_at is updated when UserAllergy is modified."""
         # Clear timestamp
-        custom_user.allergies_updated_at = None
-        custom_user.save()
+        test_user.allergies_updated_at = None
+        test_user.save()
 
         # Update the UserAllergy
         with transaction.atomic():
@@ -324,24 +324,24 @@ class TestAllergySignalBatching:
             user_allergy.save()
 
         # Refresh user from database
-        custom_user.refresh_from_db()
-        assert custom_user.allergies_updated_at is not None
+        test_user.refresh_from_db()
+        assert test_user.allergies_updated_at is not None
 
-    def test_allergies_updated_at_on_delete(self, custom_user, user_allergy):
+    def test_allergies_updated_at_on_delete(self, test_user, user_allergy):
         """Test that allergies_updated_at is updated when UserAllergy is deleted."""
         # Clear timestamp
-        custom_user.allergies_updated_at = None
-        custom_user.save()
+        test_user.allergies_updated_at = None
+        test_user.save()
 
         # Delete the UserAllergy
         with transaction.atomic():
             user_allergy.delete()
 
         # Refresh user from database
-        custom_user.refresh_from_db()
-        assert custom_user.allergies_updated_at is not None
+        test_user.refresh_from_db()
+        assert test_user.allergies_updated_at is not None
 
-    def test_batch_update_multiple_allergies(self, custom_user, allergen_contact):
+    def test_batch_update_multiple_allergies(self, test_user, allergen_contact):
         """Test that multiple allergy changes in one transaction batch correctly."""
         allergen2 = Allergen.objects.create(
             category=CATEGORY_CONTACT, allergen_key="fragrance", is_active=True
@@ -350,25 +350,25 @@ class TestAllergySignalBatching:
         # Create multiple allergies in one transaction
         with transaction.atomic():
             UserAllergy.objects.create(
-                user=custom_user, allergen=allergen_contact, severity_level="mild"
+                user=test_user, allergen=allergen_contact, severity_level="mild"
             )
             UserAllergy.objects.create(
-                user=custom_user, allergen=allergen2, severity_level="moderate"
+                user=test_user, allergen=allergen2, severity_level="moderate"
             )
 
         # Refresh user from database
-        custom_user.refresh_from_db()
-        assert custom_user.allergies_updated_at is not None
+        test_user.refresh_from_db()
+        assert test_user.allergies_updated_at is not None
 
-    def test_timestamp_precision_includes_seconds(self, custom_user, allergen_contact):
+    def test_timestamp_precision_includes_seconds(self, test_user, allergen_contact):
         """Test that allergies_updated_at includes full timestamp with seconds."""
         with transaction.atomic():
             UserAllergy.objects.create(
-                user=custom_user, allergen=allergen_contact, severity_level="mild"
+                user=test_user, allergen=allergen_contact, severity_level="mild"
             )
 
-        custom_user.refresh_from_db()
-        timestamp = custom_user.allergies_updated_at
+        test_user.refresh_from_db()
+        timestamp = test_user.allergies_updated_at
 
         # Verify timestamp has second precision (not truncated)
         assert timestamp.second is not None
@@ -439,16 +439,16 @@ class TestModelLogging:
     Test that model validation failures are logged correctly and securely.
     """
 
-    def test_future_dob_warning_logs_token_not_email(self, caplog, custom_user):
+    def test_future_dob_warning_logs_token_not_email(self, caplog, test_user):
         """Future DOB warning logs a token; raw email must not appear."""
-        custom_user.date_of_birth = date.today() + timedelta(days=1)
+        test_user.date_of_birth = date.today() + timedelta(days=1)
 
         with caplog.at_level(logging.WARNING, logger="users"):
             with pytest.raises(ValidationError):
-                custom_user.full_clean()
+                test_user.full_clean()
 
         assert "token=" in caplog.text
-        assert custom_user.email not in caplog.text
+        assert test_user.email not in caplog.text
 
     def test_minimum_age_validation_logs_warning(self, caplog):
         """Verify that under-age validation logs a warning with a token, not raw email."""
