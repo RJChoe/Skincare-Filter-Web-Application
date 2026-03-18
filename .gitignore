@@ -92,3 +92,4 @@ docker-compose.override.yml
 
 #private develpment notes
 _private_notes/
+.tree_maker.py
