@@ -157,20 +157,6 @@ def unconfirmed_user_allergy(db, test_user, contact_allergen):
 ### App-Specific Fixtures
 
 For fixtures used only within a single app, define them in the app's test file or a `conftest.py` within that app's test directory. The shared fixtures above cover the most common cross-app scenarios — only create app-specific fixtures for truly isolated concerns.
-
-### Deprecated Aliases
-
-The following fixture aliases exist in [conftest.py](../conftest.py) for backward compatibility. **New tests must use the canonical name.** Aliases will be removed in `v1.0.0`.
-
-| Alias | Canonical Replacement | Removed in |
-|---|---|---|
-| `custom_user` | `test_user` | `v1.0.0` |
-| `allergen_contact` | `contact_allergen` | `v1.0.0` |
-| `allergen_food` | `food_allergen` | `v1.0.0` |
-
-> [!NOTE]
-> When you encounter `custom_user`, `allergen_contact`, or `allergen_food` in older test files, replace them with their canonical counterparts above. Do not introduce these aliases in new tests.
-
 ---
 
 ## Test Patterns
@@ -185,13 +171,13 @@ The following fixture aliases exist in [conftest.py](../conftest.py) for backwar
 
 ```python
 class TestAllergenModel:
-    def test_allergen_str_representation(self, allergen_contact, allergen_food):
+    def test_allergen_str_representation(self, contact_allergen, food_allergen):
         """Verify __str__ returns 'Category: Allergen Name' format."""
         assert (
-            str(allergen_contact)
+            str(contact_allergen)
             == "Contact/Topical Allergens: Sodium Lauryl Sulfate (SLS)"
         )
-        assert str(allergen_food) == "Food Allergens: Peanut"
+        assert str(food_allergen) == "Food Allergens: Peanut"
 
     def test_category_to_allergens_map(self):
         """Verify CATEGORY_TO_ALLERGENS_MAP contains all allergen choices."""
