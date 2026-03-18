@@ -453,7 +453,7 @@ class TestModelLogging:
     def test_minimum_age_validation_logs_warning(self, caplog):
         """Verify that under-age validation logs a warning with a token, not raw email."""
         # Calculate a date of birth for a 10-year-old (under the 13-year limit)
-        underage_dob = timezone.now().date() - timezone.timedelta(days=365 * 10)
+        underage_dob = timezone.now().date() - timedelta(days=365 * 10)
         user_email = "underage@example.com"
 
         # We use build() or manual instantiation because save() calls full_clean()
