@@ -362,15 +362,18 @@ Example response:
 
 ## Known Gaps & Implementation Status
 
-### ✅ Completed Foundations
-
-- ✅ **Logging Infrastructure:** Comprehensive logging implemented in [allergies/admin.py](allergies/admin.py#L12), [allergies/views.py](allergies/views.py), and admin actions with INFO/ERROR levels.
-- ✅ **Error Handling:** Try-except blocks with `@transaction.atomic` in views and admin actions. Model validation at [allergies/models.py](allergies/models.py#L74-L82).
+### Completed Foundations
 - ✅ **django-environ Dependency:** Installed and configured in [skincare_project/settings.py](skincare_project/settings.py).
-- ✅ **User Tests:** Comprehensive 382-line test suite in [users/tests.py](users/tests.py) with CustomUser model coverage.
-- ✅ **View Tests:** Allergy view tests exist in [allergies/tests/test_views.py](allergies/tests/test_views.py) and admin error handling tests in [allergies/tests/test_admin_error_handling.py](allergies/tests/test_admin_error_handling.py).
 
 ### Current Implementation Gaps (Prioritized)
+
+- 🚧 **choices.py Incomplete:** need updating with skincare allergens.
+- 🚧 **Models Incomplete:** Some model features and validations are not fully implemented or tested.
+- 🚧 **Views Incomplete:** Some views features and validations are not fully implemented or tested.
+- 🚧 **Logging Infrastructure Incomplete:** Comprehensive logging implemented in [allergies/admin.py](allergies/admin.py#L12), [allergies/views.py](allergies/views.py), and admin actions with INFO/ERROR levels.
+- 🚧 **Error Handling Incomplete:** Try-except blocks with `@transaction.atomic` in views and admin actions. Model validation at [allergies/models.py](allergies/models.py#L74-L82).
+- 🚧 **User Tests Incomplete:** Comprehensive 382-line test suite in [users/tests.py](users/tests.py) with CustomUser model coverage.
+- 🚧 **View Tests Incomplete:** Allergy view tests exist in [allergies/tests/test_views.py](allergies/tests/test_views.py) and admin error handling tests in [allergies/tests/test_admin_error_handling.py](allergies/tests/test_admin_error_handling.py).
 
 - ❌ **Forms Implementation:** No `forms.py` files exist. Need `UserAllergyForm` with dynamic `allergen_key` filtering based on category selection. **BLOCKED:** Until Gate 4 requirements met.
 - 🚧 **Model Tests Incomplete:** [allergies/tests/test_models.py](allergies/tests/test_models.py#L59) has TODO comment for `UserAllergy` model tests (severity_level, is_confirmed, user_reaction_details fields).
