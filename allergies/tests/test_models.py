@@ -9,7 +9,7 @@ from allergies.models import Allergen
 
 
 @pytest.fixture
-def allergen_contact(db):
+def contact_allergen(db):
     """Fixture for contact allergen.
     Assumes 'sls' key maps to 'Sodium Lauryl Sulfate (SLS)' label.
     """
@@ -17,7 +17,7 @@ def allergen_contact(db):
 
 
 @pytest.fixture
-def allergen_food(db):
+def food_allergen(db):
     """Fixture for food allergen. Using 'peanut' to match constant test."""
     return Allergen.objects.create(category=CATEGORY_FOOD, allergen_key="peanut")
 

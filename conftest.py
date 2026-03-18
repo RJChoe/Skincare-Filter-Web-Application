@@ -5,7 +5,6 @@ Fixtures are organized by category: users, allergens, and authentication.
 """
 
 import logging
-import warnings
 
 import pytest
 from django.contrib.auth import get_user_model
@@ -60,21 +59,6 @@ def test_user(db, user_email, user_password) -> CustomUser:
     )
 
 
-@pytest.fixture
-def custom_user(test_user):
-    """Alias for test_user fixture for backward compatibility.
-
-    This fixture exists to support existing tests that use 'custom_user'.
-    New tests should use 'test_user' instead.
-    """
-    warnings.warn(
-        "custom_user is deprecated; use test_user instead. Will be removed in v1.0.0.",
-        DeprecationWarning,
-        stacklevel=3,  # was 2 — pytest adds an extra frame for fixture injection
-    )
-    return test_user
-
-
 # ============================================================================
 # Authentication Fixtures
 # ============================================================================
@@ -110,21 +94,6 @@ def contact_allergen(db):
 
 
 @pytest.fixture
-def allergen_contact(db, contact_allergen):
-    """Alias for contact_allergen fixture for backward compatibility.
-
-    This fixture exists to support existing tests that use 'allergen_contact'.
-    New tests should use 'contact_allergen' instead.
-    """
-    warnings.warn(
-        "allergen_contact is deprecated; use contact_allergen instead. Will be removed in v1.0.0.",
-        DeprecationWarning,
-        stacklevel=3,  # was 2 — pytest adds an extra frame for fixture injection
-    )
-    return contact_allergen
-
-
-@pytest.fixture
 def food_allergen(db):
     """Create a food allergen: Peanut.
 
@@ -135,21 +104,6 @@ def food_allergen(db):
     return Allergen.objects.create(
         category=CATEGORY_FOOD, allergen_key="peanut", is_active=True
     )
-
-
-@pytest.fixture
-def allergen_food(db, food_allergen):
-    """Alias for food_allergen fixture for backward compatibility.
-
-    This fixture exists to support existing tests that use 'allergen_food'.
-    New tests should use 'food_allergen' instead.
-    """
-    warnings.warn(
-        "allergen_food is deprecated; use food_allergen instead. Will be removed in v1.0.0.",
-        DeprecationWarning,
-        stacklevel=3,  # was 2 — pytest adds an extra frame for fixture injection
-    )
-    return food_allergen
 
 
 # ============================================================================

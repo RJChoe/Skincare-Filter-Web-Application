@@ -676,14 +676,6 @@ When suggesting model changes, always remind:
 | `food_allergen` | Allergen (Peanut) | Food allergen | `def test_food(food_allergen): ...` |
 | `user_allergy` | UserAllergy | Linked user→allergen | `def test_relationship(user_allergy): ...` |
 
-**⚠️ DEPRECATED Fixtures (Backward Compatibility Only — Do Not Use in New Tests):**
-
-| Old Fixture | Replacement | Status |
-|-------------|-------------|--------|
-| `custom_user` | `test_user` | ⚠️ Use `test_user` in new tests |
-| `allergen_contact` | `contact_allergen` | ⚠️ Use `contact_allergen` in new tests |
-| `allergen_food` | `food_allergen` | ⚠️ Use `food_allergen` in new tests |
-
 ### Fixture Usage Examples
 
 #### Example 1: Testing Model String Representation

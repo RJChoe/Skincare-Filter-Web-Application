@@ -295,7 +295,7 @@ class TestCustomUserValidation:
 class TestAllergySignalBatching:
     """Tests for allergy timestamp signal handlers."""
 
-    def test_allergies_updated_at_on_create(self, test_user, allergen_contact):
+    def test_allergies_updated_at_on_create(self, test_user, contact_allergen):
         """Test that allergies_updated_at is set when UserAllergy is created."""
         assert test_user.allergies_updated_at is None
 
@@ -303,7 +303,7 @@ class TestAllergySignalBatching:
         with transaction.atomic():
             UserAllergy.objects.create(
                 user=test_user,
-                allergen=allergen_contact,
+                allergen=contact_allergen,
                 severity_level="mild",
                 is_confirmed=True,
             )
@@ -341,7 +341,7 @@ class TestAllergySignalBatching:
         test_user.refresh_from_db()
         assert test_user.allergies_updated_at is not None
 
-    def test_batch_update_multiple_allergies(self, test_user, allergen_contact):
+    def test_batch_update_multiple_allergies(self, test_user, contact_allergen):
         """Test that multiple allergy changes in one transaction batch correctly."""
         allergen2 = Allergen.objects.create(
             category=CATEGORY_CONTACT, allergen_key="fragrance", is_active=True
@@ -350,7 +350,7 @@ class TestAllergySignalBatching:
         # Create multiple allergies in one transaction
         with transaction.atomic():
             UserAllergy.objects.create(
-                user=test_user, allergen=allergen_contact, severity_level="mild"
+                user=test_user, allergen=contact_allergen, severity_level="mild"
             )
             UserAllergy.objects.create(
                 user=test_user, allergen=allergen2, severity_level="moderate"
@@ -360,11 +360,11 @@ class TestAllergySignalBatching:
         test_user.refresh_from_db()
         assert test_user.allergies_updated_at is not None
 
-    def test_timestamp_precision_includes_seconds(self, test_user, allergen_contact):
+    def test_timestamp_precision_includes_seconds(self, test_user, contact_allergen):
         """Test that allergies_updated_at includes full timestamp with seconds."""
         with transaction.atomic():
             UserAllergy.objects.create(
-                user=test_user, allergen=allergen_contact, severity_level="mild"
+                user=test_user, allergen=contact_allergen, severity_level="mild"
             )
 
         test_user.refresh_from_db()
