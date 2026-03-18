@@ -32,11 +32,17 @@ Purpose: Make AI coding agents productive immediately in this Django repo by doc
 **✅ Completed Development Gates:**
 - **Gate 1 (Dependencies):** `django-environ` installed and configured
 
-**⏳ In Progress / Not Started:**
-- **Gate 2 (Logging):** Comprehensive logging in [allergies/admin.py](allergies/admin.py#L12), [allergies/views.py](allergies/views.py), [users/tests.py](users/tests.py)
-- **Gate 3 (Error Handling):** Try-except blocks with transaction management in views and admin actions
-- **Gate 4 (Forms):** ❌ No `forms.py` files exist yet
-- **Gate 5 (Tests):** 🚧 Comprehensive user tests (382 lines) exist, but [allergies/tests/test_models.py](allergies/tests/test_models.py#L59) has TODO for `UserAllergy` model tests
+**🚧 In Progress:**
+- **Gate 2 (Logging):** Partial — logger exists in `allergies/admin.py`;
+  `allergies/views.py` and `skincare_project/views.py` logging incomplete
+- **Gate 3 (Error Handling):** Partial — try-except and `@transaction.atomic`
+  patterns documented; not fully implemented across all views;
+  `allergies/exceptions.py` existence unverified
+
+**❌ Not Started (Blocked Until Gates 2–3 Complete):**
+- **Gate 4 (Forms):** No `forms.py` files exist yet
+- **Gate 5 (Tests):** `allergies/tests/test_models.py` has TODO at L59;
+  view and form tests do not exist
 
 ### Key Files Reference
 
@@ -367,16 +373,90 @@ Example response:
 
 ### Current Implementation Gaps (Prioritized)
 
-- 🚧 **choices.py Incomplete:** need updating with skincare allergens.
-- 🚧 **Models Incomplete:** Some model features and validations are not fully implemented or tested.
-- 🚧 **Views Incomplete:** Some views features and validations are not fully implemented or tested.
-- 🚧 **Logging Infrastructure Incomplete:** Comprehensive logging implemented in [allergies/admin.py](allergies/admin.py#L12), [allergies/views.py](allergies/views.py), and admin actions with INFO/ERROR levels.
-- 🚧 **Error Handling Incomplete:** Try-except blocks with `@transaction.atomic` in views and admin actions. Model validation at [allergies/models.py](allergies/models.py#L74-L82).
-- 🚧 **User Tests Incomplete:** Comprehensive 382-line test suite in [users/tests.py](users/tests.py) with CustomUser model coverage.
-- 🚧 **View Tests Incomplete:** Allergy view tests exist in [allergies/tests/test_views.py](allergies/tests/test_views.py) and admin error handling tests in [allergies/tests/test_admin_error_handling.py](allergies/tests/test_admin_error_handling.py).
+- 🚧 **choices.py Incomplete:** Allergen lists have placeholder stubs
+  (`# ... and so on`). Must be completed with full INCI-grounded ingredient
+  catalog before forms or seeding migration can be implemented.
+- 🚧 **Models Incomplete:** `allergies/models.py` — verify JSONField key
+  validation in `clean()` is present. `users/models.py` — full field set
+  and validation status unknown.
+- 🚧 **Logging Incomplete:** `logger = logging.getLogger(__name__)` needed
+  in `allergies/views.py`, `skincare_project/views.py`, and any new views.
+  Status of `allergies/admin.py` logging unverified from source.
+- 🚧 **Error Handling Incomplete:** `@transaction.atomic` and try-except
+  blocks needed in all view functions. `allergies/exceptions.py` — existence
+  and contents unverified.
+- 🚧 **Test Coverage Incomplete:** `users/tests.py` (382 lines) — coverage
+  scope unknown. `allergies/tests/test_models.py` has confirmed TODO at L59
+  for `UserAllergy` fields. View tests and admin error handling tests —
+  existence unverified.
+- ❌ **Forms:** No `forms.py` files exist. Blocked until Gates 2–3 complete.
+```
 
-- ❌ **Forms Implementation:** No `forms.py` files exist. Need `UserAllergyForm` with dynamic `allergen_key` filtering based on category selection. **BLOCKED:** Until Gate 4 requirements met.
-- 🚧 **Model Tests Incomplete:** [allergies/tests/test_models.py](allergies/tests/test_models.py#L59) has TODO comment for `UserAllergy` model tests (severity_level, is_confirmed, user_reaction_details fields).
+Remove the now-redundant separate "Completed Foundations" subsection above it, since it only listed `django-environ` which is already in Gate 1.
+
+---
+
+### 3. Fix the "Development Gates" status block (lines 391–413)
+
+This is the most critical fix — it's what an AI agent reads to decide where to start. Replace:
+```
+**Current Status:** Gates 1-3 ✅ COMPLETE. Focus on Gates 4-5.
+
+### Gate 1: Dependency Fix — ✅ COMPLETE
+...
+
+### Gate 2: Logging Infrastructure — ✅ COMPLETE
+1. ✅ logger added to allergies/admin.py
+2. ✅ logger added to allergies/views.py
+   - Admin custom actions with INFO/ERROR logging
+3. ✅ Security events logged
+4. ✅ Production logging configured in settings.py
+
+### Gate 3: Error Handling — ✅ COMPLETE
+1. ✅ Try-except blocks in view functions
+2. ✅ @transaction.atomic implemented
+3. ✅ Custom exception classes in allergies/exceptions.py
+4. ✅ Validation errors properly surfaced
+
+### Gate 4: Forms & Validation — ⏳ NOT STARTED (UNBLOCKED)
+```
+
+With:
+```
+**Current Status:** Gate 1 ✅ COMPLETE. Gates 2–3 🚧 IN PROGRESS.
+Gates 4–5 ❌ BLOCKED until Gates 2–3 complete.
+
+### Gate 1: Dependency Fix — ✅ COMPLETE
+1. ✅ `django-environ` installed and configured in `pyproject.toml`
+2. ✅ Verified working in `skincare_project/settings.py`
+3. ✅ Lockfile synced
+
+### Gate 2: Logging Infrastructure — 🚧 IN PROGRESS
+1. 🚧 `logger = logging.getLogger(__name__)` — status per file:
+   - `allergies/admin.py` — believed present, verify from source
+   - `allergies/views.py` — INCOMPLETE
+   - `skincare_project/views.py` — INCOMPLETE
+   - Any new view files — NOT STARTED
+2. ❌ Security events (INFO level) not consistently logged across views
+3. ❌ Production logging config in `settings.py` — status unverified
+
+**Gate 2 is complete when:** every view function and admin action file
+has a module-level logger and logs CREATE/UPDATE/DELETE events at INFO,
+errors at ERROR with exc_info=True.
+
+### Gate 3: Error Handling — 🚧 IN PROGRESS
+1. ❌ Try-except blocks missing from view functions in
+   `allergies/views.py` and `skincare_project/views.py`
+2. ❌ `@transaction.atomic` not confirmed on multi-model operations
+3. ❌ `allergies/exceptions.py` — existence and contents unverified;
+   `AllergenNotFoundError` and `InvalidIngredientError` may not exist
+4. ❌ Validation errors surfaced without 500s — not verified
+
+**Gate 3 is complete when:** all view functions have try-except with
+user-friendly error rendering, `@transaction.atomic` on writes, and
+`allergies/exceptions.py` exists with domain exception classes.
+
+### Gate 4: Forms & Validation — ❌ BLOCKED (Gates 2–3 incomplete)
 
 ### Blocked Features (Cannot Implement Until Foundations Complete)
 
@@ -425,6 +505,18 @@ Example response:
 5. Ensure coverage meets 75% minimum (current threshold)
 
 **After Gates 1-3 Complete:** Can implement product safety check POST handler and user management features.
+
+## ⚠️ Gate Verification Protocol
+
+Before marking any gate ✅ COMPLETE in this document, an AI agent or
+contributor must:
+
+1. Open the actual source file (not rely on this document's claims)
+2. Confirm the specific lines exist — e.g., `grep -n "getLogger" allergies/views.py`
+3. Run `uv run pytest` and confirm no related tests fail
+4. Only then update the checkbox in this document
+
+**Do not mark a gate complete based on documentation alone.**
 
 ## Forms & User Input Validation
 
@@ -808,12 +900,6 @@ users/
 └── tests.py                    # ✅ 382 lines of comprehensive user tests
 ```
 
-### Known Test Gaps
-
-- 🚧 [allergies/tests/test_models.py](allergies/tests/test_models.py#L59) has incomplete `UserAllergy` tests (TODO comment for severity_level, is_confirmed, user_reaction_details fields)
-- ❌ No form tests (no forms implemented yet — blocked on Gate 4)
-- ❌ No integration tests for product safety workflow (future enhancement)
-
 ## 🗄️ Database State & Migration Strategy
 
 ### Current Database State
@@ -907,58 +993,6 @@ If `makemigrations` detects conflicts:
 3. Resolve conflicts manually or use `--merge`: `uv run python manage.py makemigrations --merge`
 4. Test migration: `uv run python manage.py migrate`
 5. Commit resolved migration: `git add . && git commit -m "Merge migrations"`
-
-## Current Patterns vs. Future Features (Moved Earlier)
-
-### ✅ Current Patterns (Implemented & Recommended)
-
-Use these patterns in current development:
-
-- **Synchronous Views:** All views are standard `def` functions (see [skincare_project/views.py](skincare_project/views.py), [allergies/views.py](allergies/views.py)).
-- **Traditional Templates:** Use `{% extends 'layout.html' %}` and `{% include %}` for template composition (see [templates/layout.html](templates/layout.html)).
-- **SQLite Development Database:** Default `db.sqlite3` for local development (see [Database Management](#database-management)).
-- **Type Hints:** Use Python 3.13 `type` statement for aliases, modern syntax `list[T]`, `dict[K,V]` (see [allergies/models.py](allergies/models.py)).
-- **Ruff + Mypy:** Linting and type checking enforced in pre-commit (see [.pre-commit-config.yaml](.pre-commit-config.yaml)).
-- **uv Package Manager:** All commands via `uv run` (see [Dependency & Environment Management](#dependency--environment-management-uv)).
-
-### 🚧 Future Django 6.0 Features (Aspirational, Not Yet Implemented)
-
-Mark these as "Future" when suggesting to users:
-
-- **Async Views:** Django 6.0 supports `async def` views for I/O-bound operations. **Not currently used** in this project. Consider for future external API integration (product ingredient scanning):
-  ```python
-  # Future pattern (not implemented)
-  async def product_check(request: HttpRequest):
-      ingredient_data = await fetch_product_api(barcode)  # External API call
-      matches = await check_allergens_async(ingredient_data, request.user)
-      return JsonResponse({'matches': matches})
-  ```
-
-- **Template Partials (`{% partialdef %}`):** Django 6.0 adds `{% partialdef %}` and `{% partial %}` for HTMX-friendly components. **Not currently used**. Consider when implementing dynamic UI updates:
-  ```html
-  <!-- Future pattern (not implemented) -->
-  {% partialdef allergen-row allergen=allergen %}
-      <tr id="allergen-{{ allergen.id }}">
-          <td>{{ allergen.allergen_label }}</td>
-          <td>{{ allergen.category }}</td>
-      </tr>
-  {% endpartialdef %}
-  ```
-
-- **Background Tasks (`django.tasks`):** Django 6.0 includes native background task framework. **Not currently implemented**. Consider for future email notifications or data cleanup:
-  ```python
-  # Future pattern (not implemented)
-  from django.tasks import task
-
-  @task
-  def send_allergy_alert_email(user_id, allergen_id):
-      # Async email sending
-      pass
-
-  # Usage: send_allergy_alert_email.enqueue(user.id, allergen.id)
-  ```
-
-- **Django 6.0 Form Field Groups:** New form rendering API for grouped fields. **Not currently used** (no forms implemented yet).
 
 ### Implementation Guidance
 
