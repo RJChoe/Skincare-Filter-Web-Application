@@ -1,40 +1,59 @@
-Skincare Project Structure:
-├── 📁 Root Configuration
+# Skincare Project Structure
+
+├── 📁 ROOT CONFIGURATION
 │   ├── ARCHITECTURE.md          # System design & data flow
 │   ├── PRODUCT.md               # Requirements & Scope
 │   ├── STATUS.md                # Roadmap & Current progress
-│   ├── pyproject.toml           # uv dependencies & project metadata
+│   ├── pyproject.toml           # uv dependencies (PEP 621)
 │   ├── manage.py                # Django entry point
-│   └── .env.example             # Required environment variables
+│   ├── .env.example             # Required environment variables
+│   ├── .python-version          # Pins Python 3.13
+│   ├── conftest.py              # Shared pytest fixtures (Canonical Source)
+│   └── .pre-commit-config.yaml  # Hooks (incl. migration naming enforcement)
 │
-├── 📁 Documentation (docs/dev/)
+├── 📁 DOCUMENTATION (docs/dev/)
 │   ├── ADMIN.md, DEPLOYMENT.md, FORMS.md
 │   ├── LOGGING.md, MIGRATIONS.md, SECURITY.md
 │   └── TESTING.md
 │
-├── 📁 Core: skincare_project/   # Project Settings & Global Routing
+├── 📁 CORE: skincare_project/
 │   ├── settings.py              # Main Django config
 │   ├── urls.py                  # Root URL dispatcher
 │   └── wsgi.py / asgi.py        # Server interfaces
 │
-├── 📁 App: allergies/           # Ingredient & Filter Logic
-│   ├── models.py                # DB Schema (Allergies)
+├── 📁 APP: ALLERGIES/           [Ingredient & Filter Logic]
+│   ├── migrations/              # DB Migration history
+│   ├── models.py                # DB Schema (Allergen + UserAllergy)
+│   ├── admin.py                 # Admin panel configuration
 │   ├── views.py                 # Filtering logic
+│   ├── urls.py                  # App-level routing
 │   ├── constants/choices.py     # Static mapping data
-│   └── templates/allergies/     # List views & partials
+│   ├── exceptions.py            # [!] NOT YET VERIFIED
+│   ├── templates/allergies/     # List views & partials
+│   └── tests/
+│       ├── test_models.py       # [!] Incomplete (Ref: L59)
+│       ├── test_views.py        # [!] NOT YET VERIFIED
+│       ├── test_exceptions.py   # [!] NOT YET VERIFIED
+│       └── test_admin_error_handling.py
 │
-├── 📁 App: users/               # Auth & Profile Management
+├── 📁 APP: USERS/               [Auth & Profile Management]
+│   ├── migrations/              # DB Migration history
 │   ├── models.py                # Custom User Model
+│   ├── admin.py                 # CustomUser admin config
 │   ├── managers.py              # User creation logic
 │   ├── signals.py               # Post-save triggers
 │   ├── validators.py            # Custom input validation
-│   └── _log_utils.py            # User-specific logging helpers
+│   ├── views.py                 # Profile/User logic
+│   ├── urls.py                  # [!] Not yet included in Root URLs
+│   ├── tests.py                 # 382 lines (Coverage unaudited)
+│   └── _log_utils.py            # Logging helpers (Gate 2 scope)
 │
-├── 📁 Global UI (templates/)
+├── 📁 GLOBAL UI (templates/)
 │   ├── base.html                # Main skeleton
 │   ├── layout.html              # Structural wrapper
-│   └── home.html / product.html # Main landing pages
+│   ├── home.html                # Landing page
+│   └── product.html             # Product detail view
 │
-└── 📁 Static & Assets/
+└── 📁 STATIC & ASSETS/
     ├── css/main.css             # Global styles
-    └── assets/                  # Workflow diagrams/images
+    └── assets/                  # Workflow diagrams & images
