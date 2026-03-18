@@ -68,6 +68,17 @@ class Migration(migrations.Migration):
     ]
 ```
 
+You need to know your models work (via tests) before you reliably load data into them.
+(Finish writing your tests in tests.py.)
+
+8. Run python manage.py test and ensure they all pass.
+
+9. Then create the data migration file and populate your allergen catalog.
+
+10. Then run python manage.py migrate
+    Run Migrations: Only after your models are tested and refined do you sync them with the database (makemigrations, migrate).
+
+
 ## Rollback
 
 ```bash

@@ -455,3 +455,44 @@ uv run python manage.py migrate
 - Only `unit`, `integration`, and `slow` are registered
 - `--strict-markers` is on — any unregistered marker fails the run
 - Add new markers to the `markers` list in `[tool.pytest.ini_options]` before using them
+
+
+
+### Common setup issues and quick fixes:
+
+- **Coverage below 75% threshold:** If tests fail with "coverage is below 75%":
+    - **Temporary bypass:** Run tests without coverage: `uv run pytest --no-cov`
+    - **Adjust threshold:** Temporarily lower `fail_under` value in `pyproject.toml` under `[tool.coverage.report]` (remember to restore it)
+    - **Add tests:** Write additional tests to increase coverage before committing
+
+- **GitHub status checks blocking merge:** If PR shows "Some checks failed" despite local tests passing:
+    - Check the **Actions** tab in GitHub to see which workflow step failed
+    - Verify the `build` and `test` jobs completed successfully
+    - Check if `codecov/project` status shows coverage drop
+    - Review the PR comments for Codecov report details
+
+- Activation policy error (PowerShell): If you see "running scripts is disabled on this system":
+    ```powershell
+    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+    .\.venv\Scripts\Activate
+    ```
+
+- Python not found: Use uv to manage Python installations.
+    ```bash
+    uv python install 3.13
+    uv python pin 3.13
+    uv venv
+    uv sync --group dev
+    ```
+
+- Migrations/app errors: Ensure apps are installed and migrations ran.
+    ```bash
+    uv run python manage.py showmigrations
+    uv run python manage.py makemigrations allergies users
+    uv run python manage.py migrate
+    ```
+
+- Port already in use: Run on a different port.
+    ```bash
+    uv run python manage.py runserver 8001
+    ```
