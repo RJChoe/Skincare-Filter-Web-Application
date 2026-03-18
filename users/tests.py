@@ -8,11 +8,13 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.utils import timezone
 from PIL import Image
 
 from allergies.constants.choices import CATEGORY_CONTACT
 from allergies.models import Allergen, UserAllergy
 from users._log_utils import email_token
+from users.models import CustomUser
 
 User = get_user_model()
 # empty comit to push CI trigger
@@ -432,7 +434,10 @@ class TestManagerLogging:
 @pytest.mark.django_db
 @pytest.mark.usefixtures("enable_users_logging")
 class TestModelLogging:
-    """Assert model log messages never contain raw PII."""
+    """
+    Assert model log messages never contain raw PII.
+    Test that model validation failures are logged correctly and securely.
+    """
 
     def test_future_dob_warning_logs_token_not_email(self, caplog, custom_user):
         """Future DOB warning logs a token; raw email must not appear."""
@@ -444,3 +449,26 @@ class TestModelLogging:
 
         assert "token=" in caplog.text
         assert custom_user.email not in caplog.text
+
+    def test_minimum_age_validation_logs_warning(self, caplog):
+        """Verify that under-age validation logs a warning with a token, not raw email."""
+        # Calculate a date of birth for a 10-year-old (under the 13-year limit)
+        underage_dob = timezone.now().date() - timedelta(days=365 * 10)
+        user_email = "underage@example.com"
+
+        # We use build() or manual instantiation because save() calls full_clean()
+        user = CustomUser(
+            username="underage_user", email=user_email, date_of_birth=underage_dob
+        )
+
+        with caplog.at_level("WARNING", logger="users.models"):
+            with pytest.raises(ValidationError):
+                user.full_clean()
+
+        assert "WARNING" in caplog.text
+
+        assert "fails minimum age requirement" in caplog.text
+
+        assert user_email not in caplog.text
+
+        assert "token=" in caplog.text

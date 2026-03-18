@@ -24,26 +24,30 @@ def allergen_food(db):
 
 @pytest.mark.django_db
 class TestAllergenModel:
+    """Tests for the Allergen model constants and representations."""
+
     # Assumption: The AllergenExposure.__str__ method is implemented like this:
     # def __str__(self):
     #     return f"{self.get_category_display()} - {self.get_allergen_name_display()}"
 
-    def test_allergen_str_representation(self, allergen_contact, allergen_food):
+    def test_allergen_str_representation(self, contact_allergen, food_allergen):
+        """Verify that __str__ returns formatted category and allergen labels."""
         # Expected for Contact:
         # Category label: 'Contact/Topical Allergens' (from CATEGORY_CHOICES)
         # Allergen label: 'Sodium Lauryl Sulfate (SLS)' (from SURFACTANT_ALLERGENS)
         assert (
-            str(allergen_contact)
+            str(contact_allergen)
             == "Contact/Topical Allergens: Sodium Lauryl Sulfate (SLS)"
         )
 
         # Expected for Food:
         # Category label: 'Food Allergens' (from CATEGORY_CHOICES)
         # Allergen label: 'Peanut' (from FOOD_ALLERGENS)
-        assert str(allergen_food) == "Food Allergens: Peanut"
+        assert str(food_allergen) == "Food Allergens: Peanut"
 
     # No model instances are needed for this test, as it only checks constants
     def test_category_to_allergens_map(self):
+        """Ensure the global map contains the expected specific allergen choices."""
         # CATEGORY_TO_ALLERGENS_MAP should contain all specific choices under the key
         contact_allergens = CATEGORY_TO_ALLERGENS_MAP.get(CATEGORY_CONTACT, [])
         food_allergens = CATEGORY_TO_ALLERGENS_MAP.get(CATEGORY_FOOD, [])

@@ -106,7 +106,14 @@ class CustomUser(AbstractUser):
                 )
 
             # Check minimum age requirement (COPPA compliance)
-            validate_minimum_age(self.date_of_birth)
+            try:
+                validate_minimum_age(self.date_of_birth)
+            except ValidationError as e:
+                logger.warning(
+                    f"User validation failed [token={email_token(self.email)}]: "
+                    f"date_of_birth {self.date_of_birth} fails minimum age requirement"
+                )
+                raise e
 
     def save(self, *args, **kwargs) -> None:
         """
