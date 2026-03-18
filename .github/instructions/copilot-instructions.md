@@ -1125,7 +1125,720 @@ These principles override convenience:
    - Example: If imports fail, add to dependencies, don't suggest "try installing manually"
 
 3. **Minimal Blast Radius**
-   - Changes should not introduce regressions
+   - Changes should not introduce regre## 🔴 HARD PROHIBITIONS — READ FIRST
+
+   The following are **banned in all generated code** for the current phase. Violations must include a `# Future Refactor:` comment and must not be submitted without explicit user approval:
+
+   | Prohibited Pattern | Why Banned | If Suggested, Must Say |
+   |---|---|---|
+   | `async def` view functions | Not used — all views are synchronous `def` | `# Future Refactor: async views not yet adopted in this project` |
+   | `{% partialdef %}` / `{% partial %}` tags | Template partials not yet adopted | `# Future Refactor: template partials not yet adopted in this project` |
+   | `django.tasks` / `@task` decorator | Background tasks not yet adopted | `# Future Refactor: background tasks not yet adopted in this project` |
+   | `python -m pip install` / bare `pip install` | Always use `uv add` | N/A — never suggest pip directly |
+   | Python 3.14-only features (T-strings, etc.) | Project targets Python 3.13 | N/A — not compatible |
+
+   ---
+
+   # Copilot Instructions: Skincare Allergy Filter
+
+   Purpose: Make AI coding agents productive immediately in this Django repo by
+   documenting the real architecture, workflows, and project-specific conventions.
+
+   ## 🚀 Quick Start for AI Agents
+
+   **Before writing any code, read [`STATUS.md`](STATUS.md) at the project root.**
+
+   `STATUS.md` is the authoritative source for:
+   - Which development gates are complete, in progress, or blocked
+   - The specific tasks currently active
+   - Known gaps in existing files
+
+   `copilot-instructions.md` (this file) documents stable conventions and
+   architecture. It does not change unless the architecture changes.
+   `STATUS.md` changes after every work session.
+
+   ### Key Files Reference
+
+   | File | Purpose | Key Contents |
+   |------|---------|-------------|
+   | [`STATUS.md`](STATUS.md) | Current gate status & active work | Updated after every session |
+   | [`allergies/models.py`](allergies/models.py) | Core data models | `Allergen`, `UserAllergy` with `clean()` validation |
+   | [`conftest.py`](conftest.py) | Test fixtures | `test_user`, `authenticated_client`, `contact_allergen`, `user_allergy` |
+   | [`pyproject.toml`](pyproject.toml) | Project config | Dependencies, Ruff (py313), Mypy, coverage settings |
+   | [`allergies/constants/choices.py`](allergies/constants/choices.py) | Allergen catalog | `CATEGORY_CHOICES`, `FORM_ALLERGIES_CHOICES`, `FLAT_ALLERGEN_LABEL_MAP` |
+   | [`allergies/admin.py`](allergies/admin.py) | Admin interface | Custom actions, fieldsets |
+
+   ### Critical Field Names (Use These Exactly)
+
+   **UserAllergy Model Fields:**
+   - ✅ `severity_level` (CharField: `mild`, `moderate`, `severe`, `life_threatening`) — NOT "severity"
+   - ✅ `is_confirmed` (BooleanField) — NOT "confirmation" or "confirmation_status"
+   - ✅ `source_info` (CharField: `self_reported`, `medical_professional`, `allergy_test`, `family_history`) — NOT "source"
+   - ✅ `user_reaction_details` (JSONField — allowed keys: `symptom`, `severity`, `date` only)
+   - ✅ `admin_notes` (JSONField — allowed keys: `verified_by`, `verification_date` only)
+   - ✅ `symptom_onset_date` (DateField, nullable)
+
+   **Allergen Model Fields:**
+   - `category`, `allergen_key`, `is_active`, `created_at`, `updated_at`
+   - Unique constraint: `(category, allergen_key)`
+
+   **Related names (use these in queries):**
+   - `user.user_allergies` — reverse of `UserAllergy.user` FK
+   - `allergen.user_allergy_entries` — reverse of `UserAllergy.allergen` FK
+
+   ### Python Version & Dependencies
+
+   - **Python:** 3.13 (NOT 3.14 — no T-strings or other 3.14-only features)
+   - **Django:** 6.0
+   - **Package Manager:** `uv` (always use `uv run` commands)
+   - **Ruff Target:** py313
+
+   ---
+
+   ## Big Picture
+
+   - Framework: Django 6.0 + Templates (SQLite in dev).
+   - Language: Python 3.13 (leverage modern type hints with `type` aliases)
+   - Environment & PDM: Standardize on `uv`. Always use `uv run` for management
+     commands or scripts.
+   - Project: `skincare_project/` with apps: `allergies/`, `users/`.
+   - Auth: Custom user `users.CustomUser` (configured via `AUTH_USER_MODEL`).
+   - Domain: Predefined `Allergen` catalog; `UserAllergy` links a user to an
+     `Allergen` with extra fields (`severity_level`, `is_confirmed`, `source_info`,
+     JSON reaction details).
+   - Planned: `AllergenAlias` — a many-to-one table mapping alternate ingredient
+     names (INCI names, common names, abbreviations) to a canonical
+     `Allergen.allergen_key`. All matching logic should be designed to accommodate
+     this lookup stage between tokenization and comparison.
+
+   ---
+
+   ## 📋 Common Commands
+
+   ### Setup & Environment
+
+   ```bash
+   # Install uv (if not already installed)
+   # Windows
+   powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+   # macOS/Linux
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+
+   # Install Python 3.13 and pin version
+   uv python install 3.13
+   uv python pin 3.13
+
+   # Create virtual environment and sync dependencies
+   uv venv
+   uv sync                  # Install base dependencies
+   uv sync --group dev      # Install all dev dependencies (test, lint, type-check, security)
+
+   # Add new dependencies
+   uv add <package>                # Base dependencies
+   uv add --group test <package>   # Test group
+   uv add --group lint <package>   # Lint group
+   ```
+
+   ### Testing Workflow
+
+   ```bash
+   uv run pytest --cov --cov-report=term-missing   # All tests with coverage
+   uv run pytest allergies/tests/test_models.py -v  # Specific file
+   uv run pytest -k test_allergen                   # Pattern match
+   uv run pytest -m "not integration"               # Skip integration tests
+   uv run pytest --cov --cov-report=html            # HTML report (open htmlcov/index.html)
+   uv run pytest -ra                                # Test summary
+   ```
+
+   ### Linting & Formatting
+
+   ```bash
+   uv run ruff check .           # Check
+   uv run ruff check --fix .     # Check and auto-fix
+   uv run ruff format .          # Format
+   uv run pre-commit run --all-files
+   uv run pre-commit install
+   ```
+
+   ### Type Checking
+
+   ```bash
+   uv run mypy allergies users skincare_project
+   uv run mypy .
+   ```
+
+   ### Django Management
+
+   ```bash
+   uv run python manage.py makemigrations
+   uv run python manage.py migrate
+   uv run python manage.py runserver
+   uv run python manage.py createsuperuser
+   uv run python manage.py shell
+   uv run python manage.py showmigrations
+   uv run python manage.py migrate allergies zero   # Rollback example
+   ```
+
+   ### Security & Code Quality
+
+   ```bash
+   uv run bandit -r allergies users skincare_project
+   uv run safety scan --non-interactive
+   uv run python manage.py check --deploy
+   ```
+
+   ---
+
+   ## Architecture & Routing
+
+   - Project URLs: `skincare_project/urls.py`
+     - `''` → `views.home` → `templates/home.html`
+     - `'product/'` → `views.product` → `templates/product.html`
+     - `'allergies/'` → includes `allergies/urls.py` → `allergies_list`
+     - Users app exists but is **not yet included** — add `path('users/', include('users.urls'))` once views have logging and error handling
+   - Templates: Base layout at `templates/layout.html`; all pages `{% extends 'layout.html' %}` and load static
+
+   ---
+
+   ## Data Model Essentials
+
+   - `Allergen` fields: `category` (from `CATEGORY_CHOICES`), `allergen_key`
+     (category-dependent, `choices=[]` in model — filtered in forms), `is_active`.
+     Unique constraint: `(category, allergen_key)`.
+   - `UserAllergy`: `user` → `users.CustomUser`, `allergen` → `Allergen`
+     (+ `severity_level`, `is_confirmed`, `source_info`, JSON fields).
+     Unique constraint: `(user, allergen)`.
+   - **JSONField schemas — use only these keys, never invent new ones:**
+     - `user_reaction_details` → `{"symptom": str, "severity": str, "date": str}`
+       (type alias: `ReactionDetails` in `allergies/models.py`)
+     - `admin_notes` → `{"verified_by": str, "verification_date": str}`
+       (type alias: `AdminNotes` in `allergies/models.py`)
+     - `UserAllergy.clean()` enforces these key sets and will raise `ValidationError`
+       on unknown keys — do not bypass `save()`.
+   - Convenience: `Allergen.allergen_label` maps key → human label via
+     `FLAT_ALLERGEN_LABEL_MAP`.
+
+   ---
+
+   ## Conventions
+
+   - **Lint/Format:** Ruff, target py313. Run `ruff check . --fix` and `ruff format .`.
+   - **Typing:** Python 3.13 `type` statement for aliases; `list[T]`, `dict[K,V]`
+     syntax throughout. All function signatures must have explicit type hints.
+     Use `QuerySet[Allergen]` (not bare `QuerySet`) for ORM annotations.
+   - **Paths:** `pathlib.Path` over `os.path`.
+   - **URLs:** Named routes everywhere (`name='allergies_list'`); `{% url '...' %}`
+     in templates.
+   - **Queries:** Always `.select_related('allergen')` for `UserAllergy` access;
+     filter `is_active=True`.
+   - **Mypy:** If a `ManyToManyField` assignment throws "Incompatible types" on
+     `AbstractUser` overrides, use `# type: ignore[assignment]`.
+
+   ---
+
+   ## Dependency & Environment Management (`uv`)
+
+   - **Execution:** Never ask the user to "activate venv." Use `uv run <command>`.
+   - **Add Packages:** `uv add <package>` for base deps; `uv add --group <name> <package>` for groups (test, lint, type-check, security).
+   - **Syncing:** `uv sync` to ensure the environment matches `uv.lock`.
+   - **Lockfile Commits:** After `uv add`, always commit both `pyproject.toml` and
+     `uv.lock` together. The CI enforces `uv lock --check` — a stale lockfile
+     fails the build.
+   - **Version Pinning:** Respect `.python-version` and `requires-python = ">=3.13"`.
+
+   ---
+
+   ## Logging Standards
+
+   Add `logger = logging.getLogger(__name__)` at module level in **all views,
+   models with business logic, and admin files**.
+
+   ```python
+   import logging
+   logger = logging.getLogger(__name__)
+
+   # Security events — INFO level
+   logger.info(f"User {user.id} created allergy {allergy.id} for allergen {allergen.allergen_key}")
+
+   # Errors — ERROR level with traceback
+   logger.error(f"Failed to process ingredient list: {e}", exc_info=True)
+
+   # Performance — DEBUG level (development only)
+   logger.debug(f"Query took {elapsed}s: {query}")
+   ```
+
+   **GDPR Compliance:** Never log personal data (emails, passwords). Log user IDs only.
+
+   See `LOGGING` in `skincare_project/settings.py` for handler configuration.
+
+   **Gate 2 is complete when:** every view function and admin action file has a
+   module-level logger and logs all CREATE/UPDATE/DELETE events at INFO; exceptions
+   at ERROR with `exc_info=True`.
+
+   ---
+
+   ## Error Handling & Resilience
+
+   ```python
+   from django.db import transaction
+   from django.core.exceptions import ValidationError
+   import logging
+
+   logger = logging.getLogger(__name__)
+
+   @transaction.atomic
+   def create_user_allergy(request):
+       try:
+           user_allergy.full_clean()  # Validates model constraints
+           user_allergy.save()
+           logger.info(f"User {request.user.id} created allergy {user_allergy.id}")
+           return redirect('allergies:list')
+       except ValidationError as e:
+           logger.warning(f"Validation failed for user {request.user.id}: {e}")
+           transaction.set_rollback(True)
+           return render(request, 'form.html', {'error': str(e)})
+       except Exception as e:
+           logger.error(f"Unexpected error: {e}", exc_info=True)
+           transaction.set_rollback(True)
+           return render(request, 'error.html', {'message': 'Something went wrong'})
+   ```
+
+   ⚠️ When catching exceptions inside `@transaction.atomic`, you **must** either
+   re-raise or call `transaction.set_rollback(True)`. Otherwise Django commits
+   even after an exception.
+
+   - **Custom Exceptions:** `allergies/exceptions.py` — `AllergenNotFoundError`,
+     `InvalidIngredientError`. Verify this file exists before implementing views.
+   - **Validation:** Never let `ValidationError` become a 500. Use `full_clean()`
+     before `save()`.
+
+   **Gate 3 is complete when:** all view functions have `try/except` with
+   user-friendly error rendering, `@transaction.atomic` on all writes, and
+   `allergies/exceptions.py` exists with domain exception classes.
+
+   ---
+
+   ## Forms & User Input Validation
+
+   **Do not implement forms until Gates 2 and 3 are complete.** Check
+   [`STATUS.md`](STATUS.md) for current gate state before starting.
+
+   ### ModelForm Pattern
+
+   ```python
+   # allergies/forms.py (to be created at Gate 4)
+   from django import forms
+   from django.core.exceptions import ValidationError
+   from allergies.models import UserAllergy, Allergen
+   import logging
+
+   logger = logging.getLogger(__name__)
+
+   class UserAllergyForm(forms.ModelForm):
+       class Meta:
+           model = UserAllergy
+           fields = ['allergen', 'severity_level', 'is_confirmed', 'source_info',
+                     'user_reaction_details']
+           widgets = {
+               'user_reaction_details': forms.Textarea(attrs={'rows': 3}),
+           }
+
+       def __init__(self, *args, **kwargs):
+           super().__init__(*args, **kwargs)
+           self.fields['allergen'].queryset = Allergen.objects.filter(is_active=True)
+
+       def clean(self):
+           cleaned_data = super().clean()
+           severity_level = cleaned_data.get('severity_level')
+           if severity_level == 'severe' and not cleaned_data.get('is_confirmed'):
+               logger.warning("Severe allergy submitted without confirmation")
+               raise ValidationError("Severe allergies require confirmation")
+           return cleaned_data
+   ```
+
+   ### Dynamic Category → Allergen Filtering
+
+   The `allergen_key` choices depend on `category`. The recommended approach is a
+   small JSON view (`get_allergen_keys`) that returns choices for a given category,
+   called via plain JavaScript `fetch`. This avoids new dependencies and fits the
+   current no-HTMX, no-partials constraint.
+
+   ### Validation Order
+
+   1. `Form.clean()` — cross-field validation
+   2. `Model.clean()` — model-level constraints (`UserAllergy.clean()` enforces
+      JSONField key discipline and future date rejection)
+   3. `Model.save()` — database constraints (unique together, foreign keys)
+
+   Always call `form.is_valid()` before accessing `form.cleaned_data`.
+
+   ### CSRF Protection
+
+   - Always include `{% csrf_token %}` in POST forms.
+   - For JavaScript POST requests, include `X-CSRFToken` header from `getCookie('csrftoken')`.
+
+   ### Form Error Display
+
+   ```html
+   {% if form.errors %}
+       <div class="error-messages">
+           {{ form.non_field_errors }}
+           {% for field in form %}
+               {% if field.errors %}
+                   <p>{{ field.label }}: {{ field.errors }}</p>
+               {% endif %}
+           {% endfor %}
+       </div>
+   {% endif %}
+   ```
+
+   ---
+
+   ## Security Hardening (Production)
+
+   See [`docs/SECURITY.md`](docs/SECURITY.md) for comprehensive guidance.
+
+   ```python
+   # settings.py pattern — conditional on DEBUG=False
+   if not DEBUG:
+       SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=True)
+       SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=True)
+       CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', default=True)
+       SECURE_HSTS_SECONDS = env.int('SECURE_HSTS_SECONDS', default=31536000)
+   ```
+
+   Never commit `.env`. Use `.env.example` as template.
+
+   ---
+
+   ## Migration Workflow
+
+   ### Schema Migrations
+
+   ```bash
+   # Always pass --name — auto-generated names are rejected by pre-commit hook
+   uv run python manage.py makemigrations allergies --name describe_the_change
+   uv run python manage.py migrate
+   ```
+
+   Commit the model changes and the migration file together.
+
+   ### Data Migrations (Allergen Catalog Seeding)
+
+   ```bash
+   uv run python manage.py makemigrations --empty allergies --name seed_allergens
+   # Edit the generated file, then:
+   uv run python manage.py migrate
+   ```
+
+   ```python
+   # Pattern for seeding Allergen catalog from choices.py
+   def seed_allergens(apps, schema_editor):
+       Allergen = apps.get_model('allergies', 'Allergen')
+       from allergies.constants.choices import FORM_ALLERGIES_CHOICES
+
+       for category_key, _, choice_list in FORM_ALLERGIES_CHOICES:
+           for key, label in choice_list:
+               Allergen.objects.get_or_create(
+                   category=category_key,
+                   allergen_key=key,
+                   defaults={'is_active': True}
+               )
+
+   def reverse_seed(apps, schema_editor):
+       apps.get_model('allergies', 'Allergen').objects.all().delete()
+
+   class Migration(migrations.Migration):
+       dependencies = [('allergies', '0002_initial')]  # adjust to latest
+       operations = [migrations.RunPython(seed_allergens, reverse_seed)]
+   ```
+
+   ⚠️ `choices.py` must be complete (no stub comments) before this migration is
+   written. Check [`STATUS.md`](STATUS.md) → Known Gaps.
+
+   ### Migration Conflicts
+
+   ```bash
+   git pull origin main
+   uv run python manage.py showmigrations
+   uv run python manage.py makemigrations --merge
+   uv run python manage.py migrate
+   ```
+
+   ---
+
+   ## Admin Customization Patterns
+
+   ```python
+   class UserAllergyAdmin(admin.ModelAdmin):
+       list_display = ['user', 'allergen', 'severity_level', 'is_active']
+       list_select_related = ['user', 'allergen']  # Avoid N+1
+
+   @admin.action(description="Deactivate selected allergens")
+   def deactivate_allergens(modeladmin, request, queryset):
+       logger.info(f"Admin {request.user.id} deactivating {queryset.count()} allergens")
+       queryset.update(is_active=False)
+   ```
+
+   - Mark `created_at`, `updated_at` as `readonly_fields`.
+   - All admin actions must have logging (Gate 2 requirement).
+
+   ---
+
+   ## 🧪 Testing & Fixture Reference
+
+   ### Coverage Thresholds by Gate
+
+   | Gate | Overall Minimum | New Code Minimum |
+   |------|----------------|------------------|
+   | Gates 1–3 | 75% | 75% |
+   | Gate 4 | 75% | 80% |
+   | Gate 5 | 80% | 80% |
+
+   ### Fixture Reference (`conftest.py`)
+
+   **✅ Use these fixtures:**
+
+   | Fixture | Creates | Use Case |
+   |---------|---------|----------|
+   | `test_user` | CustomUser | Standard authenticated user |
+   | `user_email` | String | Email for test users |
+   | `user_password` | String | Auto-dependency of `test_user` |
+   | `authenticated_client` | Client (logged in) | Auth-required views |
+   | `contact_allergen` | Allergen (SLS) | Contact/topical allergen |
+   | `food_allergen` | Allergen (Peanut) | Food allergen |
+   | `user_allergy` | UserAllergy | Linked user→allergen |
+
+   **⚠️ Deprecated (backward compat only — do not use in new tests):**
+   `custom_user` → use `test_user` | `allergen_contact` → use `contact_allergen` | `allergen_food` → use `food_allergen`
+
+   ### Test File Organization
+
+   ```
+   allergies/tests/
+   ├── __init__.py
+   ├── test_models.py               # Allergen + UserAllergy model tests
+   ├── test_views.py                # View tests (GET, POST, auth redirect)
+   ├── test_admin_error_handling.py # Admin action error scenarios
+   └── test_exceptions.py           # Custom exception tests
+
+   users/
+   └── tests.py                     # CustomUser model tests
+   ```
+
+   ### Example: Model Test
+
+   ```python
+   @pytest.mark.django_db
+   class TestAllergenModel:
+       def test_allergen_str_representation(self, contact_allergen, food_allergen):
+           assert str(contact_allergen) == "Contact/Topical Allergens: Sodium Lauryl Sulfate (SLS)"
+           assert str(food_allergen) == "Food Allergens: Peanut"
+   ```
+
+   ### Example: View Test
+
+   ```python
+   @pytest.mark.django_db
+   class TestAllergiesListView:
+       def test_authenticated_access_succeeds(self, authenticated_client):
+           response = authenticated_client.get(reverse("allergies:list"))
+           assert response.status_code == 200
+
+       def test_unauthenticated_access_redirects(self, client):
+           response = client.get(reverse("allergies:list"))
+           assert response.status_code == 302
+           assert "/accounts/login/" in response.url
+   ```
+
+   ### Test Markers
+
+   Only registered markers may be used (`--strict-markers` enforced in `pyproject.toml`):
+   `unit` | `integration` | `slow`
+
+   ---
+
+   ## 🗄️ Database State & Migration Strategy
+
+   - **Development:** SQLite (`db.sqlite3`)
+   - **CI/CD:** Fresh SQLite per test run
+   - **Schema tracking:** `allergies/migrations/`, `users/migrations/`
+
+   ### Fresh Database Setup
+
+   ```bash
+   cp db.sqlite3 db.sqlite3.backup  # Back up first
+   rm db.sqlite3
+   uv run python manage.py migrate
+   uv run python manage.py createsuperuser
+   ```
+
+   ### Rollback
+
+   ```bash
+   uv run python manage.py migrate allergies zero           # Full rollback
+   uv run python manage.py migrate allergies 0001_initial   # Specific migration
+   uv run python manage.py showmigrations
+   uv run python manage.py migrate --plan
+   ```
+
+   ---
+
+   ## Current Patterns vs. Future Features
+
+   ### ✅ Use These Now
+
+   - **Synchronous Views:** All views are `def` — never `async def`
+   - **Traditional Templates:** `{% extends 'layout.html' %}` and `{% include %}` — never `{% partialdef %}`
+   - **SQLite in dev, PostgreSQL in prod**
+   - **`uv` for all package management**
+   - **Ruff + Mypy enforced in pre-commit**
+
+   ### 🚧 Future Only — Do Not Use
+
+   | Feature | Status | When to Consider |
+   |---------|--------|-----------------|
+   | `async def` views | ⚠️ NOT USED | External API integration (product scanning) |
+   | `{% partialdef %}` / `{% partial %}` | ⚠️ NOT USED | If HTMX is adopted |
+   | `django.tasks` / `@task` | ⚠️ NOT USED | Email notifications, data cleanup |
+   | Django 6.0 Form Field Groups | ⚠️ NOT USED | Complex multi-section forms |
+
+   When suggesting these to users: acknowledge the capability exists, clarify it
+   is not used here, recommend the current synchronous/traditional pattern.
+
+   ---
+
+   ## Coding Standards (Ruff & Mypy)
+
+   - Ruff target: py313. Use `_` for unused variables in tuple unpacking.
+   - Run `uv run mypy .` before committing logic changes to models or views.
+   - All new functions must have explicit type hints — no bare `QuerySet`, use `QuerySet[Allergen]`.
+   - `# type: ignore[assignment]` is acceptable for `ManyToManyField` on `AbstractUser` overrides.
+
+   ---
+
+   ## CI/CD
+
+   - CI enforces `.python-version` and `uv lock --check`. Sync lockfile before committing.
+   - Gate 1 (Lint): Ruff + Mypy pre-commit must pass.
+   - Gate 2 (Test): Pytest suite must pass.
+   - Gate 3 (Coverage): 75% minimum (current phase). See coverage thresholds table above.
+   - If CI fails on "Static Analysis", fix Ruff/Mypy errors before touching logic.
+
+   ---
+
+   ## Extension Points
+
+   - **Product safety check POST handler** (`skincare_project/views.py` `product` view):
+     1. Parse and tokenize the raw ingredient string (comma-split, strip whitespace, lowercase)
+     2. Resolve aliases via `AllergenAlias` lookup (planned — design the service layer to accept this as an injectable step so Phase 1 exact matching works without it)
+     3. Compare resolved keys against active `UserAllergy` for `request.user`
+     4. Return matches with `severity_level`, `source_info`, `user_reaction_details`
+     - **Blocked** until logging and error handling exist in this file. See [`STATUS.md`](STATUS.md).
+   - **Users app routing:** add `path('users/', include('users.urls'))` once views have logging and error handling
+
+   ---
+
+   ## Practical Snippets
+
+   ```python
+   # Active allergens ordered
+   from allergies.models import Allergen
+   Allergen.objects.filter(is_active=True).order_by('category', 'allergen_key')
+
+   # Current user allergies with labels
+   # Phase 1: exact allergen_key match only.
+   # Phase 2 (Synonym Mapper): resolve ingredient tokens to canonical allergen_keys
+   # via AllergenAlias before this filter — do not extend this snippet until that model exists.
+   from allergies.models import UserAllergy
+   qs = UserAllergy.objects.select_related('allergen').filter(user=request.user, is_active=True)
+   for ua in qs:
+       label = ua.allergen.allergen_label
+   ```
+
+   ---
+
+   ## Gotchas
+
+   - `allergen_key` choices are category-dependent; `choices=[]` in the model is
+     intentional — filtering happens in forms.
+   - `UserAllergy.clean()` runs automatically via `save()` override — never call
+     `save()` directly without going through `full_clean()`. The JSON key guard in
+     `clean()` will reject unknown keys.
+   - **Migration naming:** Always pass `--name`. Auto-generated names like
+     `0004_auto_<timestamp>` are rejected by the `enforce-migration-naming`
+     pre-commit hook.
+   - **JSONField key discipline:** Only use canonical keys from model `help_text`
+     and type aliases (`ReactionDetails`, `AdminNotes`). Inventing new keys
+     silently corrupts existing data.
+   - Static files served from `static/` with `STATICFILES_DIRS` in settings.
+
+   ---
+
+   ## AI Agent Behavior & Quality Standards
+
+   ### Gate Enforcement
+
+   Read [`STATUS.md`](STATUS.md) first. Do not implement Gate N work if Gate N-1
+   is incomplete. Violations:
+   - ❌ New view without logging → reject, complete Gate 2 first
+   - ❌ Feature without error handling → reject, complete Gate 3 first
+   - ❌ Form without tests → reject, add tests before marking done
+
+   ### Verification Before Marking Complete
+
+   Never mark a task done without:
+   1. Opening the actual source file and confirming the code is there
+   2. Running `uv run pytest` for affected modules
+   3. Running `ruff check . --fix` and `ruff format .`
+   4. Running `mypy .`
+   5. Running `bandit -r . -ll` if models or views changed
+   6. Updating [`STATUS.md`](STATUS.md) — not this file
+
+   ### Core Principles
+
+   1. **Simplicity First** — minimal changes for maximum impact; don't refactor
+      unrelated code in the same commit
+   2. **Root Cause** — no temporary fixes; trace to source
+   3. **Minimal Blast Radius** — use `.select_related()`, test adjacent
+      functionality if uncertain
+   4. **Senior Engineer Standards** — docstrings for non-obvious logic; no debug
+      statements or print() calls committed
+
+   ### Autonomous Bug Fixing
+
+   1. Parse error logs / stack traces without asking for clarification
+   2. Trace to root cause
+   3. Implement fix respecting gate order
+   4. Run tests to verify
+   5. Document non-obvious fixes with inline comments
+   6. Stop and request guidance if the same CI job fails 3+ times
+
+   ### Error Context
+
+   | Error Type | Where to Look |
+   |-----------|--------------|
+   | Dependency | `pyproject.toml` dependency groups |
+   | Import | Verify `uv sync` ran; check `.python-version` |
+   | Model | `allergies/models.py`, `users/models.py` |
+   | Validation | `allergies/constants/choices.py` `CATEGORY_CHOICES` |
+   | Test | `pytest.ini` markers; `conftest.py` fixtures |
+   | Type | `[tool.mypy]` and `[tool.django-stubs]` in `pyproject.toml` |
+
+   ---
+
+   ## Type Checking (Mypy)
+
+   - Config: `[tool.mypy]` and `[tool.django-stubs]` in `pyproject.toml` are the source of truth.
+   - Use `QuerySet[Allergen]` / `Manager[Allergen]` for ORM type hints.
+   - Run `mypy .` before committing logic changes to `allergies/models.py`.
+   - If pre-commit fails on type errors, run `mypy .` locally to debug.
+
+   ---
+
+   *This file documents stable architecture and conventions.*
+   *For current gate status and active work items, see [`STATUS.md`](STATUS.md).*
+   ssions
    - Use `.select_related()` when adding queries to avoid N+1 issues
    - Test adjacent functionality if uncertain about impact
    - Example: Changing `Allergen.allergen_key` validation → test all `UserAllergy` creation flows
