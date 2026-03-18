@@ -67,6 +67,9 @@ environments = ["platform_system == 'Windows'", "platform_system != 'Windows'"]
 url = "https://pkgs.safetycli.com/repository/public/pypi/simple/"
 default = true
 
+[tool.uv.scripts]
+tree = "python -c \"import pathlib; [print('  ' * (len(p.parts)-1) + '|-- ' + p.name) for p in pathlib.Path('.').rglob('*') if not any(x in p.parts for x in ['.venv', '.git', '__pycache__', 'node_modules', '.pytest_cache'])]\""
+
 # ============================================================================
 # PEP 735 Dependency Groups
 # ============================================================================
