@@ -106,6 +106,8 @@ These are the specific tasks to complete **right now**, in order:
 | `allergies/tests/test_models.py` | Some `Allergen` tests exist | `UserAllergy` tests missing — confirmed TODO at L59 |
 | `users/tests.py` | 382 lines exist | Scope of coverage unknown — audit required |
 | `allergies/exceptions.py` | May or may not exist | Contents unverified |
+| `allergies/constants/choices.py` display maps | `FLAT_ALLERGEN_LABEL_MAP`, `CATEGORY_TO_ALLERGENS_MAP`, and `FORM_ALLERGIES_CHOICES` are built from static tuples at import time | Any allergen added via the admin panel won't appear in these maps — silent divergence between DB and display layer. Acceptable while admin is seed-only. Post-Gate 4, allergen labels and category groupings must be read from the database, not this file. Treat this file's role as shrinking after the seed migration lands. |
+| `ChoiceItem` type alias in `choices.py` | Defined as `tuple[str, str]` | Mypy won't catch a malformed entry like `("glycolic_acid",)` — tuple covariance + `...` weakens the check. Runtime crash is the first signal. Fix at Gate 4 when form rendering makes this a live risk: replace `ChoiceItem` with a `TypedDict` or `NamedTuple` with named fields `value` and `label`, which mypy checks strictly. |
 
 ---
 
@@ -122,6 +124,27 @@ These cannot be started until the gates above are done:
 ## Planned (Post-Gates, Not Started)
 
 - **Synonym Mapper / `AllergenAlias` model** — many-to-one table mapping all known surface forms of an ingredient (INCI name, common name, abbreviation) to a canonical `allergen_key`. No model, migration, service layer, or design document exists yet. Required before the product safety check can be considered production-accurate.
+
+- **`choices.py` file split (`categories.py` + `allergens.py`)** — Currently
+  blocked by `models.py` importing `FLAT_ALLERGEN_LABEL_MAP` for `__str__`.
+  Split becomes clean only after the seed migration adds a `label` field to
+  `Allergen` and `__str__` switches to `self.label`, dropping the map import.
+  Do not split before that migration exists.
+
+- **`FORM_ALLERGIES_CHOICES` 3-tuple structure** — Correct for Gate 4. The
+  `(category_key, optgroup_label, choices_list)` structure maps to Django
+  `<optgroup>` rendering and correctly supports multiple optgroups per database
+  category (e.g. "Acids & Exfoliants" and "Botanicals" both under `contact`).
+  Do not change this structure at Gate 4.
+
+  Will need replacement — not refactoring — if the allergen catalog grows beyond
+  ~100 entries and a flat `<select>` becomes poor UX. At that point, switch to
+  an autocomplete widget (e.g. Select2) backed by a JSON endpoint querying the
+  `Allergen` table directly. When that happens, `FORM_ALLERGIES_CHOICES` becomes
+  irrelevant and can be deleted. That is a UX decision, not an architecture one.
+
+  Synonyms (`AllergenAlias`) never belong in this structure — they live in the
+  matching pipeline, which is a separate code path from the form.
 
 ---
 
@@ -142,4 +165,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/19/2026 1:28 AM manually — update this line after each work session.*
+*Last updated: 3/19/2026 5:07 PM manually — update this line after each work session.*

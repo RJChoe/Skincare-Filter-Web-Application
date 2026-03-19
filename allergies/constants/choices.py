@@ -262,6 +262,54 @@ FORM_ALLERGIES_CHOICES: list[AllergyChoice] = [
     (CATEGORY_OTHER, "Other General Contact", OTHER_ALLERGENS),
 ]
 
+
+def _assert_allergen_tuples_well_formed(
+    form_choices: Iterable[AllergyChoice],
+) -> None:
+    for group_index, group in enumerate(form_choices):
+        if not isinstance(group, tuple) or len(group) != 3:
+            raise AssertionError(
+                f"Malformed group at index {group_index} in FORM_ALLERGIES_CHOICES:"
+                f" expected a 3-tuple (category_key, label, choices), got {group!r}"
+            )
+        _, optgroup_label, choice_list = group
+        for item_index, item in enumerate(choice_list):
+            if (
+                not isinstance(item, tuple)
+                or len(item) != 2
+                or not all(isinstance(s, str) for s in item)
+            ):
+                raise AssertionError(
+                    f"Malformed entry at index {item_index} in group {optgroup_label!r}:"
+                    f" expected a 2-tuple of strings (allergen_key, label), got {item!r}"
+                )
+
+
+def _assert_allergen_keys_unique(
+    form_choices: Iterable[AllergyChoice],
+) -> None:
+    seen: dict[str, str] = {}  # allergen_key -> first optgroup label
+    duplicates: list[str] = []
+
+    for _, optgroup_label, choice_list in form_choices:
+        for allergen_key, _ in choice_list:
+            if allergen_key in seen:
+                duplicates.append(
+                    f"  {allergen_key!r}: first seen in {seen[allergen_key]!r},"
+                    f" also in {optgroup_label!r}"
+                )
+            else:
+                seen[allergen_key] = optgroup_label
+
+    if duplicates:
+        raise AssertionError(
+            "Duplicate allergen keys detected across groups:\n" + "\n".join(duplicates)
+        )
+
+
+_assert_allergen_tuples_well_formed(FORM_ALLERGIES_CHOICES)
+_assert_allergen_keys_unique(FORM_ALLERGIES_CHOICES)
+
 # --- Inverse Map (Category -> Specific Choices) ---
 # Maps category_key -> list of (specific_key, specific_label)
 

@@ -66,6 +66,27 @@ class AllergenAdmin(admin.ModelAdmin):
     actions = [deactivate_allergens, activate_allergens]
 ```
 
+## ⚠️ Admin is Seed-Only Until Gate 4
+
+Adding a novel `allergen_key` via the admin panel will create a database row
+but the allergen **will not appear** in:
+- `FLAT_ALLERGEN_LABEL_MAP` (used by `Allergen.__str__` and `allergen_label`)
+- `CATEGORY_TO_ALLERGENS_MAP` (used by form rendering)
+- `FORM_ALLERGIES_CHOICES` (used by the user-facing allergy selection form)
+
+These maps are built from static tuples in `choices.py` at import time, not
+from the database. Any key not in those tuples will display its raw key string
+instead of a human-readable label, and will be invisible to users in the form.
+
+**Until the seed migration lands and the display layer is database-driven,
+treat this admin as seed-only.** Use it to manage the seeded catalog
+(activate/deactivate, audit), not to introduce new allergen keys.
+
+This gap closes automatically when:
+1. `Allergen.label` field is added in the seed migration
+2. `__str__` and `allergen_label` switch to `self.label`
+3. Form choices are queried from the DB instead of `choices.py`
+
 ## GDPR Note
 
 Admin actions that touch user data must log only `request.user.id` — never
