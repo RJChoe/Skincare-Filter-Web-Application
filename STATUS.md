@@ -91,7 +91,7 @@ These are the specific tasks to complete **right now**, in order:
 3. **Add logging to `skincare_project/views.py`** — same pattern; required before product safety POST handler can be implemented
 4. **Verify/create `allergies/exceptions.py`** — must contain `AllergenNotFoundError` and `InvalidIngredientError`
 5. **Add `try/except` + `@transaction.atomic` to all views** — follow pattern in `copilot-instructions.md` → Error Handling & Resilience section
-6. **Complete `choices.py`** — remove all `# ... and so on` stubs; fill in full INCI-grounded ingredient lists per allergen group (prerequisite for allergen catalog seeding migration)
+6. **Complete `choices.py`** — remove all `# ... and so on` stubs; fill in full EU Annex III 2023-grounded ingredient lists per allergen group (prerequisite for allergen catalog seeding migration)
 
 ---
 
