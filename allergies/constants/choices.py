@@ -262,6 +262,31 @@ FORM_ALLERGIES_CHOICES: list[AllergyChoice] = [
     (CATEGORY_OTHER, "Other General Contact", OTHER_ALLERGENS),
 ]
 
+
+def _assert_allergen_keys_unique(
+    form_choices: Iterable[AllergyChoice],
+) -> None:
+    seen: dict[str, str] = {}  # allergen_key -> first optgroup label
+    duplicates: list[str] = []
+
+    for _, optgroup_label, choice_list in form_choices:
+        for allergen_key, _ in choice_list:
+            if allergen_key in seen:
+                duplicates.append(
+                    f"  {allergen_key!r}: first seen in {seen[allergen_key]!r},"
+                    f" also in {optgroup_label!r}"
+                )
+            else:
+                seen[allergen_key] = optgroup_label
+
+    if duplicates:
+        raise AssertionError(
+            "Duplicate allergen keys detected across groups:\n" + "\n".join(duplicates)
+        )
+
+
+_assert_allergen_keys_unique(FORM_ALLERGIES_CHOICES)
+
 # --- Inverse Map (Category -> Specific Choices) ---
 # Maps category_key -> list of (specific_key, specific_label)
 
