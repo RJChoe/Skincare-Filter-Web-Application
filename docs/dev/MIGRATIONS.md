@@ -2,7 +2,7 @@
 
 ## Rules
 
-- **Always pass `--name`** to makemigrations — This applies to both allergies/ and users/ apps (including --merge output). The enforce-migration-naming pre-commit hook (Stage 7) rejects auto-generated names matching `^\d{4}_auto_\d+\.py$`.; it will block any commit that doesn't follow this naming convention.
+- **Always pass `--name`** to makemigrations — This applies to both allergies/ and users/ apps (including --merge output). The enforce-migration-naming pre-commit hook (Stage 7) rejects auto-generated names matching `^\d{4}_auto_\d+\.py$` and will block any commit that doesn't follow this naming convention.
 - **Commit model + migration together** — never commit one without the other.
 - **After every model change**, remind yourself:
   ```bash
@@ -47,6 +47,9 @@ See STATUS.md → Known Gaps (Item 6) for the current resolution status of choic
 **WARNING**
 Do not run seeding migrations until the stubs in allergies/constants/choices.py are fully resolved. Running this against incomplete lists will result in a partial catalog without triggering a validation error.
 
+1. Finish writing your model tests and run `uv run pytest`. All tests must pass.
+2. Create the data migration: `uv run python manage.py makemigrations --empty allergies --name seed_allergens`
+3. Edit the generated file, then run `uv run python manage.py migrate`.
 
 ```bash
 # (Blocked) Seed allergen catalog — do not run until choices.py stubs are
@@ -111,10 +114,6 @@ When bypassing validation, you are responsible for ensuring data conforms to the
 Use `bulk_create(objs, ignore_conflicts=False)` for seeding to ensure that
 genuine integrity errors (like unique constraint violations) are still caught
 while bypassing the `save()`-based validation logic.
-
-1. Finish writing your model tests and run `uv run pytest`. All tests must pass.
-2. Create the data migration: `uv run python manage.py makemigrations --empty allergies --name seed_allergens`
-3. Edit the generated file, then run `uv run python manage.py migrate`.
 
 ## Rollback
 
