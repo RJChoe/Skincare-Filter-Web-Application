@@ -1,12 +1,12 @@
 ## 🔴 HARD PROHIBITIONS — READ FIRST
 
-| Prohibited Pattern | Reason | Required Comment |
-|---|---|---|
-| `async def` view functions | All views are synchronous `def` | `# Future Refactor: async views not yet adopted` |
-| `{% partialdef %}` / `{% partial %}` | Template partials not yet adopted | `# Future Refactor: template partials not yet adopted` |
-| `django.tasks` / `@task` | Background tasks not yet adopted | `# Future Refactor: background tasks not yet adopted` |
-| `pip install` / `python -m pip install` | Always use `uv add` | N/A |
-| Python 3.14-only features (T-strings, etc.) | Project targets Python 3.13 | N/A |
+| Prohibited Pattern | Reason | Required Comment | Lift Condition |
+|---|---|---|---|
+| `async def` view functions | All views are synchronous `def` | `# Future Refactor: async views not yet adopted`| When product safety check requires external API calls |
+| `{% partialdef %}` / `{% partial %}` | Template partials not yet adopted | `# Future Refactor: template partials not yet adopted` |When HTMX is formally adopted |
+| `django.tasks` / `@task` | Background tasks not yet adopted | `# Future Refactor: background tasks not yet adopted` | When email notifications or scheduled data cleanup are scoped.|
+| `pip install` / `python -m pip install` | Always use `uv add` | N/A | Never |
+| Python 3.14-only features (T-strings, etc.) | Project targets Python 3.13 | N/A | When `.python-version` is updated to 3.14 |
 
 ---
 
@@ -42,6 +42,9 @@ Django 6.0 · Python 3.13 · SQLite (dev) · `uv` for all package management.
 Unique constraint: `(category, allergen_key)`. `allergen_key` has intentional `choices=[]`
 in the model — filtering happens in forms, not the model field.
 
+**`allergen_key` naming rule:** Keys must be lowercase, underscore-separated, and URL-safe.
+No apostrophes, hyphens, spaces, or special characters. Example: `birch_pollen` ✅ · `lamb's_quarters` ❌
+
 **Related names:** `user.user_allergies` · `allergen.user_allergy_entries`
 
 **JSONField discipline:** `UserAllergy.clean()` rejects unknown keys. Never invent new ones.
@@ -65,6 +68,7 @@ uv run pytest --cov --cov-report=term-missing
 uv run ruff check . --fix && uv run ruff format .
 uv run mypy .
 uv run bandit -r allergies users skincare_project
+uv run safety scan --non-interactive
 ```
 
 ## Current vs. Future Patterns

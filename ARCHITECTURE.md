@@ -59,7 +59,7 @@ _Disclaimer: This tool is not a substitute for professional medical advice._
 3. **Normalization:** Convert all tokens to lowercase and strip whitespace to ensure consistent matching (e.g., "Almond Oil" matches "almond oil").
 4. **Matching:** Cross-reference normalized tokens against the UserAllergen database to determine if any allergens are present.
     - **Note on Future Normalization:** Plan for a "Synonym Mapper" (e.g., Vitamin C → Ascorbic Acid). The system should eventually support many-to-one aliases for ingredients.
-5. **Alias Resolution (Planned — Synonym Mapper)**: Before matching, resolve each normalized token against a many-to-one alias table. All known surface forms of a compound (INCI name, common name, abbreviation) map to a single canonical allergen_key. This stage is deliberately separated from normalization so it can be developed, tested, and toggled independently.
+5. **Alias Resolution (Planned — Synonym Mapper)**: Before matching, resolve each normalized token against a many-to-one alias table. All known surface forms of a compound (EU Annex III 2023, common name, abbreviation) map to a single canonical allergen_key. This stage is deliberately separated from normalization so it can be developed, tested, and toggled independently.
 
 **Verdict:**
 - “Search & Destroy” Logic: Prioritize the core matching algorithm. The system’s primary goal is rapid identification of blacklisted ingredients. Once an allergen is detected, the process should immediately flag the product as "Unsafe" and identify the offending ingredient.
@@ -91,7 +91,7 @@ _Disclaimer: This tool is not a substitute for professional medical advice._
 ## Third-Party Integrations
 - **OCR Engine:** (If used) e.g., Tesseract or Google Vision for ingredient extraction from images.
   - _Note: Specify in this section if/when integrated._
-- **Ingredient Databases:** (If used) e.g., INCI or other public ingredient lists.
+- **Ingredient Databases:** (If used) e.g., EU Annex III 2023.
 - **Security/Testing:**
   - [django-environ](https://django-environ.readthedocs.io/) for environment management
   - [pytest](https://docs.pytest.org/) for testing

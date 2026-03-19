@@ -6,7 +6,7 @@ Disclaimer: This app is a helper tool and not a substitute for professional medi
 ---
 
 ## Project Overview
-The Skincare Allergy Filter provides an instant safety check by cross-referencing product ingredient lists against a user's personal allergen profile to flag potential sensitivities. The next milestone is the implementation of the Synonym Mapper, an intelligent alias-aware engine designed to resolve the industry-wide problem of ingredient labeling variability by mapping chemical synonyms and INCI names to single canonical allergens.
+The Skincare Allergy Filter provides an instant safety check by cross-referencing product ingredient lists against a user's personal allergen profile to flag potential sensitivities. The next milestone is the implementation of the Synonym Mapper, an intelligent alias-aware engine designed to resolve the industry-wide problem of ingredient labeling variability by mapping chemical synonyms and EU Annex III 2023 names to single canonical allergens.
 
 ---
 
