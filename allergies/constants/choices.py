@@ -263,6 +263,28 @@ FORM_ALLERGIES_CHOICES: list[AllergyChoice] = [
 ]
 
 
+def _assert_allergen_tuples_well_formed(
+    form_choices: Iterable[AllergyChoice],
+) -> None:
+    for group_index, group in enumerate(form_choices):
+        if not isinstance(group, tuple) or len(group) != 3:
+            raise AssertionError(
+                f"Malformed group at index {group_index} in FORM_ALLERGIES_CHOICES:"
+                f" expected a 3-tuple (category_key, label, choices), got {group!r}"
+            )
+        _, optgroup_label, choice_list = group
+        for item_index, item in enumerate(choice_list):
+            if (
+                not isinstance(item, tuple)
+                or len(item) != 2
+                or not all(isinstance(s, str) for s in item)
+            ):
+                raise AssertionError(
+                    f"Malformed entry at index {item_index} in group {optgroup_label!r}:"
+                    f" expected a 2-tuple of strings (allergen_key, label), got {item!r}"
+                )
+
+
 def _assert_allergen_keys_unique(
     form_choices: Iterable[AllergyChoice],
 ) -> None:
@@ -285,6 +307,7 @@ def _assert_allergen_keys_unique(
         )
 
 
+_assert_allergen_tuples_well_formed(FORM_ALLERGIES_CHOICES)
 _assert_allergen_keys_unique(FORM_ALLERGIES_CHOICES)
 
 # --- Inverse Map (Category -> Specific Choices) ---
