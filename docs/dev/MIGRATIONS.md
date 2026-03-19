@@ -45,7 +45,7 @@ The canonical related names as of `0001_initial` are:
 
 Status: ⚠️ BLOCKED Data migrations for the allergen catalog are currently blocked by incomplete choice lists.
 
-See STATUS.md → Known Gaps (Item 6) for the current resolution status of choices.py stubs.
+See [STATUS.md](../../STATUS.md) → Known Gaps (Item 6) for the current resolution status of `choices.py` stubs.
 
 **WARNING**
 Do not run seeding migrations until the stubs in allergies/constants/choices.py are fully resolved. Running this against incomplete lists will result in a partial catalog without triggering a validation error.
