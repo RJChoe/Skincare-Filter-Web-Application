@@ -107,6 +107,8 @@ These are the specific tasks to complete **right now**, in order:
 | `users/tests.py` | 382 lines exist | Scope of coverage unknown — audit required |
 | `allergies/exceptions.py` | May or may not exist | Contents unverified |
 | `allergies/constants/choices.py` display maps | `FLAT_ALLERGEN_LABEL_MAP`, `CATEGORY_TO_ALLERGENS_MAP`, and `FORM_ALLERGIES_CHOICES` are built from static tuples at import time | Any allergen added via the admin panel won't appear in these maps — silent divergence between DB and display layer. Acceptable while admin is seed-only. Post-Gate 4, allergen labels and category groupings must be read from the database, not this file. Treat this file's role as shrinking after the seed migration lands. |
+| `ChoiceItem` type alias in `choices.py` | Defined as `tuple[str, str]` | Mypy won't catch a malformed entry like `("glycolic_acid",)` — tuple covariance + `...` weakens the check. Runtime crash is the first signal. Fix at Gate 4 when form rendering makes this a live risk: replace `ChoiceItem` with a `TypedDict` or `NamedTuple` with named fields `value` and `label`, which mypy checks strictly. |
+
 ---
 
 ## Blocked Features
