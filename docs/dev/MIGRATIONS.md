@@ -93,22 +93,24 @@ class Migration(migrations.Migration):
 
 UserAllergy.save() always calls full_clean(). Any data migration that creates or updates UserAllergy rows must bypass the save() method to avoid triggering these internal validations.
 
-Permitted Methods
+### Permitted Methods
 To successfully bypass full_clean(), use only the following:
 
 For Updates: Use queryset.update(**kwargs).
 
 For Creation: Use Model.objects.bulk_create([objs]). Do not use Model.objects.create(), as it internally calls .save() and will trigger validation.
 
-Data Constraints
+### Data Constraints
 When bypassing validation, you are responsible for ensuring data conforms to the following canonical JSONField keys:
 
     - user_reaction_details: symptom, severity, date — no other keys.
     - admin_notes: verified_by, verification_date — no other keys.
     - symptom_onset_date: Must not be a future date.
 
-[!IMPORTANT]
-Use bulk_create(objs, ignore_conflicts=False) for seeding to ensure that any genuine integrity errors (like unique constraint violations) are still caught while bypassing the save()-based logic.
+**IMPORTANT**
+Use `bulk_create(objs, ignore_conflicts=False)` for seeding to ensure that
+genuine integrity errors (like unique constraint violations) are still caught
+while bypassing the `save()`-based validation logic.
 
 1. Finish writing your model tests and run `uv run pytest`. All tests must pass.
 2. Create the data migration: `uv run python manage.py makemigrations --empty allergies --name seed_allergens`
