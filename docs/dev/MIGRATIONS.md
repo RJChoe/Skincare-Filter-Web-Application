@@ -19,7 +19,7 @@ uv run python manage.py makemigrations allergies --name add_severity_to_useralle
 # For users app model changes:
 uv run python manage.py makemigrations users --name add_field_to_customuser
 
-# Review the generated file in allergies/migrations/ before committing
+# Review the generated file in <app>/migrations/ before committing
 
 # Apply locally
 uv run python manage.py migrate
@@ -94,18 +94,22 @@ or updates `UserAllergy` rows must bypass the `save()` method to avoid triggerin
 these internal validations.
 
 ### Permitted Methods
-To successfully bypass full_clean(), use only the following:
 
-For Updates: Use queryset.update(**kwargs).
+To successfully bypass `full_clean()`, use only the following:
 
-For Creation: Use Model.objects.bulk_create([objs]). Do not use Model.objects.create(), as it internally calls .save() and will trigger validation.
+For updates: use `queryset.update(**kwargs)`.
+
+For creation: use `Model.objects.bulk_create([objs])`. Do not use
+`Model.objects.create()`, as it internally calls `.save()` and will trigger validation.
 
 ### Data Constraints
-When bypassing validation, you are responsible for ensuring data conforms to the following canonical JSONField keys:
 
-    - user_reaction_details: symptom, severity, date — no other keys.
-    - admin_notes: verified_by, verification_date — no other keys.
-    - symptom_onset_date: Must not be a future date.
+When bypassing validation, you are responsible for ensuring data conforms
+to the following canonical JSONField keys:
+
+- `user_reaction_details`: `symptom`, `severity`, `date` — no other keys.
+- `admin_notes`: `verified_by`, `verification_date` — no other keys.
+- `symptom_onset_date`: must not be a future date.
 
 **IMPORTANT**
 Use `bulk_create(objs, ignore_conflicts=False)` for seeding to ensure that
@@ -115,14 +119,15 @@ while bypassing the `save()`-based validation logic.
 ## Rollback
 
 ```bash
+# allergies app
 uv run python manage.py migrate allergies zero           # Full rollback
 uv run python manage.py migrate allergies 0001_initial   # To specific migration
-uv run python manage.py migrate --plan                   # Dry-run preview
-```
 
-```bash
-uv run python manage.py migrate users zero           # Full rollback
-uv run python manage.py migrate users 0001_initial   # To specific migration
+# users app
+uv run python manage.py migrate users zero               # Full rollback
+uv run python manage.py migrate users 0001_initial       # To specific migration
+
+uv run python manage.py migrate --plan                   # Dry-run preview (either app)
 ```
 
 ## Fresh Database
