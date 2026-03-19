@@ -123,6 +123,12 @@ These cannot be started until the gates above are done:
 
 - **Synonym Mapper / `AllergenAlias` model** — many-to-one table mapping all known surface forms of an ingredient (INCI name, common name, abbreviation) to a canonical `allergen_key`. No model, migration, service layer, or design document exists yet. Required before the product safety check can be considered production-accurate.
 
+- **`choices.py` file split (`categories.py` + `allergens.py`)** — Currently
+  blocked by `models.py` importing `FLAT_ALLERGEN_LABEL_MAP` for `__str__`.
+  Split becomes clean only after the seed migration adds a `label` field to
+  `Allergen` and `__str__` switches to `self.label`, dropping the map import.
+  Do not split before that migration exists.
+
 ---
 
 ## Verification Protocol
@@ -142,4 +148,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/19/2026 1:28 AM manually — update this line after each work session.*
+*Last updated: 3/19/2026 4:15 PM manually — update this line after each work session.*
