@@ -131,6 +131,21 @@ These cannot be started until the gates above are done:
   `Allergen` and `__str__` switches to `self.label`, dropping the map import.
   Do not split before that migration exists.
 
+- **`FORM_ALLERGIES_CHOICES` 3-tuple structure** — Correct for Gate 4. The
+  `(category_key, optgroup_label, choices_list)` structure maps to Django
+  `<optgroup>` rendering and correctly supports multiple optgroups per database
+  category (e.g. "Acids & Exfoliants" and "Botanicals" both under `contact`).
+  Do not change this structure at Gate 4.
+
+  Will need replacement — not refactoring — if the allergen catalog grows beyond
+  ~100 entries and a flat `<select>` becomes poor UX. At that point, switch to
+  an autocomplete widget (e.g. Select2) backed by a JSON endpoint querying the
+  `Allergen` table directly. When that happens, `FORM_ALLERGIES_CHOICES` becomes
+  irrelevant and can be deleted. That is a UX decision, not an architecture one.
+
+  Synonyms (`AllergenAlias`) never belong in this structure — they live in the
+  matching pipeline, which is a separate code path from the form.
+
 ---
 
 ## Verification Protocol
