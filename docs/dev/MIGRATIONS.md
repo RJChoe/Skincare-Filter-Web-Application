@@ -16,6 +16,9 @@
 # Create (always name it)
 uv run python manage.py makemigrations allergies --name add_severity_to_userallergy
 
+# For users app model changes:
+uv run python manage.py makemigrations users --name add_field_to_customuser
+
 # Review the generated file in allergies/migrations/ before committing
 
 # Apply locally
@@ -50,14 +53,6 @@ Do not run seeding migrations until the stubs in allergies/constants/choices.py 
 1. Finish writing your model tests and run `uv run pytest`. All tests must pass.
 2. Create the data migration: `uv run python manage.py makemigrations --empty allergies --name seed_allergens`
 3. Edit the generated file, then run `uv run python manage.py migrate`.
-
-```bash
-# (Blocked) Seed allergen catalog — do not run until choices.py stubs are
-# fully resolved. See STATUS.md → Known Gaps.
-# uv run python manage.py makemigrations --empty allergies --name seed_allergens
-# Edit the generated file, then:
-# uv run python manage.py migrate
-```
 
 ```python
 # allergies/migrations/000X_seed_allergens.py
@@ -94,7 +89,9 @@ class Migration(migrations.Migration):
 ```
 ## Data Migrations Involving `UserAllergy`
 
-UserAllergy.save() always calls full_clean(). Any data migration that creates or updates UserAllergy rows must bypass the save() method to avoid triggering these internal validations.
+`UserAllergy.save()` always calls `full_clean()`. Any data migration that creates
+or updates `UserAllergy` rows must bypass the `save()` method to avoid triggering
+these internal validations.
 
 ### Permitted Methods
 To successfully bypass full_clean(), use only the following:
@@ -121,6 +118,11 @@ while bypassing the `save()`-based validation logic.
 uv run python manage.py migrate allergies zero           # Full rollback
 uv run python manage.py migrate allergies 0001_initial   # To specific migration
 uv run python manage.py migrate --plan                   # Dry-run preview
+```
+
+```bash
+uv run python manage.py migrate users zero           # Full rollback
+uv run python manage.py migrate users 0001_initial   # To specific migration
 ```
 
 ## Fresh Database
