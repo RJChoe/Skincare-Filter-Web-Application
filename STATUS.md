@@ -138,4 +138,8 @@ Before marking any gate ✅ Complete in this file:
 
 ---
 
-*Last updated: manually — update this line after each work session.*
+⚠️ Project knowledge intentionally excludes views.py, settings.py,
+and test files — attach per-chat as needed for relevant tasks.
+
+---
+*Last updated: 3/18/2026 11:36 PM manually — update this line after each work session.*
