@@ -114,7 +114,7 @@ POLLEN_ALLERGENS: Final[tuple[ChoiceItem, ...]] = (
     ("goldenrod", "Goldenrod"),
     ("grass_pollen", "Grass Pollen"),
     ("humulus_japonicus", "Humulus Japonicus"),
-    ("lamb's_quarters", "Lamb's Quarters"),
+    ("lambs_quarters", "Lamb's Quarters"),
     ("mulberry", "Mulberry"),
     ("locust", "Locust"),
     ("oak_pollen", "Oak Pollen"),
