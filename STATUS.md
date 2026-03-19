@@ -106,7 +106,7 @@ These are the specific tasks to complete **right now**, in order:
 | `allergies/tests/test_models.py` | Some `Allergen` tests exist | `UserAllergy` tests missing — confirmed TODO at L59 |
 | `users/tests.py` | 382 lines exist | Scope of coverage unknown — audit required |
 | `allergies/exceptions.py` | May or may not exist | Contents unverified |
-
+| `allergies/constants/choices.py` display maps | `FLAT_ALLERGEN_LABEL_MAP`, `CATEGORY_TO_ALLERGENS_MAP`, and `FORM_ALLERGIES_CHOICES` are built from static tuples at import time | Any allergen added via the admin panel won't appear in these maps — silent divergence between DB and display layer. Acceptable while admin is seed-only. Post-Gate 4, allergen labels and category groupings must be read from the database, not this file. Treat this file's role as shrinking after the seed migration lands. |
 ---
 
 ## Blocked Features
@@ -148,4 +148,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/19/2026 4:15 PM manually — update this line after each work session.*
+*Last updated: 3/19/2026 4:33 PM manually — update this line after each work session.*
