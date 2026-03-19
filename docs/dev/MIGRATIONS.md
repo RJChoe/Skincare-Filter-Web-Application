@@ -2,7 +2,7 @@
 
 ## Rules
 
-- **Always pass `--name`** to makemigrations — This applies to both allergies/ and users/ apps (including --merge output). The enforce-migration-naming pre-commit hook (Stage 7) matches ^(allergies|users)/migrations/ and requires the ^\d{4}_auto_\d+\.py$ format; it will block any commit that doesn't follow this naming convention.
+- **Always pass `--name`** to makemigrations — This applies to both allergies/ and users/ apps (including --merge output). The enforce-migration-naming pre-commit hook (Stage 7) rejects auto-generated names matching `^\d{4}_auto_\d+\.py$`.; it will block any commit that doesn't follow this naming convention.
 - **Commit model + migration together** — never commit one without the other.
 - **After every model change**, remind yourself:
   ```bash
@@ -40,12 +40,13 @@ The canonical related names as of `0001_initial` are:
 
 ## Data Migrations (Allergen Catalog Seeding)
 
-⚠️ `allergies/constants/choices.py` must be complete (no `# ... and so on` stubs)
-before this migration is written. Check [STATUS.md](../../STATUS.md) → Known Gaps.
+Status: ⚠️ BLOCKED Data migrations for the allergen catalog are currently blocked by incomplete choice lists.
 
-⚠️ **Do not write this migration until `choices.py` stubs are fully resolved.**
-See [STATUS.md](../../STATUS.md) → Known Gaps. Running this migration against
-incomplete choice lists will produce an incomplete allergen catalog with no error.
+See STATUS.md → Known Gaps (Item 6) for the current resolution status of choices.py stubs.
+
+**WARNING**
+Do not run seeding migrations until the stubs in allergies/constants/choices.py are fully resolved. Running this against incomplete lists will result in a partial catalog without triggering a validation error.
+
 
 ```bash
 # (Blocked) Seed allergen catalog — do not run until choices.py stubs are
@@ -74,7 +75,10 @@ def seed_allergens(apps, schema_editor):
 
 
 def reverse_seed(apps, schema_editor):
-    apps.get_model("allergies", "Allergen").objects.all().delete()
+    Allergen = apps.get_model("allergies", "Allergen")
+    from allergies.constants.choices import FORM_ALLERGIES_CHOICES
+    seeded_keys = [key for _, _, choices in FORM_ALLERGIES_CHOICES for key, _ in choices]
+    Allergen.objects.filter(allergen_key__in=seeded_keys).delete()
 
 
 class Migration(migrations.Migration):
@@ -87,28 +91,28 @@ class Migration(migrations.Migration):
 ```
 ## Data Migrations Involving `UserAllergy`
 
-`UserAllergy.save()` always calls `full_clean()` (see `allergies/models.py`).
-Any data migration that creates or updates `UserAllergy` rows **must** use
-`Allergen.objects.get_or_create(...)` patterns that bypass `save()`, or must
-pass only the canonical JSONField keys:
+UserAllergy.save() always calls full_clean(). Any data migration that creates or updates UserAllergy rows must bypass the save() method to avoid triggering these internal validations.
 
-- `user_reaction_details`: `symptom`, `severity`, `date` — no other keys
-- `admin_notes`: `verified_by`, `verification_date` — no other keys
-- `symptom_onset_date`: must not be a future date
+Permitted Methods
+To successfully bypass full_clean(), use only the following:
 
-Use `queryset.update(...)` or direct `Model.objects.create(...)` with validated
-data. Never call `.save()` in a data migration without accounting for these
-constraints.
+For Updates: Use queryset.update(**kwargs).
 
-You need to know your models work (via tests) before you reliably load data into them.
-(Finish writing your tests in tests.py.)
+For Creation: Use Model.objects.bulk_create([objs]). Do not use Model.objects.create(), as it internally calls .save() and will trigger validation.
 
-Run `uv run pytest` and ensure all tests pass. Do not use `manage.py test` this project uses pytest exclusively (configured in `pyproject.toml` under `[tool.pytest.ini_options]`).
+Data Constraints
+When bypassing validation, you are responsible for ensuring data conforms to the following canonical JSONField keys:
 
-Then create the data migration file and populate your allergen catalog.
+    - user_reaction_details: symptom, severity, date — no other keys.
+    - admin_notes: verified_by, verification_date — no other keys.
+    - symptom_onset_date: Must not be a future date.
 
-Then run python manage.py migrate Run Migrations: Only after your models are tested and refined do you sync them with the database (makemigrations, migrate).
+[!IMPORTANT]
+Use bulk_create(objs, ignore_conflicts=False) for seeding to ensure that any genuine integrity errors (like unique constraint violations) are still caught while bypassing the save()-based logic.
 
+1. Finish writing your model tests and run `uv run pytest`. All tests must pass.
+2. Create the data migration: `uv run python manage.py makemigrations --empty allergies --name seed_allergens`
+3. Edit the generated file, then run `uv run python manage.py migrate`.
 
 ## Rollback
 
@@ -132,7 +136,6 @@ uv run python manage.py createsuperuser
 ```bash
 git pull origin main
 uv run python manage.py showmigrations          # Identify conflicts
-uv run python manage.py makemigrations --merge  # Auto-merge if possible
+uv run python manage.py makemigrations --merge --name merge_<description>  # Auto-merge if possible
 uv run python manage.py migrate                 # Verify
-# - **Always pass `--name`** to `makemigrations` for **both** `allergies` and `users` apps. The `enforce-migration-naming` hook matches `^(allergies|users)/migrations/`.
 ```
