@@ -2,9 +2,9 @@
 
 | Prohibited Pattern | Reason | Required Comment |
 |---|---|---|
-| `async def` view functions | All views are synchronous `def` | `# Future Refactor: async views not yet adopted` |
+| `async def` view functions | All views are synchronous `def` | `# Future Refactor: async views not yet adopted` # Lift when product safety check requires external API calls. |
 | `{% partialdef %}` / `{% partial %}` | Template partials not yet adopted | `# Future Refactor: template partials not yet adopted` |
-| `django.tasks` / `@task` | Background tasks not yet adopted | `# Future Refactor: background tasks not yet adopted` |
+| `django.tasks` / `@task` | Background tasks not yet adopted | `# Future Refactor: background tasks not yet adopted` # Lift when email notifications or scheduled data cleanup are scoped.|
 | `pip install` / `python -m pip install` | Always use `uv add` | N/A |
 | Python 3.14-only features (T-strings, etc.) | Project targets Python 3.13 | N/A |
 
