@@ -33,10 +33,10 @@ with `exc_info=True`.
 
 | File | Status | Notes |
 |------|--------|-------|
-| `allergies/admin.py` | 🚧 Unverified | Believed present — confirm from source |
-| `allergies/views.py` | ❌ Incomplete | Logger and event logging not done |
-| `skincare_project/views.py` | ❌ Incomplete | Logger and event logging not done |
-| `skincare_project/settings.py` LOGGING config | 🚧 Unverified | Existence not confirmed from source |
+| `allergies/admin.py` | ✅ Complete | present — all 4 actions logged correctly |
+| `allergies/views.py` | ❌ Incomplete | present — GET access logged. CREATE/UPDATE/DELETE logging blocked until POST handler (Gate 4) |
+| `skincare_project/views.py` | ✅ Complete | present — product POST handler partially stubbed with correct logging |
+| `skincare_project/settings.py` LOGGING config | ✅ Complete | Existence confirmed from source |
 
 ### Gate 3: Error Handling — 🚧 In Progress
 
