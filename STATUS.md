@@ -59,6 +59,11 @@ exists with domain exception classes.
 **Blocked by:** Gates 2 and 3 not complete.
 
 Tasks (do not start until Gates 2–3 are done):
+0. Complete `allergies/constants/compounds.py` — all `CompoundEntry`
+   rows migrated from `choices.py`; no stubs
+0b. Write seed migration `allergies/migrations/XXXX_seed_allergen_catalog`
+    — reads from `ALL_COMPOUNDS`, populates `Allergen` table;
+    `Allergen.__str__` switches to `self.label` after this lands
 1. Create `allergies/forms.py` with `UserAllergyForm`
 2. Implement dynamic `allergen_key` filtering (category → allergen cascading)
 3. Add `{% csrf_token %}` in all POST templates
@@ -99,7 +104,10 @@ These are the specific tasks to complete **right now**, in order:
 
 | Item | What Exists | What's Missing |
 |------|-------------|----------------|
-| `allergies/constants/choices.py` | Architecture correct; map/lookup functions solid | Allergen lists have placeholder stubs — not production-ready |
+| `allergies/constants/choices.py` | Architecture correct; map/lookup
+functions solid | `compounds.py` migration in progress —
+`ALL_COMPOUNDS` tuple being built. Seed migration (Gate 4 prereq)
+not yet written. `choices.py` role shrinks after seed migration lands. |
 | `allergies/models.py` | `Allergen` and `UserAllergy` models; JSONField key validation in `clean()` | Unverified against actual file on disk — confirm matches uploaded version |
 | `allergies/views.py` | File exists | Logging, error handling, and any POST logic not implemented |
 | `skincare_project/views.py` | `home` and `product` GET views exist | No logging; `product` POST handler not implemented |
@@ -130,6 +138,9 @@ These cannot be started until the gates above are done:
   Split becomes clean only after the seed migration adds a `label` field to
   `Allergen` and `__str__` switches to `self.label`, dropping the map import.
   Do not split before that migration exists.
+
+- **Seed migration** — now sequenced as Gate 4 prereq step 0b above.
+Depends on `compounds.py` completion.
 
 - **`FORM_ALLERGIES_CHOICES` 3-tuple structure** — Correct for Gate 4. The
   `(category_key, optgroup_label, choices_list)` structure maps to Django
@@ -165,4 +176,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/24/2026 6:56 PM manually — update this line after each work session.*
+*Last updated: 3/24/2026 11:00 PM manually — update this line after each work session.*
