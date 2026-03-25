@@ -39,6 +39,9 @@ static_root/
 *.sublime-project
 *.sublime-workspace
 
+# Claude Code local settings (machine-specific)
+.claude/settings.local.json
+
 # OS generated files
 .DS_Store
 Thumbs.db
