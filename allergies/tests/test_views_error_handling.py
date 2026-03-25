@@ -108,3 +108,12 @@ class TestAllergiesListPostErrorHandling:
         ):
             response = authenticated_client.post(reverse("allergies:list"))
         assert response.status_code == 400
+
+    def test_post_unexpected_error_returns_400(self, authenticated_client):
+        """Unexpected exceptions in POST handler must return 400, not 500."""
+        with patch(
+            "allergies.views.messages.info",
+            side_effect=Exception("unexpected boom"),
+        ):
+            response = authenticated_client.post(reverse("allergies:list"))
+        assert response.status_code == 400

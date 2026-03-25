@@ -61,9 +61,13 @@ exists with domain exception classes.
 Tasks:
 0. Complete `allergies/constants/compounds.py` — all `CompoundEntry`
    rows migrated from `choices.py`; no stubs
-0b. Write seed migration `allergies/migrations/XXXX_seed_allergen_catalog`
-    — reads from `ALL_COMPOUNDS`, populates `Allergen` table;
-    `Allergen.__str__` switches to `self.label` after this lands
+0b. Run Migration 1 (schema): add `label` field to `Allergen` — `makemigrations` output only,
+    no data writes, no behavior change (see Active Work Items for full sequence)
+0c. Run Migration 2 (data/seed): `RunPython` reads `ALL_COMPOUNDS`, creates `Allergen`
+    rows, populates `label` on every row — depends on Migration 1
+0d. Immediately after both migrations land (same PR): update `Allergen.__str__()` to use
+    `self.label`, delete `allergen_label` property, remove `FLAT_ALLERGEN_LABEL_MAP`
+    import from `models.py`
 1. Create `allergies/forms.py` with `UserAllergyForm`
 2. Implement dynamic `allergen_key` filtering (category → allergen cascading)
 3. Add `{% csrf_token %}` in all POST templates
@@ -100,28 +104,45 @@ These are the specific tasks to complete **right now**, in order:
    - No stubs — every entry from `choices.py` must appear; output is
      `ALL_COMPOUNDS: Final[tuple[CompoundEntry, ...]]`
    - Do not import from `choices.py` in the new file
-   - Do not write the seed migration yet — that is step 0b, after this file
-     is complete and reviewed
+   - Do not write any migration yet — that is steps 2 and 3 below
 
-2. **Write seed migration (Gate 4 prereq step 0b)** — after item 1 is done
-   - `allergies/migrations/XXXX_seed_allergen_catalog`
-   - Reads from `ALL_COMPOUNDS`, populates `Allergen` table
-   - Adds `label` field to `Allergen`; `__str__` switches to `self.label`
-   - After this lands: delete `FLAT_ALLERGEN_LABEL_MAP` import from `models.py`
+2. **Migration 1 — schema only (Gate 4 prereq step 0b)** — after item 1 is done
+   - Run `uv run python manage.py makemigrations allergies --name add_allergen_label_field`
+   - Adds `label = CharField(max_length=200, blank=True, default='')` to `Allergen`
+   - Pure `AddField` — no `RunPython`, no data writes
+   - The column exists but is empty after this migration; `__str__` still uses
+     `FLAT_ALLERGEN_LABEL_MAP` — **no behavior change yet**
+   - Rollback is a clean `RemoveField` with no data loss risk
+
+3. **Migration 2 — data/seed (Gate 4 prereq step 0c)** — after item 2 is merged
+   - Hand-write `allergies/migrations/XXXX_seed_allergen_catalog` with `RunPython`
+   - `dependencies` must point to Migration 1
+   - Reads `ALL_COMPOUNDS` from `allergies.constants.compounds`, creates `Allergen`
+     rows, populates `label` from `CompoundEntry.display_label` on every row
+   - If Migration 2's `RunPython` fails mid-run, Migration 1 can be rolled back
+     independently — this is why the two migrations are kept separate
+   - Provide a `reverse_sql` / reverse function that deletes seeded rows
+
+4. **Model cleanup — same PR as Migration 2 (Gate 4 prereq step 0d)**
+   - Update `Allergen.__str__()`: replace `FLAT_ALLERGEN_LABEL_MAP.get(...)` logic
+     with `return f"{self.get_category_display()}: {self.label or '[No Allergen Selected]'}"`
+   - Delete the `allergen_label` property — it is now redundant; callers use `self.label`
+   - Remove the `FLAT_ALLERGEN_LABEL_MAP` import from `models.py`
+   - After this step, `models.py` has zero runtime dependency on `choices.py` or
+     `compounds.py` — the coupling is fully severed
+   - Gate 4 task 1 (forms.py) must not start until this cleanup is confirmed merged
 
 ---
 
-*Do not start Gate 4 task 1 (forms.py) until items 1 and 2 above are done.*
+*Do not start Gate 4 task 1 (forms.py) until items 1–4 above are done.*
+
 ---
 
 ## Known Gaps (Exist but Incomplete)
 
 | Item | What Exists | What's Missing |
 |------|-------------|----------------|
-| `allergies/constants/choices.py` | Architecture correct; map/lookup
-functions solid | `compounds.py` migration in progress —
-`ALL_COMPOUNDS` tuple being built. Seed migration (Gate 4 prereq)
-not yet written. `choices.py` role shrinks after seed migration lands. |
+| `allergies/constants/choices.py` | Architecture correct; map/lookup functions solid | `compounds.py` migration in progress — `ALL_COMPOUNDS` tuple being built. Two-migration sequence (schema then seed) not yet written. `choices.py` role shrinks after seed migration lands. |
 | `allergies/models.py` | `Allergen` and `UserAllergy` models; JSONField key validation in `clean()` | Unverified against actual file on disk — confirm matches uploaded version |
 | `allergies/views.py` | Error handling implemented; GET logging implemented | CREATE/UPDATE/DELETE logging and POST logic blocked until Gate 4 |
 | `skincare_project/views.py` | Logging complete; `home` and `product` GET views exist | `product` POST handler not implemented (Gate 4) |
@@ -147,12 +168,8 @@ These cannot be started until the gates above are done:
 
 - **`choices.py` file split (`categories.py` + `allergens.py`)** — Currently
   blocked by `models.py` importing `FLAT_ALLERGEN_LABEL_MAP` for `__str__`.
-  Split becomes clean only after the seed migration adds a `label` field to
-  `Allergen` and `__str__` switches to `self.label`, dropping the map import.
-  Do not split before that migration exists.
-
-- **Seed migration** — now sequenced as Gate 4 prereq step 0b above.
-Depends on `compounds.py` completion.
+  Split becomes clean only after the model cleanup step (Active Work Item 4)
+  removes that import. Do not split before that cleanup is confirmed merged.
 
 - **`FORM_ALLERGIES_CHOICES` 3-tuple structure** — Correct for Gate 4. The
   `(category_key, optgroup_label, choices_list)` structure maps to Django
@@ -188,4 +205,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/25/2026 12:12 AM — STATUS sync: Gate 3 heading corrected, Gate 4/5 blockers updated, Known Gaps stale rows cleaned up.*
+*Last updated: 3/25/2026 — Migration sequence clarified: schema (Migration 1, makemigrations) and seed (Migration 2, RunPython) are now two separate migrations; model cleanup (step 0d) explicitly sequenced in same PR as Migration 2.*

@@ -15,6 +15,19 @@ class TestProductViewErrorHandling:
         response = client.get(reverse("product"))
         assert response.status_code == 200
 
+    def test_get_unexpected_error_returns_500(self, client):
+        """Unexpected exceptions in GET handler must return 500."""
+        with patch(
+            "skincare_project.views.logger.info",
+            side_effect=Exception("unexpected boom"),
+        ):
+            response = client.get(reverse("product"))
+        assert response.status_code == 500
+        assert (
+            response.json()["error"]
+            == "An unexpected error occurred. Please try again later."
+        )
+
     def test_post_unauthenticated_returns_401_json(self, client):
         """Unauthenticated POST must return 401 JSON, not 500."""
         response = client.post(reverse("product"))
@@ -49,3 +62,17 @@ class TestProductViewErrorHandling:
             response = authenticated_client.post(reverse("product"))
         assert response.status_code == 400
         assert "error" in response.json()
+
+    def test_post_unexpected_error_returns_500(self, authenticated_client):
+        """Unexpected exceptions in POST handler must return 500."""
+        with patch("skincare_project.views.logger") as mock_logger:
+            mock_logger.info = MagicMock()
+            mock_logger.warning = MagicMock(
+                side_effect=[Exception("unexpected boom"), None]
+            )
+            response = authenticated_client.post(reverse("product"))
+        assert response.status_code == 500
+        assert (
+            response.json()["error"]
+            == "An unexpected error occurred. Please try again later."
+        )
