@@ -11,10 +11,10 @@
 | Gate | Name | Status |
 |------|------|--------|
 | 1 | Dependencies | ✅ Complete |
-| 2 | Logging Infrastructure | 🚧 In Progress |
-| 3 | Error Handling | 🚧 In Progress |
-| 4 | Forms & Validation | ❌ Blocked (Gates 2–3 incomplete) |
-| 5 | Tests | ❌ Blocked (Gates 2–3 incomplete) |
+| 2 | Logging Infrastructure | 🚧 In Progress (waiting on POST handler Gate 4) |
+| 3 | Error Handling | ✅ Complete |
+| 4 | Forms & Validation | ❌ Not started |
+| 5 | Tests | ❌ Not started |
 
 ---
 
@@ -34,11 +34,11 @@ with `exc_info=True`.
 | File | Status | Notes |
 |------|--------|-------|
 | `allergies/admin.py` | ✅ Complete | present — all 4 actions logged correctly |
-| `allergies/views.py` | ❌ Incomplete | present — GET access logged. CREATE/UPDATE/DELETE logging blocked until POST handler (Gate 4) |
+| `allergies/views.py` | ⏳ Deferred to Gate 4 | GET access logged. CREATE/UPDATE/DELETE logging requires the POST handler — will be completed as part of Gate 4, not before it |
 | `skincare_project/views.py` | ✅ Complete | present — product POST handler partially stubbed with correct logging |
 | `skincare_project/settings.py` LOGGING config | ✅ Complete | Existence confirmed from source |
 
-### Gate 3: Error Handling — 🚧 In Progress
+### Gate 3: Error Handling — ✅ Complete
 
 **Complete when:** all view functions have `try/except` with user-friendly error
 rendering, `@transaction.atomic` on all writes, and `allergies/exceptions.py`
@@ -46,19 +46,28 @@ exists with domain exception classes.
 
 | Item | Status | Notes |
 |------|--------|-------|
-| `try/except` in `allergies/views.py` | ❌ Incomplete | Not implemented |
-| `try/except` in `skincare_project/views.py` | ❌ Incomplete | Not implemented |
-| `@transaction.atomic` on multi-model writes | ❌ Unverified | Not confirmed from source |
+| `try/except` in `allergies/views.py` | ✅ Complete | Implemented |
+| `try/except` in `skincare_project/views.py` | ✅ Complete | Implemented |
+| `@transaction.atomic` on multi-model writes | ✅ Complete | File exists |
 | `allergies/exceptions.py` | ✅ Complete | File exists |
 | `AllergenNotFoundError` class | ✅ Complete | Class exists |
 | `InvalidIngredientError` class | ✅ Complete | Class exists |
-| Validation errors surfaced (no 500s) | ❌ Unverified | Not confirmed from source |
+| Validation errors surfaced (no 500s) | ✅ Complete | Confirmed from source |
 
 ### Gate 4: Forms & Validation — ❌ Blocked
 
-**Blocked by:** Gates 2 and 3 not complete.
+**No hard blockers.** Gates 2 and 3 are effectively unblocked — the only open Gate 2 item (`allergies/views.py` POST logging) resolves within this gate, not before it.
 
-Tasks (do not start until Gates 2–3 are done):
+Tasks:
+0. Complete `allergies/constants/compounds.py` — all `CompoundEntry`
+   rows migrated from `choices.py`; no stubs
+0b. Run Migration 1 (schema): add `label` field to `Allergen` — `makemigrations` output only,
+    no data writes, no behavior change (see Active Work Items for full sequence)
+0c. Run Migration 2 (data/seed): `RunPython` reads `ALL_COMPOUNDS`, creates `Allergen`
+    rows, populates `label` on every row — depends on Migration 1
+0d. Immediately after both migrations land (same PR): update `Allergen.__str__()` to use
+    `self.label`, delete `allergen_label` property, remove `FLAT_ALLERGEN_LABEL_MAP`
+    import from `models.py`
 1. Create `allergies/forms.py` with `UserAllergyForm`
 2. Implement dynamic `allergen_key` filtering (category → allergen cascading)
 3. Add `{% csrf_token %}` in all POST templates
@@ -66,10 +75,10 @@ Tasks (do not start until Gates 2–3 are done):
 
 ### Gate 5: Tests — ❌ Blocked
 
-**Blocked by:** Gates 2 and 3 not complete. Run in parallel with Gate 4 once unblocked.
+**No hard blockers.** Run in parallel with Gate 4.
 
 Tasks:
-1. Complete `allergies/tests/test_models.py` — TODO at L59 covers `UserAllergy`
+1. Complete `allergies/tests/test_models.py` — TODO at L68 covers `UserAllergy`
    fields: `severity_level`, `is_confirmed`, `user_reaction_details` JSONField
    key validation, future `symptom_onset_date` rejection
 2. Verify scope of `users/tests.py` (382 lines) — confirm what is and isn't covered
@@ -86,12 +95,46 @@ Tasks:
 
 These are the specific tasks to complete **right now**, in order:
 
-1. **Verify `allergies/admin.py`** — open the file, confirm `logger = logging.getLogger(__name__)` is present at module level and used in admin actions
-2. **Add logging to `allergies/views.py`** — module-level logger; INFO on allergy create/update/delete; ERROR with `exc_info=True` on exceptions
-3. **Add logging to `skincare_project/views.py`** — same pattern; required before product safety POST handler can be implemented
-4. **Verify/create `allergies/exceptions.py`** — must contain `AllergenNotFoundError` and `InvalidIngredientError`
-5. **Add `try/except` + `@transaction.atomic` to all views** — follow pattern in `copilot-instructions.md` → Error Handling & Resilience section
-6. **Complete `choices.py`** — remove all `# ... and so on` stubs; fill in full EU Annex III 2023-grounded ingredient lists per allergen group (prerequisite for allergen catalog seeding migration)
+1. **Build `allergies/constants/compounds.py`** ← *active now, Gate 4 prereq*
+   - Migrate every entry from `choices.py` to `CompoundEntry` NamedTuple rows
+   - Apply transformation rules: INCI extraction, CAS lookup, group
+     decomposition (parabens, formaldehyde releasers, PEG compounds)
+   - Set `eu_annex_iii` and `regulatory_ref` on all fragrance and
+     preservative entries
+   - No stubs — every entry from `choices.py` must appear; output is
+     `ALL_COMPOUNDS: Final[tuple[CompoundEntry, ...]]`
+   - Do not import from `choices.py` in the new file
+   - Do not write any migration yet — that is steps 2 and 3 below
+
+2. **Migration 1 — schema only (Gate 4 prereq step 0b)** — after item 1 is done
+   - Run `uv run python manage.py makemigrations allergies --name add_allergen_label_field`
+   - Adds `label = CharField(max_length=200, blank=True, default='')` to `Allergen`
+   - Pure `AddField` — no `RunPython`, no data writes
+   - The column exists but is empty after this migration; `__str__` still uses
+     `FLAT_ALLERGEN_LABEL_MAP` — **no behavior change yet**
+   - Rollback is a clean `RemoveField` with no data loss risk
+
+3. **Migration 2 — data/seed (Gate 4 prereq step 0c)** — after item 2 is merged
+   - Hand-write `allergies/migrations/XXXX_seed_allergen_catalog` with `RunPython`
+   - `dependencies` must point to Migration 1
+   - Reads `ALL_COMPOUNDS` from `allergies.constants.compounds`, creates `Allergen`
+     rows, populates `label` from `CompoundEntry.display_label` on every row
+   - If Migration 2's `RunPython` fails mid-run, Migration 1 can be rolled back
+     independently — this is why the two migrations are kept separate
+   - Provide a `reverse_sql` / reverse function that deletes seeded rows
+
+4. **Model cleanup — same PR as Migration 2 (Gate 4 prereq step 0d)**
+   - Update `Allergen.__str__()`: replace `FLAT_ALLERGEN_LABEL_MAP.get(...)` logic
+     with `return f"{self.get_category_display()}: {self.label or '[No Allergen Selected]'}"`
+   - Delete the `allergen_label` property — it is now redundant; callers use `self.label`
+   - Remove the `FLAT_ALLERGEN_LABEL_MAP` import from `models.py`
+   - After this step, `models.py` has zero runtime dependency on `choices.py` or
+     `compounds.py` — the coupling is fully severed
+   - Gate 4 task 1 (forms.py) must not start until this cleanup is confirmed merged
+
+---
+
+*Do not start Gate 4 task 1 (forms.py) until items 1–4 above are done.*
 
 ---
 
@@ -99,13 +142,12 @@ These are the specific tasks to complete **right now**, in order:
 
 | Item | What Exists | What's Missing |
 |------|-------------|----------------|
-| `allergies/constants/choices.py` | Architecture correct; map/lookup functions solid | Allergen lists have placeholder stubs — not production-ready |
+| `allergies/constants/choices.py` | Architecture in progress; map/lookup functions solid | `compounds.py` migration in progress — `ALL_COMPOUNDS` tuple being built. Two-migration sequence (schema then seed) not yet written. `choices.py` role shrinks after seed migration lands. |
 | `allergies/models.py` | `Allergen` and `UserAllergy` models; JSONField key validation in `clean()` | Unverified against actual file on disk — confirm matches uploaded version |
-| `allergies/views.py` | File exists | Logging, error handling, and any POST logic not implemented |
-| `skincare_project/views.py` | `home` and `product` GET views exist | No logging; `product` POST handler not implemented |
+| `allergies/views.py` | Error handling implemented; GET logging implemented | CREATE/UPDATE/DELETE logging and POST logic blocked until Gate 4 |
+| `skincare_project/views.py` | Logging complete; `home` and `product` GET views exist | `product` POST handler not implemented (Gate 4) |
 | `allergies/tests/test_models.py` | Some `Allergen` tests exist | `UserAllergy` tests missing — confirmed TODO at L59 |
 | `users/tests.py` | 382 lines exist | Scope of coverage unknown — audit required |
-| `allergies/exceptions.py` | May or may not exist | Contents unverified |
 | `allergies/constants/choices.py` display maps | `FLAT_ALLERGEN_LABEL_MAP`, `CATEGORY_TO_ALLERGENS_MAP`, and `FORM_ALLERGIES_CHOICES` are built from static tuples at import time | Any allergen added via the admin panel won't appear in these maps — silent divergence between DB and display layer. Acceptable while admin is seed-only. Post-Gate 4, allergen labels and category groupings must be read from the database, not this file. Treat this file's role as shrinking after the seed migration lands. |
 | `ChoiceItem` type alias in `choices.py` | Defined as `tuple[str, str]` | Mypy won't catch a malformed entry like `("glycolic_acid",)` — tuple covariance + `...` weakens the check. Runtime crash is the first signal. Fix at Gate 4 when form rendering makes this a live risk: replace `ChoiceItem` with a `TypedDict` or `NamedTuple` with named fields `value` and `label`, which mypy checks strictly. |
 
@@ -115,9 +157,8 @@ These are the specific tasks to complete **right now**, in order:
 
 These cannot be started until the gates above are done:
 
-- 🚫 **Product safety check POST handler** (`skincare_project/views.py`) — needs logging + error handling in that file first
-- 🚫 **User-facing allergy forms** — needs Gate 4 (forms) which needs Gates 2–3
-- 🚫 **Users app URL routing** — `path('users/', include('users.urls'))` — needs views to have logging and error handling first
+- 🚫 **Product safety check POST handler** (`skincare_project/views.py`) — needs Gate 4 forms/validation first
+- 🚫 **User-facing allergy forms** — needs Gate 4 (forms)
 
 ---
 
@@ -127,9 +168,8 @@ These cannot be started until the gates above are done:
 
 - **`choices.py` file split (`categories.py` + `allergens.py`)** — Currently
   blocked by `models.py` importing `FLAT_ALLERGEN_LABEL_MAP` for `__str__`.
-  Split becomes clean only after the seed migration adds a `label` field to
-  `Allergen` and `__str__` switches to `self.label`, dropping the map import.
-  Do not split before that migration exists.
+  Split becomes clean only after the model cleanup step (Active Work Item 4)
+  removes that import. Do not split before that cleanup is confirmed merged.
 
 - **`FORM_ALLERGIES_CHOICES` 3-tuple structure** — Correct for Gate 4. The
   `(category_key, optgroup_label, choices_list)` structure maps to Django
@@ -165,4 +205,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/24/2026 6:56 PM manually — update this line after each work session.*
+*Last updated: 3/25/2026 — Migration sequence clarified: schema (Migration 1, makemigrations) and seed (Migration 2, RunPython) are now two separate migrations; model cleanup (step 0d) explicitly sequenced in same PR as Migration 2.*
