@@ -205,4 +205,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/25/2026 — Migration sequence clarified: schema (Migration 1, makemigrations) and seed (Migration 2, RunPython) are now two separate migrations; model cleanup (step 0d) explicitly sequenced in same PR as Migration 2.*
+*Last updated: 3/25/2026 2:15 AM — Migration sequence clarified: schema (Migration 1, makemigrations) and seed (Migration 2, RunPython) are now two separate migrations; model cleanup (step 0d) explicitly sequenced in same PR as Migration 2.*
