@@ -65,6 +65,17 @@ class TestAllergiesListErrorHandling:
 
         assert "next=" in response["Location"]
 
+    def test_get_unexpected_error_returns_500(self, authenticated_client):
+        """Unexpected exceptions in GET handler must return 500."""
+        with patch(
+            "allergies.views.logger.info",
+            side_effect=Exception("unexpected boom"),
+        ):
+            response = authenticated_client.get(reverse("allergies:list"))
+
+        assert response.status_code == 500
+        assert "allergies/allergies_list.html" in [t.name for t in response.templates]
+
 
 @pytest.mark.django_db
 @pytest.mark.usefixtures("enable_allergies_logging")
