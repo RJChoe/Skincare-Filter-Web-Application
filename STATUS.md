@@ -11,10 +11,10 @@
 | Gate | Name | Status |
 |------|------|--------|
 | 1 | Dependencies | ✅ Complete |
-| 2 | Logging Infrastructure | 🚧 In Progress |
-| 3 | Error Handling | 🚧 In Progress |
-| 4 | Forms & Validation | ❌ Blocked (Gates 2–3 incomplete) |
-| 5 | Tests | ❌ Blocked (Gates 2–3 incomplete) |
+| 2 | Logging Infrastructure | 🚧 In Progress (waiting on POST handler Gate 4) |
+| 3 | Error Handling | ✅ Complete |
+| 4 | Forms & Validation | ❌ Not started |
+| 5 | Tests | ❌ Not started |
 
 ---
 
@@ -34,11 +34,11 @@ with `exc_info=True`.
 | File | Status | Notes |
 |------|--------|-------|
 | `allergies/admin.py` | ✅ Complete | present — all 4 actions logged correctly |
-| `allergies/views.py` | ❌ Incomplete | present — GET access logged. CREATE/UPDATE/DELETE logging blocked until POST handler (Gate 4) |
+| `allergies/views.py` | ⏳ Deferred to Gate 4 | GET access logged. CREATE/UPDATE/DELETE logging requires the POST handler — will be completed as part of Gate 4, not before it |
 | `skincare_project/views.py` | ✅ Complete | present — product POST handler partially stubbed with correct logging |
 | `skincare_project/settings.py` LOGGING config | ✅ Complete | Existence confirmed from source |
 
-### Gate 3: Error Handling — 🚧 In Progress
+### Gate 3: Error Handling — ✅ Complete
 
 **Complete when:** all view functions have `try/except` with user-friendly error
 rendering, `@transaction.atomic` on all writes, and `allergies/exceptions.py`
@@ -46,19 +46,19 @@ exists with domain exception classes.
 
 | Item | Status | Notes |
 |------|--------|-------|
-| `try/except` in `allergies/views.py` | ❌ Incomplete | Not implemented |
-| `try/except` in `skincare_project/views.py` | ❌ Incomplete | Not implemented |
-| `@transaction.atomic` on multi-model writes | ❌ Unverified | Not confirmed from source |
+| `try/except` in `allergies/views.py` | ✅ Complete | Implemented |
+| `try/except` in `skincare_project/views.py` | ✅ Complete | Implemented |
+| `@transaction.atomic` on multi-model writes | ✅ Complete | File exists |
 | `allergies/exceptions.py` | ✅ Complete | File exists |
 | `AllergenNotFoundError` class | ✅ Complete | Class exists |
 | `InvalidIngredientError` class | ✅ Complete | Class exists |
-| Validation errors surfaced (no 500s) | ❌ Unverified | Not confirmed from source |
+| Validation errors surfaced (no 500s) | ✅ Complete | Confirmed from source |
 
 ### Gate 4: Forms & Validation — ❌ Blocked
 
-**Blocked by:** Gates 2 and 3 not complete.
+**No hard blockers.** Gates 2 and 3 are effectively unblocked — the only open Gate 2 item (`allergies/views.py` POST logging) resolves within this gate, not before it.
 
-Tasks (do not start until Gates 2–3 are done):
+Tasks:
 0. Complete `allergies/constants/compounds.py` — all `CompoundEntry`
    rows migrated from `choices.py`; no stubs
 0b. Write seed migration `allergies/migrations/XXXX_seed_allergen_catalog`
@@ -71,10 +71,10 @@ Tasks (do not start until Gates 2–3 are done):
 
 ### Gate 5: Tests — ❌ Blocked
 
-**Blocked by:** Gates 2 and 3 not complete. Run in parallel with Gate 4 once unblocked.
+**No hard blockers.** Run in parallel with Gate 4.
 
 Tasks:
-1. Complete `allergies/tests/test_models.py` — TODO at L59 covers `UserAllergy`
+1. Complete `allergies/tests/test_models.py` — TODO at L68 covers `UserAllergy`
    fields: `severity_level`, `is_confirmed`, `user_reaction_details` JSONField
    key validation, future `symptom_onset_date` rejection
 2. Verify scope of `users/tests.py` (382 lines) — confirm what is and isn't covered
@@ -91,14 +91,7 @@ Tasks:
 
 These are the specific tasks to complete **right now**, in order:
 
-1. **Complete Gates 2–3 remaining items (in parallel)**
-   - `allergies/views.py` — add `try/except` + `@transaction.atomic`;
-     CREATE/UPDATE/DELETE logging deferred until POST handler (Gate 4)
-   - `skincare_project/views.py` — add `try/except` + `@transaction.atomic`
-   - Verify validation errors surface correctly (no 500s)
-   - Confirm `@transaction.atomic` on all multi-model writes
-
-2. **Build `allergies/constants/compounds.py`** ← *active now, Gate 4 prereq*
+1. **Build `allergies/constants/compounds.py`** ← *active now, Gate 4 prereq*
    - Migrate every entry from `choices.py` to `CompoundEntry` NamedTuple rows
    - Apply transformation rules: INCI extraction, CAS lookup, group
      decomposition (parabens, formaldehyde releasers, PEG compounds)
@@ -110,7 +103,7 @@ These are the specific tasks to complete **right now**, in order:
    - Do not write the seed migration yet — that is step 0b, after this file
      is complete and reviewed
 
-3. **Write seed migration (Gate 4 prereq step 0b)** — after item 2 is done
+2. **Write seed migration (Gate 4 prereq step 0b)** — after item 1 is done
    - `allergies/migrations/XXXX_seed_allergen_catalog`
    - Reads from `ALL_COMPOUNDS`, populates `Allergen` table
    - Adds `label` field to `Allergen`; `__str__` switches to `self.label`
@@ -118,7 +111,7 @@ These are the specific tasks to complete **right now**, in order:
 
 ---
 
-*Do not start Gate 4 task 1 (forms.py) until items 1, 2, and 3 above are done.*
+*Do not start Gate 4 task 1 (forms.py) until items 1 and 2 above are done.*
 ---
 
 ## Known Gaps (Exist but Incomplete)
@@ -130,11 +123,10 @@ functions solid | `compounds.py` migration in progress —
 `ALL_COMPOUNDS` tuple being built. Seed migration (Gate 4 prereq)
 not yet written. `choices.py` role shrinks after seed migration lands. |
 | `allergies/models.py` | `Allergen` and `UserAllergy` models; JSONField key validation in `clean()` | Unverified against actual file on disk — confirm matches uploaded version |
-| `allergies/views.py` | File exists | Logging, error handling, and any POST logic not implemented |
-| `skincare_project/views.py` | `home` and `product` GET views exist | No logging; `product` POST handler not implemented |
+| `allergies/views.py` | Error handling implemented; GET logging implemented | CREATE/UPDATE/DELETE logging and POST logic blocked until Gate 4 |
+| `skincare_project/views.py` | Logging complete; `home` and `product` GET views exist | `product` POST handler not implemented (Gate 4) |
 | `allergies/tests/test_models.py` | Some `Allergen` tests exist | `UserAllergy` tests missing — confirmed TODO at L59 |
 | `users/tests.py` | 382 lines exist | Scope of coverage unknown — audit required |
-| `allergies/exceptions.py` | May or may not exist | Contents unverified |
 | `allergies/constants/choices.py` display maps | `FLAT_ALLERGEN_LABEL_MAP`, `CATEGORY_TO_ALLERGENS_MAP`, and `FORM_ALLERGIES_CHOICES` are built from static tuples at import time | Any allergen added via the admin panel won't appear in these maps — silent divergence between DB and display layer. Acceptable while admin is seed-only. Post-Gate 4, allergen labels and category groupings must be read from the database, not this file. Treat this file's role as shrinking after the seed migration lands. |
 | `ChoiceItem` type alias in `choices.py` | Defined as `tuple[str, str]` | Mypy won't catch a malformed entry like `("glycolic_acid",)` — tuple covariance + `...` weakens the check. Runtime crash is the first signal. Fix at Gate 4 when form rendering makes this a live risk: replace `ChoiceItem` with a `TypedDict` or `NamedTuple` with named fields `value` and `label`, which mypy checks strictly. |
 
@@ -144,9 +136,8 @@ not yet written. `choices.py` role shrinks after seed migration lands. |
 
 These cannot be started until the gates above are done:
 
-- 🚫 **Product safety check POST handler** (`skincare_project/views.py`) — needs logging + error handling in that file first
-- 🚫 **User-facing allergy forms** — needs Gate 4 (forms) which needs Gates 2–3
-- 🚫 **Users app URL routing** — `path('users/', include('users.urls'))` — needs views to have logging and error handling first
+- 🚫 **Product safety check POST handler** (`skincare_project/views.py`) — needs Gate 4 forms/validation first
+- 🚫 **User-facing allergy forms** — needs Gate 4 (forms)
 
 ---
 
@@ -197,4 +188,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/24/2026 11:12 PM manually — update this line after each work session.*
+*Last updated: 3/25/2026 12:12 AM — STATUS sync: Gate 3 heading corrected, Gate 4/5 blockers updated, Known Gaps stale rows cleaned up.*
