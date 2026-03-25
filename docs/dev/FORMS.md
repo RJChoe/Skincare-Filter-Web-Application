@@ -1,3 +1,7 @@
+> ⚠️ OUTDATED — Gate 4 form pattern changed to autocomplete search input.
+> This document describes the cascading dropdown pattern which was superseded.
+> Do not implement from this file. See STATUS.md for current Gate 4 tasks.
+
 # Forms & Validation
 
 > Gate 4 reference. **Do not implement until Gates 2 and 3 are complete.**
