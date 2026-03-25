@@ -1,5 +1,6 @@
 import logging
 
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -100,6 +101,11 @@ def product(request: HttpRequest) -> HttpResponse:
     except InvalidIngredientError as e:
         logger.warning(
             f"InvalidIngredientError for user {request.user.id if request.user.is_authenticated else 'anonymous'}: {e}"
+        )
+        return JsonResponse({"error": str(e)}, status=400)
+    except ValidationError as e:
+        logger.warning(
+            f"ValidationError for user {request.user.id if request.user.is_authenticated else 'anonymous'}: {e}"
         )
         return JsonResponse({"error": str(e)}, status=400)
     except Exception as e:

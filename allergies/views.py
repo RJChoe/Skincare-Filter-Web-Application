@@ -2,6 +2,7 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
@@ -67,6 +68,9 @@ def allergies_list(request: HttpRequest) -> HttpResponse:
         messages.error(request, str(e))
     except InvalidIngredientError as e:
         logger.warning(f"InvalidIngredientError for user {request.user.pk}: {e}")
+        messages.error(request, str(e))
+    except ValidationError as e:
+        logger.warning(f"ValidationError for user {request.user.pk}: {e}")
         messages.error(request, str(e))
     except Exception as e:
         logger.error(
