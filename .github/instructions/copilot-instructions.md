@@ -42,7 +42,7 @@ Django 6.0 · Python 3.13 · SQLite (dev) · `uv` for all package management.
 Unique constraint: `(category, allergen_key)`. `allergen_key` has intentional `choices=[]`
 in the model — filtering happens in forms, not the model field.
 
-**`allergen_key` naming rule:** Keys must be lowercase, underscore-separated, and URL-safe.
+**`allergen_key` naming rule:** the key is the name a cosmetics-literate person would use in conversation, lowercased, and underscored
 No apostrophes, hyphens, spaces, or special characters. Example: `birch_pollen` ✅ · `lamb's_quarters` ❌
 
 **Related names:** `user.user_allergies` · `allergen.user_allergy_entries`
