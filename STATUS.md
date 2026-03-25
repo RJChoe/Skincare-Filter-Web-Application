@@ -49,9 +49,9 @@ exists with domain exception classes.
 | `try/except` in `allergies/views.py` | ❌ Incomplete | Not implemented |
 | `try/except` in `skincare_project/views.py` | ❌ Incomplete | Not implemented |
 | `@transaction.atomic` on multi-model writes | ❌ Unverified | Not confirmed from source |
-| `allergies/exceptions.py` | ❌ Unverified | File existence not confirmed |
-| `AllergenNotFoundError` class | ❌ Unverified | Depends on above |
-| `InvalidIngredientError` class | ❌ Unverified | Depends on above |
+| `allergies/exceptions.py` | ✅ Complete | File exists |
+| `AllergenNotFoundError` class | ✅ Complete | Class exists |
+| `InvalidIngredientError` class | ✅ Complete | Class exists |
 | Validation errors surfaced (no 500s) | ❌ Unverified | Not confirmed from source |
 
 ### Gate 4: Forms & Validation — ❌ Blocked
@@ -165,4 +165,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/24/2026 6:11 PM manually — update this line after each work session.*
+*Last updated: 3/24/2026 6:56 PM manually — update this line after each work session.*
