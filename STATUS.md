@@ -91,13 +91,34 @@ Tasks:
 
 These are the specific tasks to complete **right now**, in order:
 
-1. **Verify `allergies/admin.py`** — open the file, confirm `logger = logging.getLogger(__name__)` is present at module level and used in admin actions
-2. **Add logging to `allergies/views.py`** — module-level logger; INFO on allergy create/update/delete; ERROR with `exc_info=True` on exceptions
-3. **Add logging to `skincare_project/views.py`** — same pattern; required before product safety POST handler can be implemented
-4. **Verify/create `allergies/exceptions.py`** — must contain `AllergenNotFoundError` and `InvalidIngredientError`
-5. **Add `try/except` + `@transaction.atomic` to all views** — follow pattern in `copilot-instructions.md` → Error Handling & Resilience section
-6. **Complete `choices.py`** — remove all `# ... and so on` stubs; fill in full EU Annex III 2023-grounded ingredient lists per allergen group (prerequisite for allergen catalog seeding migration)
+1. **Complete Gates 2–3 remaining items (in parallel)**
+   - `allergies/views.py` — add `try/except` + `@transaction.atomic`;
+     CREATE/UPDATE/DELETE logging deferred until POST handler (Gate 4)
+   - `skincare_project/views.py` — add `try/except` + `@transaction.atomic`
+   - Verify validation errors surface correctly (no 500s)
+   - Confirm `@transaction.atomic` on all multi-model writes
 
+2. **Build `allergies/constants/compounds.py`** ← *active now, Gate 4 prereq*
+   - Migrate every entry from `choices.py` to `CompoundEntry` NamedTuple rows
+   - Apply transformation rules: INCI extraction, CAS lookup, group
+     decomposition (parabens, formaldehyde releasers, PEG compounds)
+   - Set `eu_annex_iii` and `regulatory_ref` on all fragrance and
+     preservative entries
+   - No stubs — every entry from `choices.py` must appear; output is
+     `ALL_COMPOUNDS: Final[tuple[CompoundEntry, ...]]`
+   - Do not import from `choices.py` in the new file
+   - Do not write the seed migration yet — that is step 0b, after this file
+     is complete and reviewed
+
+3. **Write seed migration (Gate 4 prereq step 0b)** — after item 2 is done
+   - `allergies/migrations/XXXX_seed_allergen_catalog`
+   - Reads from `ALL_COMPOUNDS`, populates `Allergen` table
+   - Adds `label` field to `Allergen`; `__str__` switches to `self.label`
+   - After this lands: delete `FLAT_ALLERGEN_LABEL_MAP` import from `models.py`
+
+---
+
+*Do not start Gate 4 task 1 (forms.py) until items 1, 2, and 3 above are done.*
 ---
 
 ## Known Gaps (Exist but Incomplete)
@@ -176,4 +197,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/24/2026 11:00 PM manually — update this line after each work session.*
+*Last updated: 3/24/2026 11:12 PM manually — update this line after each work session.*
