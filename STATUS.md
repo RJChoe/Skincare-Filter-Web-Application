@@ -142,7 +142,7 @@ These are the specific tasks to complete **right now**, in order:
 
 | Item | What Exists | What's Missing |
 |------|-------------|----------------|
-| `allergies/constants/choices.py` | Architecture correct; map/lookup functions solid | `compounds.py` migration in progress — `ALL_COMPOUNDS` tuple being built. Two-migration sequence (schema then seed) not yet written. `choices.py` role shrinks after seed migration lands. |
+| `allergies/constants/choices.py` | Architecture in progress; map/lookup functions solid | `compounds.py` migration in progress — `ALL_COMPOUNDS` tuple being built. Two-migration sequence (schema then seed) not yet written. `choices.py` role shrinks after seed migration lands. |
 | `allergies/models.py` | `Allergen` and `UserAllergy` models; JSONField key validation in `clean()` | Unverified against actual file on disk — confirm matches uploaded version |
 | `allergies/views.py` | Error handling implemented; GET logging implemented | CREATE/UPDATE/DELETE logging and POST logic blocked until Gate 4 |
 | `skincare_project/views.py` | Logging complete; `home` and `product` GET views exist | `product` POST handler not implemented (Gate 4) |
