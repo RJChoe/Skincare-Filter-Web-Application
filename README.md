@@ -19,17 +19,17 @@ Diagram flow of data through application represents Phase 1 (exact matching) and
 ## Features
 
 ### ✅ Built
+- **Personal allergen profile (data model)** — Allergen and UserAllergy models with severity level, source, reaction history, and confirmation status
 - **Admin catalog management** — Activate/deactivate allergens, bulk actions with audit logging
 - **User authentication** — Account creation and login via a custom user model
 
 ### 🔄 In Progress
-- **Constants** — database of allergens selected by user via grouped checkbox selection grouped by subcategories (fragrances, preservatives, botanicals, etc.)
-- **Personal allergen profile** — Select from a catalog of 80+ ingredients across a single category with subcategory grouping (preservatives, fragrances, botanicals, surfactants, etc.); record severity, source, and reaction history per allergen
+- **Allergen catalog** — Structured collection of skincare ingredients organized by subcategory (fragrances, preservatives, botanicals, surfactants, etc.), selectable via grouped checkboxes
+- **Allergy profile forms** — User-facing create/edit forms with grouped checkbox selection by subcategory
 - **Ingredient safety check** — Paste any product's ingredient list; the app tokenizes, normalizes (case-insensitive, whitespace-stripped), and cross-references it against the user's active profile
+- **Test coverage** — Comprehensive tests for allergy profile CRUD, form validation, and matching pipeline
 
 ### 📋 Planned
-- **Allergy profile forms** — User-facing create/edit forms with dynamic allergen selection (checkbox grouped by subcategories of fragrances, surfactants, preservatives, botanicals, etc.)
-- **Test coverage** — Comprehensive tests for allergy profile CRUD and form validation
 - **Alias-Aware Matching (Synonym Mapper)** — The core technical next step. Maps every known surface form of an ingredient (INCI name, common name, abbreviation) to a single canonical allergen record, so "Vitamin C", "L-Ascorbic Acid", and "Ascorbate" all match the same allergy. Transforms the product from a string checker into an intelligent ingredient safety tool.
 - **Product check form** — Full POST handling and result display on the product page
 - **Allergy list autocomplete search** — hybrid feature along with the existing checkboxes divided into subcategories.
@@ -113,14 +113,14 @@ Get up and running in 5 minutes:
 | [Product Overview](PRODUCT.md) | Feature scope, user flows, known limitations |
 | [Installation & Deployment](docs/DEPLOYMENT.md) | Local setup, CI/CD, hosting providers |
 | [Testing & Coverage](docs/TESTING.md) | Running tests, coverage targets, patterns |
-| [Architechture](ARCHITECTURE.md) | System design, data flow, decisions |
+| [Architecture](ARCHITECTURE.md) | System design, data flow, decisions |
 | [Contributing](CONTRIBUTING.md) | Development workflow, code style, gates |
 | [Security](docs/SECURITY.md) | Environment variables, production hardening |
 
 ---
 
 ## Usage
-1. Enter your personal allergies.
+1. Users selects from a searchable catalog of skincare ingredients. (checkboxes divided into subcategories).
 2. Input the ingredients of a skincare product.
 3. Click "Check Safety".
 4. View the results indicating whether the product is safe.
