@@ -2,7 +2,7 @@
 
 > **Important Version Note:**
 > This project uses **Django 6.0** and **Python 3.13**. All code, syntax, and conventions should follow the latest standards for these versions.
-> (For example: use `path()` for URL routing, async views, and new ORM features; avoid legacy patterns from Django 4.x or earlier.)
+> (For example: use `path()` for URL routing, prohibit async views, and new ORM features; avoid legacy patterns from Django 4.x or earlier.)
 
 ## Product Vision & Purpose
 The Skincare Allergy Filter empowers users to make safer skincare choices by checking product ingredient lists against a personal allergen profile. Phase 1 delivers fast, normalized exact matching. Phase 2 — the strategic focus — replaces naive string comparison with an alias-aware Synonym Mapper so that 'Vitamin C', 'L-Ascorbic Acid', and 'Ascorbate' all resolve to the same allergen record regardless of how a brand labels it.
@@ -32,7 +32,7 @@ _Disclaimer: This tool is not a substitute for professional medical advice._
   - **Normalization:**
     - Skincare ingredients often have multiple names (e.g., "Vitamin C" vs. "Ascorbic Acid").
     - The app includes a normalization step in the matching logic: all tokens are converted to lowercase and stripped of whitespace to ensure consistent matching (e.g., "Almond Oil" matches "almond oil").
-    - Future enhancements may include synonym mapping and fuzzy matching.
+    - Future enhancements include synonym mapping and may include fuzzy matching.
 
 - **./users/**
   - Models: CustomUser
@@ -57,8 +57,9 @@ _Disclaimer: This tool is not a substitute for professional medical advice._
 1. **Sanitization:** Clean input text (remove special characters, formatting, and whitespace).
 2. **Tokenization:** Split text into individual ingredient strings using comma delimiters.
 3. **Normalization:** Convert all tokens to lowercase and strip whitespace to ensure consistent matching (e.g., "Almond Oil" matches "almond oil").
-4. **Matching:** Cross-reference normalized tokens against the UserAllergen database to determine if any allergens are present.
-    - **Note on Future Normalization:** Plan for a "Synonym Mapper" (e.g., Vitamin C → Ascorbic Acid). The system should eventually support many-to-one aliases for ingredients.
+4. **Matching:** Cross-reference normalized tokens against the `UserAllergy` database to determine if any allergens are present.
+    - **Architecture note:** The matching pipeline is the most critical piece of logic in this product. It must be implemented as an independent service function — not inline in a view — so it remains testable in isolation and reusable across future entry points (API, barcode scan, OCR). A signature like `check_ingredients(ingredient_text: str, user: CustomUser) -> list[MatchResult]` keeps the view as a thin wrapper: receive POST, call service, render result.
+    - **Planned extensions:** Severity-aware results, alias resolution via the `AllergenAlias` model (many-to-one synonym mapping, e.g. "Vitamin C" → `ascorbic_acid`), and eventually OCR/barcode input. Each extension should be addable without touching the view layer.
 5. **Alias Resolution (Planned — Synonym Mapper)**: Before matching, resolve each normalized token against a many-to-one alias table. All known surface forms of a compound (EU Annex III 2023, common name, abbreviation) map to a single canonical allergen_key. This stage is deliberately separated from normalization so it can be developed, tested, and toggled independently.
 
 **Verdict:**
@@ -73,7 +74,7 @@ _Disclaimer: This tool is not a substitute for professional medical advice._
 | `allergies/allergies_list.html`      | `is_safe`               | bool            | True if product is safe for user, else False       |
 | `users/user_list.html`               | `users`                 | List[User]      | List of all users (admin view)                     |
 | `users/user.html`                    | `user`                  | User            | The user being viewed or edited                    |
-| `home.html`                          | `form`                  | Form            | Allergy or ingredient input form                   |
+| `home.html`                          | `form`                  | ModelMultipleChoiceField (CheckboxSelectMultiple) | Multi-select allergen form rendered as checkboxes  |
 | `product.html`                       | `product_ingredients`   | List[str]       | Ingredients for the product being checked          |
 | `product.html`                       | `allergy_result`        | str             | "Safe" or "Unsafe" result string                  |
 
