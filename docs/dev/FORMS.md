@@ -6,7 +6,7 @@
 ## Gate 4 Tasks
 
 1. Create `allergies/forms.py` with `AllergenSelectionForm` and `UserAllergyDetailForm`
-2. Create `allergies/services.py` with `match_allergens(ingredient_text)` matching logic
+2. Create `allergies/services.py` with `check_ingredients(ingredient_text, user)` matching logic
 3. Wire create/edit/check views in `allergies/views.py`
 4. Add `{% csrf_token %}` to all POST templates
 5. Write form tests (80% coverage required for new code)
@@ -56,7 +56,7 @@ class UserAllergyDetailForm(forms.ModelForm):
 
 ```python
 class ProductCheckForm(forms.Form):
-    """Paste ingredient list; returns matching allergens via services.match_allergens."""
+    """Paste ingredient list; returns matching allergens via services.check_ingredients"""
 
     ingredient_list = forms.CharField(
         widget=forms.Textarea(attrs={"rows": 6, "placeholder": "Paste full ingredient list…"}),
@@ -75,7 +75,7 @@ def check_product(request: HttpRequest) -> HttpResponse:
     form = ProductCheckForm(request.POST or None)
     matches: list | None = None
     if request.method == "POST" and form.is_valid():
-        matches = services.match_allergens(
+        matches = services.check_ingredients(
             form.cleaned_data["ingredient_list"],
             request.user,
         )
@@ -93,9 +93,10 @@ Result display in template:
 
 {% if matches is not None %}
     {% if matches %}
+        <p>Unsafe — contains the following allergens:</p>
         <ul>{% for allergen in matches %}<li>{{ allergen }}</li>{% endfor %}</ul>
     {% else %}
-        <p>No known allergens detected.</p>
+        <p>Safe — no known allergens detected.</p>
     {% endif %}
 {% endif %}
 ```
@@ -113,7 +114,7 @@ Result display in template:
                 <label>
                     <input type="checkbox" name="allergens" value="{{ allergen.pk }}"
                         {% if allergen in form.allergens.value %}checked{% endif %}>
-                    {{ allergen.allergen_label }}
+                    {{ allergen.label }}
                 </label>
             {% endfor %}
         </fieldset>
@@ -177,4 +178,4 @@ def create_allergies(request: HttpRequest) -> HttpResponse:
 ```
 
 Matching logic for the product check view lives in `allergies/services.py`
-(see `services.match_allergens`).
+(see `services.check_ingredients`).
