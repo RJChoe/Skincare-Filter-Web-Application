@@ -20,7 +20,7 @@ Django 6.0 · Python 3.13 · SQLite (dev) · `uv` for all package management.
 |------|---------|
 | [`STATUS.md`](STATUS.md) | **Current gate status and active work items — read before writing any code** |
 | [`docs/dev/LOGGING.md`](docs/dev/LOGGING.md) | Gate 2: logging standards and per-file checklist |
-| [`docs/dev/FORMS.md`](docs/dev/FORMS.md) | Gate 4: form patterns, dynamic filtering, CSRF |
+| [`docs/dev/FORMS.md`](docs/dev/FORMS.md) | Gate 4: form patterns, grouped checklist of skincare ingredients organized by subcategory (fragrances, preservatives, acids, botanicals, etc.), dynamic filtering, CSRF |
 | [`docs/dev/MIGRATIONS.md`](docs/dev/MIGRATIONS.md) | Migration rules, seeding pattern, rollback |
 | [`docs/dev/ADMIN.md`](docs/dev/ADMIN.md) | Admin class patterns, actions, N+1 prevention |
 | [`docs/dev/TESTING.md`](docs/dev/TESTING.md) | Fixtures, coverage thresholds, test examples |
@@ -41,6 +41,9 @@ Django 6.0 · Python 3.13 · SQLite (dev) · `uv` for all package management.
 **`Allergen` fields:** `category` · `allergen_key` · `is_active` · `created_at` · `updated_at`
 Unique constraint: `(category, allergen_key)`. `allergen_key` has intentional `choices=[]`
 in the model — filtering happens in forms, not the model field.
+
+**Allergen selection in forms:** uses `ModelMultipleChoiceField` with `CheckboxSelectMultiple`,
+grouped by subcategory. See [`docs/dev/FORMS.md`](../../docs/dev/FORMS.md) for the full pattern.
 
 **`allergen_key` naming rule:** the key is the name a cosmetics-literate person would use in conversation, lowercased, and underscored
 No apostrophes, hyphens, spaces, or special characters. Example: `birch_pollen` ✅ · `lamb's_quarters` ❌
