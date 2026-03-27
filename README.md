@@ -27,11 +27,11 @@ Diagram flow of data through application represents Phase 1 (exact matching) and
 - **Allergen catalog** — Structured collection of skincare ingredients organized by subcategory (fragrances, preservatives, botanicals, surfactants, etc.), selectable via grouped checkboxes
 - **Allergy profile forms** — User-facing create/edit forms with grouped checkbox selection by subcategory
 - **Ingredient safety check** — Paste any product's ingredient list; the app tokenizes, normalizes (case-insensitive, whitespace-stripped), and cross-references it against the user's active profile
+- **Product check form** — Full POST handling and result display on the product page
 - **Test coverage** — Comprehensive tests for allergy profile CRUD, form validation, and matching pipeline
 
 ### 📋 Planned
 - **Alias-Aware Matching (Synonym Mapper)** — The core technical next step. Maps every known surface form of an ingredient (INCI name, common name, abbreviation) to a single canonical allergen record, so "Vitamin C", "L-Ascorbic Acid", and "Ascorbate" all match the same allergy. Transforms the product from a string checker into an intelligent ingredient safety tool.
-- **Product check form** — Full POST handling and result display on the product page
 - **Allergy list autocomplete search** — hybrid feature along with the existing checkboxes divided into subcategories.
 - **Product lookup** — planned input method.
 - **User management pages** — Profile view, edit, and list
