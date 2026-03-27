@@ -12,7 +12,7 @@ Reading skincare ingredient labels is time-consuming and error-prone, especially
 
 ## Target User
 
-People with known skincare sensitivities or allergies who want a fast, reliable second opinion before purchasing or using a product — including those managing conditions such as contact dermatitis, fragrance sensitivity, or food-derived ingredient allergies.
+People with known skincare sensitivities or allergies who want a fast, reliable second opinion before purchasing or using a product — including those managing conditions such as contact dermatitis, fragrance sensitivity, or sensitivity to botanical or food-derived skincare ingredients.
 
 ---
 
@@ -21,7 +21,7 @@ People with known skincare sensitivities or allergies who want a fast, reliable 
 ### 1. Building a Personal Allergen Profile
 1. User creates an account and logs in.
 2. User navigates to **My Allergies**.
-3. User selects allergens from a structured catalog (grouped by category: contact/topical, food-derived, inhalant, and other).
+3. User selects allergens from a structured catalog (grouped checklist of skincare ingredients organized by subcategory (fragrances, preservatives, acids, botanicals, etc.)).
 4. For each allergen, the user optionally records:
    - Severity level (Mild / Moderate / Severe / Life-Threatening)
    - How the allergy was identified (self-reported, doctor diagnosed, allergy test, family history)
@@ -43,16 +43,17 @@ People with known skincare sensitivities or allergies who want a fast, reliable 
 ## Feature List
 
 ### ✅ Built
-- Structured allergen catalog with 80+ ingredients across four categories (contact/topical, food, inhalant, other), organized into meaningful groups (fragrances, preservatives, acids, botanicals, sunscreen filters, surfactants, etc.)
+- Structured allergen catalog with a structured catalog of skincare ingredients across a single category with subcategory grouping (fragrances, preservatives, acids, botanicals, sunscreen filters, surfactants, etc.)
 - Personal allergen profile: add/remove allergens with severity level, source, reaction history, and confirmation status
-- Ingredient list safety check with case-insensitive, whitespace-normalized matching
-- "Fail fast" detection — flags a product unsafe at the first allergen match and names the offending ingredient
 - Admin panel for managing the allergen catalog (activate/deactivate entries, bulk actions with audit logging)
 - User authentication via a custom user model
+- Matching is exhaustive — all allergens are checked against all tokens; the pipeline never short-circuits on the first hit
 
 ### 🔄 In Progress
-- User-facing forms for creating and editing allergy entries with dynamic allergen selection (category → specific allergen cascading)
+- Ingredient list safety check with case-insensitive, whitespace-normalized matching
+- User-facing forms for creating and editing allergy entries with grouped checkbox selection organized into meaningful subcategories (fragrances, preservatives, acids, botanicals, sunscreen filters, surfactants, etc.)
 - Expanded test coverage for allergy profile CRUD and form validation
+- Product ingredient input form with full POST handling and result display
 
 ### 📋 Planned
 
@@ -65,7 +66,9 @@ The current engine matches ingredients by normalized string (case-insensitive, w
 - This transforms the product from a simple string checker into an intelligent ingredient safety tool that handles real-world label variability.
 
 **Additional planned features**
-- Product ingredient input form with full POST handling and result display
+- Allergy list autocomplete search will be a future hybrid feature along with the existing checkboxes divided into subcategories.
+- Product lookup as a planned input method.
+- Severity-aware result display as a planned feature.
 - User management pages (profile view, edit, list)
 - Image/OCR ingredient capture — photograph a product label instead of typing
 - Barcode scanning integration for automatic ingredient lookup
@@ -75,6 +78,7 @@ The current engine matches ingredients by normalized string (case-insensitive, w
 ## Known Limitations
 
 - **Text input only (MVP):** Ingredients must be manually pasted or typed; image and barcode input are not yet supported.
+- **MVP** returns binary safe/unsafe; severity-aware results are planned.
 - **Alias matching not yet implemented:** Until the Synonym Mapper ships, a product listing "Ascorbic Acid" will not match a profile entry saved as "Vitamin C." Users should be aware that alternate ingredient names may not be caught in the current version.
 - **Catalog scope:** The allergen catalog covers common skincare-relevant allergens. Highly niche or regional ingredients may not appear in the current catalog.
 - **No medical validation:** Severity levels and confirmation status are user-reported and are not verified by a medical professional through this tool.
