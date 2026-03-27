@@ -265,6 +265,8 @@ uv run pytest -m "not slow" && uv run ruff check . --fix && uv run ruff format .
            transaction.set_rollback(True)  # Ensure transaction rollback
            return render(request, 'error.html', {'message': 'Something went wrong'})
 
+    > **Note:** This is a generic error-handling pattern. The actual Gate 4 allergen creation uses batch checkbox selection via `AllergenSelectionForm` — see [`docs/dev/FORMS.md`](docs/dev/FORMS.md) for the current form patterns.
+
     # ✅ Pattern 2: For service layer (business logic)
     # services.py
     @transaction.atomic
@@ -533,7 +535,26 @@ user_allergies = UserAllergy.objects.select_related('allergen').filter(user=requ
 # ❌ Bad: N+1 query problem
 user_allergies = UserAllergy.objects.filter(user=request.user)
 for ua in user_allergies:
-    print(ua.allergen.allergen_label)  # N additional queries
+    print(ua.allergen.label)  # N additional queries
+```
+
+**Service Layer:** Business logic (especially the matching pipeline) lives in service modules, not in views. Views are thin wrappers that call service functions and render results.
+```python
+# ✅ Good: Matching logic in services.py
+# allergies/services.py
+def check_ingredients(ingredient_text: str, user: CustomUser) -> list[MatchResult]:
+    """Tokenize, normalize, and match ingredients against user's allergen profile."""
+    ...
+
+# allergies/views.py — thin wrapper
+matches = services.check_ingredients(form.cleaned_data["ingredient_list"], request.user)
+return render(request, "allergies/check_product.html", {"matches": matches})
+
+# ❌ Bad: Matching logic inline in the view
+def check_product(request):
+    text = request.POST["ingredients"]
+    tokens = text.split(",")
+    # ... 30 lines of matching logic ...
 ```
 
 **Templates:** Extend `layout.html` and load static files
