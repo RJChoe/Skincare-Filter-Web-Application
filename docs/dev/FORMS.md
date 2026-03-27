@@ -1,7 +1,3 @@
-> ⚠️ OUTDATED — Gate 4 form pattern changed to autocomplete search input.
-> This document describes the cascading dropdown pattern which was superseded.
-> Do not implement from this file. See STATUS.md for current Gate 4 tasks.
-
 # Forms & Validation
 
 > Gate 4 reference. **Do not implement until Gates 2 and 3 are complete.**
@@ -9,107 +5,119 @@
 
 ## Gate 4 Tasks
 
-1. Create `allergies/forms.py` with `UserAllergyForm`
-2. Add a JSON endpoint (`get_allergen_keys`) for dynamic category → allergen filtering
-3. Wire create/edit views in `allergies/views.py`
+1. Create `allergies/forms.py` with `AllergenSelectionForm` and `UserAllergyDetailForm`
+2. Create `allergies/services.py` with `match_allergens(ingredient_text)` matching logic
+3. Wire create/edit/check views in `allergies/views.py`
 4. Add `{% csrf_token %}` to all POST templates
 5. Write form tests (80% coverage required for new code)
 
-## `UserAllergyForm` Pattern
+## `AllergenSelectionForm` Pattern (batch create)
 
 ```python
 # allergies/forms.py
 from django import forms
-from django.core.exceptions import ValidationError
-from allergies.models import UserAllergy, Allergen
-import logging
+from allergies.models import Allergen, UserAllergy
 
-logger = logging.getLogger(__name__)
+class AllergenSelectionForm(forms.Form):
+    """Batch allergen selection. Renders grouped checkboxes — no JS required."""
 
+    allergens = forms.ModelMultipleChoiceField(
+        queryset=Allergen.objects.filter(is_active=True).order_by("subcategory", "allergen_key"),
+        widget=forms.CheckboxSelectMultiple,
+        required=True,
+    )
+```
 
-class UserAllergyForm(forms.ModelForm):
-    """Form for creating/editing user allergies with dynamic allergen filtering."""
+The template groups checkboxes using Django's `{% regroup %}` tag on `allergen.subcategory`.
+The view passes the queryset directly — no choices constant or pk mapping dict needed.
+
+## `UserAllergyDetailForm` Pattern (edit)
+
+```python
+class UserAllergyDetailForm(forms.ModelForm):
+    """Edit severity, confirmation, source, and reaction details for one allergen."""
 
     class Meta:
         model = UserAllergy
-        fields = [
-            "allergen",
-            "severity_level",
-            "is_confirmed",
-            "source_info",
-            "user_reaction_details",
-        ]
+        fields = ["severity_level", "is_confirmed", "source_info", "user_reaction_details"]
         widgets = {
             "user_reaction_details": forms.Textarea(attrs={"rows": 3}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["allergen"].queryset = Allergen.objects.filter(is_active=True)
-
     def clean(self) -> dict:
         cleaned_data = super().clean()
         severity_level = cleaned_data.get("severity_level")
-        if severity_level == "severe" and not cleaned_data.get("is_confirmed"):
-            logger.warning(
-                "Severe allergy submitted without confirmation — "
-                "user %s", self.instance.user_id if self.instance.pk else "new"
-            )
+        if severity_level in ("severe", "life_threatening") and not cleaned_data.get("is_confirmed"):
             raise ValidationError("Severe allergies require confirmation.")
         return cleaned_data
 ```
 
-## Dynamic Category → Allergen Filtering
-
-`allergen_key` choices are category-dependent. The recommended approach is a
-lightweight JSON view — no HTMX dependency, fits the current no-partials constraint.
+## Product Check Form Pattern
 
 ```python
-# allergies/views.py — add this alongside existing views
-from django.http import JsonResponse
-from allergies.constants.choices import CATEGORY_TO_ALLERGENS_MAP
+class ProductCheckForm(forms.Form):
+    """Paste ingredient list; returns matching allergens via services.match_allergens."""
 
-def get_allergen_keys(request: HttpRequest) -> JsonResponse:
-    """Return allergen key/label pairs for a given category."""
-    category = request.GET.get("category", "")
-    choices = CATEGORY_TO_ALLERGENS_MAP.get(category, [])
-    return JsonResponse({"allergens": [{"key": k, "label": l} for k, l in choices]})
+    ingredient_list = forms.CharField(
+        widget=forms.Textarea(attrs={"rows": 6, "placeholder": "Paste full ingredient list…"}),
+        label="Ingredient List",
+    )
 ```
 
-```javascript
-// Minimal JS — fetch allergens when category changes
-document.getElementById("id_category").addEventListener("change", function () {
-    fetch(`/allergies/allergen-keys/?category=${this.value}`)
-        .then(r => r.json())
-        .then(data => {
-            const select = document.getElementById("allergen-key-select");
-            select.innerHTML = '<option value="">Select allergen…</option>';
-            data.allergens.forEach(a => {
-                select.insertAdjacentHTML("beforeend",
-                    `<option value="${a.key}">${a.label}</option>`);
-            });
-        });
-});
+View:
+
+```python
+# allergies/views.py
+from allergies import services
+
+@login_required
+def check_product(request: HttpRequest) -> HttpResponse:
+    form = ProductCheckForm(request.POST or None)
+    matches: list | None = None
+    if request.method == "POST" and form.is_valid():
+        matches = services.match_allergens(
+            form.cleaned_data["ingredient_list"],
+            request.user,
+        )
+    return render(request, "allergies/check_product.html", {"form": form, "matches": matches})
 ```
 
-## Template Pattern
+Result display in template:
 
 ```html
-<form method="post" id="allergy-form">
+<form method="post">
     {% csrf_token %}
-
-    <select name="category" id="id_category">
-        <option value="">Select category…</option>
-        {% for value, label in CATEGORY_CHOICES %}
-            <option value="{{ value }}">{{ label }}</option>
-        {% endfor %}
-    </select>
-
-    <select name="allergen_key" id="allergen-key-select">
-        <option value="">Select allergen…</option>
-    </select>
-
     {{ form.as_p }}
+    <button type="submit">Check</button>
+</form>
+
+{% if matches is not None %}
+    {% if matches %}
+        <ul>{% for allergen in matches %}<li>{{ allergen }}</li>{% endfor %}</ul>
+    {% else %}
+        <p>No known allergens detected.</p>
+    {% endif %}
+{% endif %}
+```
+
+## Template Pattern (batch allergen selection)
+
+```html
+<form method="post">
+    {% csrf_token %}
+    {% regroup allergens by subcategory as subcategory_groups %}
+    {% for group in subcategory_groups %}
+        <fieldset>
+            <legend>{{ group.grouper }}</legend>
+            {% for allergen in group.list %}
+                <label>
+                    <input type="checkbox" name="allergens" value="{{ allergen.pk }}"
+                        {% if allergen in form.allergens.value %}checked{% endif %}>
+                    {{ allergen.allergen_label }}
+                </label>
+            {% endfor %}
+        </fieldset>
+    {% endfor %}
     <button type="submit">Save</button>
 </form>
 ```
@@ -152,30 +160,21 @@ Always call `form.is_valid()` before accessing `form.cleaned_data`.
 # allergies/views.py
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.core.exceptions import ValidationError
 
 @login_required
 @transaction.atomic
-def create_allergy(request: HttpRequest) -> HttpResponse:
-    if request.method == "POST":
-        form = UserAllergyForm(request.POST)
-        if form.is_valid():
-            try:
-                allergy = form.save(commit=False)
-                allergy.user = request.user
-                allergy.full_clean()
-                allergy.save()
-                logger.info(
-                    "User %s created allergy %s", request.user.id, allergy.id
-                )
-                return redirect("allergies:list")
-            except ValidationError as e:
-                logger.warning(
-                    "Validation failed for user %s: %s", request.user.id, e
-                )
-                transaction.set_rollback(True)
-                form.add_error(None, e)
-    else:
-        form = UserAllergyForm()
-    return render(request, "allergies/allergy_form.html", {"form": form})
+def create_allergies(request: HttpRequest) -> HttpResponse:
+    allergens = Allergen.objects.filter(is_active=True).order_by("subcategory", "allergen_key")
+    form = AllergenSelectionForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        for allergen in form.cleaned_data["allergens"]:
+            UserAllergy.objects.get_or_create(user=request.user, allergen=allergen)
+        return redirect("allergies:list")
+    return render(request, "allergies/allergy_form.html", {
+        "form": form,
+        "allergens": allergens,
+    })
 ```
+
+Matching logic for the product check view lives in `allergies/services.py`
+(see `services.match_allergens`).
