@@ -66,7 +66,6 @@ Pre-Gate 4 Tasks (data foundation):
       - All entries get category="contact"
       - Remove pure food allergens (peanut, shellfish) and inhalants (dust mite, pollen, pet dander)
       - Add food-derived skincare ingredients as individual compounds with subcategory="Food-Derived Ingredients" (albumin, hydrolyzed wheat protein, almond oil, coconut oil, oat extract, soy protein, etc.)
-      - Add pollen-derived skincare ingredients as individual compounds with subcategory="Pollen-Derived Ingredients" Example: ragweed pollen allergy → chamomile ingredient reactivity
       - Decompose group-level keys: parabens → methylparaben, propylparaben, butylparaben, ethylparaben; same for formaldehyde_releasers, peg_compounds, polysorbates
       - Expand abbreviation keys: sls → sodium_lauryl_sulfate, sles → sodium_laureth_sulfate
       - Populate inci_name and common_names on every entry (data captured for future Synonym Mapper, not consumed at Gate 4)
@@ -128,7 +127,7 @@ Gate 4 Proper Tasks (forms, views, matching):
   - All views: @login_required, @transaction.atomic on writes, logging at INFO for create/update/delete
   - This completes the deferred Gate 2 item (POST logging in allergies/views.py)
 
-3. Task 3: Create allergies/services.py (matching pipeline)
+3. Create allergies/services.py (matching pipeline)
   - check_ingredients(ingredient_text: str, user: CustomUser) -> list[MatchResult]
   - Sanitize input: remove special characters, formatting
   - Tokenize: split on commas
@@ -195,75 +194,7 @@ These are the specific tasks to complete **right now**, in order:
 
 ### Pre-Gate 4 Tasks (data foundation) — start here
 
-1. **Build `allergies/constants/compounds.py`** ← *active now*
-   - Define `CompoundEntry` NamedTuple with fields: `key`, `inci_name`,
-     `display_label`, `category`, `subcategory`, `common_names`,
-     `cas_number`, `eu_annex_iii`, `regulatory_ref`
-   - Migrate every entry from `choices.py` applying locked decisions:
-     - All entries get `category=CATEGORY_CONTACT`
-     - Remove pure food allergens (`peanut`, `shellfish`) and inhalants
-       (`dust_mite`, `grass_pollen`, `pet_dander`, etc.)
-     - Add food-derived skincare ingredients as individual compounds under
-       `subcategory="Food-Derived Ingredients"` (albumin, hydrolyzed wheat
-       protein, almond oil, coconut oil, oat extract, soy protein, etc.)
-     - Add pollen-derived skincare ingredients under
-       `subcategory="Pollen-Derived Ingredients"` (e.g. ragweed pollen
-       allergy → chamomile ingredient reactivity)
-     - Decompose group-level keys: `parabens` → `methylparaben`,
-       `propylparaben`, `butylparaben`, `ethylparaben`; same for
-       `formaldehyde_releasers`, `peg_compounds`, `polysorbates`
-     - Expand abbreviation keys: `sls` → `sodium_lauryl_sulfate`,
-       `sles` → `sodium_laureth_sulfate`
-     - Populate `inci_name` and `common_names` on every entry (data
-       captured for future Synonym Mapper — not consumed at Gate 4)
-     - Set `eu_annex_iii` and `regulatory_ref` on all fragrance and
-       preservative entries
-   - Export: `COMPOUNDS`, `CompoundEntry`, `FLAT_ALLERGEN_LABEL_MAP`,
-     `CATEGORY_CHOICES` (single entry), `CATEGORY_CONTACT`
-   - Do not export: `FORM_ALLERGIES_CHOICES`, `INCI_NAME_TO_KEY`,
-     `ALL_NAMES_TO_KEY`, `CATEGORY_TO_ALLERGENS_MAP`
-   - Import-time validation: assert unique keys, assert well-formed entries
-   - No imports from `choices.py`
-   - Do not write any migration yet — that is steps 3 and 4 below
-
-2. **Delete `choices.py`, update all imports** — after item 1 is done
-   - Update imports in `models.py`, `conftest.py`, `views.py` to point to
-     `allergies.constants.compounds`
-   - Remove `CATEGORY_OTHER`, `CATEGORY_FOOD`, `CATEGORY_INHALANT` from
-     all files
-   - Update `conftest.py`: remove `food_allergen` fixture; replace with a
-     second contact-category fixture; expand `allergen_key="sls"` to
-     `"sodium_lauryl_sulfate"`; add `label=` and `subcategory=` to
-     `.create()` calls once those fields exist
-   - Delete `allergies/constants/choices.py`
-   - Run existing tests — they must pass with import path and fixture key
-     updates only
-
-3. **Migration 1 — schema only** — after item 2 is done
-   - `uv run python manage.py makemigrations allergies --name add_label_and_subcategory_fields`
-   - Adds `label = CharField(max_length=200, blank=False, default="")` to `Allergen`
-   - Adds `subcategory = CharField(max_length=100, blank=False, default="")` to `Allergen`
-   - Updates `category` field default: `CATEGORY_CONTACT` (was `CATEGORY_OTHER`)
-   - Pure `AddField` operations — no `RunPython`, no data writes
-   - `__str__` still uses `FLAT_ALLERGEN_LABEL_MAP` — **no behavior change yet**
-   - Rollback is a clean `RemoveField` with no data loss risk
-
-4. **Migration 2 — data/seed** — after item 3 is merged
-   - Hand-write `allergies/migrations/XXXX_seed_allergen_catalog.py` with `RunPython`
-   - `dependencies` must point to Migration 1
-   - Reads `COMPOUNDS` from `allergies.constants.compounds`; creates `Allergen`
-     rows with `category`, `allergen_key`, `label`, `subcategory`, `is_active=True`
-   - Provide reverse function that deletes seeded rows
-   - If this migration fails mid-run, Migration 1 can be rolled back
-     independently — this is why the two migrations are kept separate
-
-5. **Model cleanup — same PR as Migration 2**
-   - Update `Allergen.__str__()`: replace `FLAT_ALLERGEN_LABEL_MAP.get(...)`
-     with `self.label`
-   - Delete the `allergen_label` property — callers use `self.label`
-   - Remove `FLAT_ALLERGEN_LABEL_MAP` import from `models.py`
-   - After this step, `models.py` has zero runtime dependency on `compounds.py`
-   - **Gate 4 task 1 (`forms.py`) must not start until this is confirmed merged**
+See Gate 4 Detail above — start with Pre-Gate 4 Task 0 (compounds.py).
 
 ---
 
@@ -298,11 +229,6 @@ These cannot be started until the gates above are done:
 
 - **Product lookup** — A second input method alongside text paste. The user searches for a product by name instead of pasting an ingredient list. Requires a product database (either sourced from an external dataset or built via an external API integration such as Open Beauty Facts). The matching pipeline is unchanged — product lookup resolves a product name to an ingredient string, which feeds the same check_ingredients() function in allergies/services.py. This is an input method, not a matching change. Text paste remains available as a fallback for products not in the database.
 
-- **`choices.py` deletion** — `choices.py` will be deleted once the model cleanup
-  step (Active Work Item 4) removes `FLAT_ALLERGEN_LABEL_MAP` from `models.py`.
-  Do not delete before that cleanup is confirmed merged. No split into
-  `categories.py`/`allergens.py` — the file goes away entirely.
-
 ---
 
 ## Verification Protocol
@@ -322,4 +248,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/25/2026 2:15 AM — Migration sequence clarified: schema (Migration 1, makemigrations) and seed (Migration 2, RunPython) are now two separate migrations; model cleanup (step 0d) explicitly sequenced in same PR as Migration 2.*
+*Last updated: 3/27/2026 1:04 AM — Updated Pre-Gate 4 work and aligned all docs with allergies/constants/compounds.py delivered as checkbox with subcategories (fragrances, botanicals, parabens, etc.)*
