@@ -493,7 +493,7 @@ from pathlib import Path
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from allergies.constants.choices import CATEGORY_CHOICES
+from allergies.constants.compounds import CATEGORY_CHOICES
 from allergies.models import Allergen
 ```
 
