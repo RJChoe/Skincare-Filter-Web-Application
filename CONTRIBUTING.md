@@ -264,9 +264,10 @@ uv run pytest -m "not slow" && uv run ruff check . --fix && uv run ruff format .
            logger.error(f"Unexpected error creating allergy: {e}", exc_info=True)
            transaction.set_rollback(True)  # Ensure transaction rollback
            return render(request, 'error.html', {'message': 'Something went wrong'})
-
+    ```
     > **Note:** This is a generic error-handling pattern. The actual Gate 4 allergen creation uses batch checkbox selection via `AllergenSelectionForm` — see [`docs/dev/FORMS.md`](docs/dev/FORMS.md) for the current form patterns.
 
+    ```python
     # ✅ Pattern 2: For service layer (business logic)
     # services.py
     @transaction.atomic
