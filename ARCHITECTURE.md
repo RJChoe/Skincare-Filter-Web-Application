@@ -29,6 +29,7 @@ _Disclaimer: This tool is not a substitute for professional medical advice._
   - Views: Allergy input, ingredient check, safety alert
   - Admin: Manage allergy data
   - Templates: User-facing allergy forms and results
+  - Services: Ingredient matching pipeline (services.py).
   - **Normalization:**
     - Skincare ingredients often have multiple names (e.g., "Vitamin C" vs. "Ascorbic Acid").
     - The app includes a normalization step in the matching logic: all tokens are converted to lowercase and stripped of whitespace to ensure consistent matching (e.g., "Almond Oil" matches "almond oil").
@@ -63,7 +64,7 @@ _Disclaimer: This tool is not a substitute for professional medical advice._
 5. **Alias Resolution (Planned — Synonym Mapper)**: Before matching, resolve each normalized token against a many-to-one alias table. All known surface forms of a compound (EU Annex III 2023, common name, abbreviation) map to a single canonical allergen_key. This stage is deliberately separated from normalization so it can be developed, tested, and toggled independently.
 
 **Verdict:**
-- “Search & Destroy” Logic: Prioritize the core matching algorithm. The system’s primary goal is rapid identification of blacklisted ingredients. Once an allergen is detected, the process should immediately flag the product as "Unsafe" and identify the offending ingredient.
+- The system collects all matching allergens in a single pass. The MVP template renders this as binary safe/unsafe; severity-aware display will group matches by severity level.
 
 ## Interface: View-to-Template Context Variables
 
@@ -74,9 +75,9 @@ _Disclaimer: This tool is not a substitute for professional medical advice._
 | `allergies/allergies_list.html`      | `is_safe`               | bool            | True if product is safe for user, else False       |
 | `users/user_list.html`               | `users`                 | List[User]      | List of all users (admin view)                     |
 | `users/user.html`                    | `user`                  | User            | The user being viewed or edited                    |
-| `home.html`                          | `form`                  | ModelMultipleChoiceField (CheckboxSelectMultiple) | Multi-select allergen form rendered as checkboxes  |
+| `home.html`                          | `form`                  | form | Allergen selection form (grouped checkboxes by subcategory). |
 | `product.html`                       | `product_ingredients`   | List[str]       | Ingredients for the product being checked          |
-| `product.html`                       | `allergy_result`        | str             | "Safe" or "Unsafe" result string                  |
+| `product.html`                       | matches        | list[MatchResult] | None             |
 
 **Notes:**
 - `request.user` is always available in templates, but custom user data (like allergies) is passed explicitly as `user_allergies`.
