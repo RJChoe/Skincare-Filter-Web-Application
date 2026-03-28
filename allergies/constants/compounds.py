@@ -363,6 +363,59 @@ _GENERAL_CONTACT_ALLERGENS: Final[tuple[CompoundEntry, ...]] = (
         eu_annex_iii=False,
         regulatory_ref="",
     ),
+    CompoundEntry(
+        key="cobalt",
+        inci_name="Cobalt",
+        display_label="Cobalt",
+        category=CATEGORY_CONTACT,
+        subcategory="General Contact Allergens",
+        common_names=("cobalt", "cobalt chloride", "cobalt sulfate"),
+        cas_number="7440-48-4",
+        eu_annex_iii=False,
+        regulatory_ref="EU REACH Annex XVII/27",
+    ),
+    CompoundEntry(
+        key="potassium_dichromate",
+        inci_name="Potassium Dichromate",
+        display_label="Potassium Dichromate (Chromium)",
+        category=CATEGORY_CONTACT,
+        subcategory="General Contact Allergens",
+        common_names=(
+            "potassium dichromate",
+            "chromium",
+            "chromate",
+            "potassium bichromate",
+        ),
+        cas_number="7778-50-9",
+        eu_annex_iii=False,
+        regulatory_ref="EU REACH Annex XVII/47",
+    ),
+    CompoundEntry(
+        key="colophonium",
+        inci_name="Colophonium",
+        display_label="Colophonium (Rosin)",
+        category=CATEGORY_CONTACT,
+        subcategory="General Contact Allergens",
+        common_names=("colophonium", "rosin", "colophony", "pine resin"),
+        cas_number="8050-09-7",
+        eu_annex_iii=False,
+        regulatory_ref="CLP Skin Sens. 1 H317",
+    ),
+)
+
+# --- Hair Dye Allergens ---
+_HAIR_DYE_ALLERGENS: Final[tuple[CompoundEntry, ...]] = (
+    CompoundEntry(
+        key="p_phenylenediamine",
+        inci_name="p-Phenylenediamine",
+        display_label="p-Phenylenediamine (PPD)",
+        category=CATEGORY_CONTACT,
+        subcategory="Hair Dye Allergens",
+        common_names=("PPD", "p-phenylenediamine", "1,4-diaminobenzene"),
+        cas_number="106-50-3",
+        eu_annex_iii=True,
+        regulatory_ref="EU Annex III/8a (max 2% as free base)",
+    ),
 )
 
 # --- Fragrances: EU 26 + 2023 expansion (EU 2023/1545) ---
@@ -1920,6 +1973,47 @@ _FOOD_DERIVED_INGREDIENTS: Final[tuple[CompoundEntry, ...]] = (
     ),
 )
 
+# --- Fatty Alcohols ---
+_FATTY_ALCOHOLS: Final[tuple[CompoundEntry, ...]] = (
+    CompoundEntry(
+        key="cetyl_alcohol",
+        inci_name="Cetyl Alcohol",
+        display_label="Cetyl Alcohol",
+        category=CATEGORY_CONTACT,
+        subcategory="Fatty Alcohols",
+        common_names=("cetyl alcohol", "hexadecan-1-ol", "1-hexadecanol"),
+        cas_number="36653-82-4",
+        eu_annex_iii=False,
+        regulatory_ref="",
+    ),
+    CompoundEntry(
+        key="stearyl_alcohol",
+        inci_name="Stearyl Alcohol",
+        display_label="Stearyl Alcohol",
+        category=CATEGORY_CONTACT,
+        subcategory="Fatty Alcohols",
+        common_names=("stearyl alcohol", "octadecan-1-ol", "1-octadecanol"),
+        cas_number="112-92-5",
+        eu_annex_iii=False,
+        regulatory_ref="",
+    ),
+    CompoundEntry(
+        key="cetearyl_alcohol",
+        inci_name="Cetearyl Alcohol",
+        display_label="Cetearyl Alcohol",
+        category=CATEGORY_CONTACT,
+        subcategory="Fatty Alcohols",
+        common_names=(
+            "cetearyl alcohol",
+            "cetostearyl alcohol",
+            "cetylstearyl alcohol",
+        ),
+        cas_number="67762-27-0",
+        eu_annex_iii=False,
+        regulatory_ref="",
+    ),
+)
+
 
 # ============================================================================
 # Assembled catalog
@@ -1930,6 +2024,7 @@ COMPOUNDS: Final[tuple[CompoundEntry, ...]] = (
     *_BOTANICALS_AND_ESSENTIAL_OILS,
     *_COLORANTS_AND_DYES,
     *_GENERAL_CONTACT_ALLERGENS,
+    *_HAIR_DYE_ALLERGENS,
     *_FRAGRANCES,
     *_PRESERVATIVES,
     *_PROTEINS_AND_EXTRACTS,
@@ -1937,6 +2032,7 @@ COMPOUNDS: Final[tuple[CompoundEntry, ...]] = (
     *_SURFACTANTS_AND_EMULSIFIERS,
     *_OTHER_GENERAL_CONTACT,
     *_FOOD_DERIVED_INGREDIENTS,
+    *_FATTY_ALCOHOLS,
 )
 
 

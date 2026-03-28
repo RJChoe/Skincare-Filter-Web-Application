@@ -82,6 +82,8 @@ Pre-Gate 4 Tasks (data foundation):
   - Delete allergies/constants/choices.py
   - Run existing tests — they should pass with import path and fixture key updates
 
+0bb. 🚧 In Progress: Add 5 compound groups to compounds.py (PPD, cobalt, chromium, cetyl/stearyl/cetearyl alcohols, colophonium); verify each INCI name and CAS against EU CosIng before inserting; confirm import-time key-uniqueness assertion passes after adding.
+
 0c. Run Migration 1 (schema): add `label` field to `Allergen` — `makemigrations` output only,
     no data writes, no behavior change (see Active Work Items for full sequence)
   - uv run python manage.py makemigrations allergies --name add_label_and_subcategory_fields
@@ -230,6 +232,8 @@ These cannot be started until the gates above are done:
 - **Severity-aware result display** — Upgrades the product check from binary safe/unsafe to severity-differentiated output. Matches with severity_level="severe" or "life_threatening" render as blocks; matches with "mild" or "moderate" render as warnings. The matching pipeline in allergies/services.py already collects all matches with their severity — this is a template-only change. Replace the binary result template with one that groups matches by severity and renders them differently. No model, form, view logic, or pipeline changes required.
 
 - **Product lookup** — A second input method alongside text paste. The user searches for a product by name instead of pasting an ingredient list. Requires a product database (either sourced from an external dataset or built via an external API integration such as Open Beauty Facts). The matching pipeline is unchanged — product lookup resolves a product name to an ingredient string, which feeds the same check_ingredients() function in allergies/services.py. This is an input method, not a matching change. Text paste remains available as a fallback for products not in the database.
+
+- **Compound catalog expansion (Tier 2 & Tier 3)** — Additional allergen entries deferred post-seed migration. Not MVP-blocking; add via a follow-up data migration after the seed lands. Tier 2 candidates: BHT, BHA, propyl gallate, triclosan, triethanolamine (TEA), ethylhexylglycerin, aloe vera. Tier 3 candidates: TBD. Verify each against EU CosIng before inserting; follow the one-entry-per-CAS-distinct-substance rule.
 
 ---
 
