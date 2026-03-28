@@ -329,4 +329,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/27/2026 1:04 AM — Updated Pre-Gate 4 work and aligned all docs with allergies/constants/compounds.py delivered as checkbox with subcategories (fragrances, botanicals, parabens, etc.)*
+*Last updated: 3/27/2026 10:25 PM — updated collision on common names damascenone. Created compounds.py and updated SATTUS.md with design decisions on multiple INCI common names*
