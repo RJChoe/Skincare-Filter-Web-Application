@@ -112,7 +112,7 @@ class CompoundEntry(NamedTuple):
 
 **Alias data is structured for the Synonym Mapper.** The `common_names` tuple and `inci_name` field on every `CompoundEntry` contain the seed data for the planned `AllergenAlias` model. When that model ships, these values populate it directly — no manual re-entry. An in-memory `ALL_NAMES_TO_KEY` lookup can be derived from the same data for the MVP matching pipeline.
 
-**EU regulatory data is captured per compound.** Every fragrance allergen in the EU's 2023 expansion list (EU 2023/1545) and every Annex III-listed preservative carries its regulation reference and CAS number. This data supports future features (regulatory compliance display, region-aware filtering) without requiring a second data migration.
+**EU regulatory data is captured per compound.** Every fragrance allergen in the EU's 2023 expansion list (Commission Implementing Regulation (EU) 2023/1545 of 27 July 2023, [EUR-Lex CELEX 32023R1545](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R1545)) and every Annex III-listed preservative carries its regulation reference and CAS number. This data supports future features (regulatory compliance display, region-aware filtering) without requiring a second data migration.
 
 **The compound catalog is self-validating.** Import-time assertions catch duplicate keys, empty required fields, and key format violations before any test or server run. This prevents the silent divergence between the database and the display layer that was possible with the old static tuple approach.
 
