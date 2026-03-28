@@ -237,6 +237,19 @@ These cannot be started until the gates above are done:
 
 ---
 
+## allergies/models.py Design Decisions
+
+### blank=False with default="" on Allergen.label and Allergen.subcategory
+
+Both fields use `blank=False, default=""`. This combination is intentional:
+- `blank=False` prevents saving an empty value through forms or admin.
+- `default=""` exists solely to let `makemigrations` run without interactive
+  prompts (it cannot know the table is empty at migration time).
+- The seed migration always provides real values from `CompoundEntry.display_label`
+  and `CompoundEntry.subcategory`. No row will ever have an empty string in practice.
+
+---
+
 ## Compound Catalog Design Decisions
 
 Decisions recorded here govern the structure of `allergies/constants/compounds.py`.
@@ -392,4 +405,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/28/2026 4:53 PM — updated STATUS.md 0c with DB reset since no seeded data; 0bb complete; design decisions added Potassium dichromate, Fatty alcohols, rosin, PPD; updated PROEJCT_TREE.md to include .github*
+*Last updated: 3/28/2026 5:12 PM — updated STATUS.md 0c with DB reset since no seeded data; 0bb complete; design decisions added allergies/models.py default="", Potassium dichromate, Fatty alcohols, rosin, PPD; updated PROEJCT_TREE.md to include .github*
