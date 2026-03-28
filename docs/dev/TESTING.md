@@ -151,14 +151,6 @@ def contact_allergen(db):
         is_active=True,
     )
 
-@pytest.fixture
-def food_allergen(db):
-    """Peanut — food category."""
-    return Allergen.objects.create(
-        category=CATEGORY_FOOD,
-        allergen_key="peanut",
-        is_active=True,
-    )
 
 @pytest.fixture
 def user_allergy(db, test_user, contact_allergen):
@@ -217,7 +209,6 @@ class TestAllergenModel:
     def test_category_to_allergens_map_contains_expected_keys(self):
         """Verify CATEGORY_TO_ALLERGENS_MAP is complete for both fixture allergens."""
         assert ("sls", "Sodium Lauryl Sulfate (SLS)") in CATEGORY_TO_ALLERGENS_MAP[CATEGORY_CONTACT]
-        assert ("peanut", "Peanut") in CATEGORY_TO_ALLERGENS_MAP[CATEGORY_FOOD]
 
     def test_create_allergy_sets_correct_attributes(self, test_user, contact_allergen):
         allergy = UserAllergy.objects.create(

@@ -1,0 +1,16 @@
+title = "Filter gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Chemical compound identifiers in the compound catalog are not secrets"
+regexTarget = "line"
+regexes = [
+    '''key="hydroxyisohexyl_3_cyclohexene_carboxaldehyde"''',
+    '''key="quaternium_15"''',
+    '''key="peg_40_hydrogenated_castor_oil"''',
+    '''key="polysorbate_20"''',
+    '''key="polysorbate_60"''',
+    '''key="polysorbate_80"''',
+]

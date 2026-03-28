@@ -9,7 +9,7 @@ import logging
 import pytest
 from django.contrib.auth import get_user_model
 
-from allergies.constants.choices import CATEGORY_CONTACT, CATEGORY_FOOD
+from allergies.constants.compounds import CATEGORY_CONTACT
 from allergies.models import Allergen, UserAllergy
 from users.models import CustomUser
 
@@ -86,23 +86,23 @@ def contact_allergen(db):
 
     Returns:
         Allergen: Contact allergen with category='contact',
-                  allergen_key='sls', is_active=True
+                  allergen_key='sodium_lauryl_sulfate', is_active=True
     """
     return Allergen.objects.create(
-        category=CATEGORY_CONTACT, allergen_key="sls", is_active=True
+        category=CATEGORY_CONTACT, allergen_key="sodium_lauryl_sulfate", is_active=True
     )
 
 
 @pytest.fixture
-def food_allergen(db):
-    """Create a food allergen: Peanut.
+def second_contact_allergen(db):
+    """Create a second contact allergen: Methylparaben.
 
     Returns:
-        Allergen: Food allergen with category='food',
-                  allergen_key='peanut', is_active=True
+        Allergen: Contact allergen with category='contact',
+                  allergen_key='methylparaben', is_active=True
     """
     return Allergen.objects.create(
-        category=CATEGORY_FOOD, allergen_key="peanut", is_active=True
+        category=CATEGORY_CONTACT, allergen_key="methylparaben", is_active=True
     )
 
 

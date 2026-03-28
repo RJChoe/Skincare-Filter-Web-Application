@@ -8,8 +8,17 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
-from allergies.constants.choices import FORM_ALLERGIES_CHOICES
+from allergies.constants.compounds import CATEGORY_CHOICES, COMPOUNDS
 from allergies.exceptions import AllergenNotFoundError, InvalidIngredientError
+
+FORM_ALLERGIES_CHOICES = [
+    (
+        cat_key,
+        cat_label,
+        [(c.key, c.display_label) for c in COMPOUNDS if c.category == cat_key],
+    )
+    for cat_key, cat_label in CATEGORY_CHOICES
+]
 
 # Module-level logger setup
 logger = logging.getLogger(__name__)
