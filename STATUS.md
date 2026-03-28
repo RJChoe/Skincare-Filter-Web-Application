@@ -59,7 +59,7 @@ exists with domain exception classes.
 **No hard blockers.** Gates 2 and 3 are effectively unblocked — the only open Gate 2 item (`allergies/views.py` POST logging) resolves within this gate, not before it.
 
 Pre-Gate 4 Tasks (data foundation):
-0. Complete `allergies/constants/compounds.py` — all `CompoundEntry`
+0. ✅ Complete: Complete `allergies/constants/compounds.py` — all `CompoundEntry`
    rows migrated from `choices.py`; no stubs
   - Create CompoundEntry NamedTuple with fields: key, inci_name, display_label, category, subcategory, common_names, cas_number, eu_annex_iii, regulatory_ref
   - Migrate every entry from choices.py to CompoundEntry rows, applying locked decisions:
@@ -75,12 +75,14 @@ Pre-Gate 4 Tasks (data foundation):
   - Import-time validation: assert unique keys, assert well-formed entries
   - No imports from choices.py
 
-0b. Delete choices.py, update all imports
+0b. ✅ Complete: Delete choices.py, update all imports
   - Update imports in models.py, conftest.py, views.py to point to allergies.constants.compounds
   - Remove CATEGORY_OTHER, CATEGORY_FOOD, CATEGORY_INHALANT from all files
-  - Update conftest.py: remove food_allergen fixture, replace with a second contact-category fixture, expand allergen_key="sls" to "sodium_lauryl_sulfate", add label= and subcategory= to .create() calls once those fields exist
+  - Update conftest.py: remove food_allergen fixture, replace with a second contact-category fixture, expand allergen_key="sls" to "sodium_lauryl_sulfate"
   - Delete allergies/constants/choices.py
   - Run existing tests — they should pass with import path and fixture key updates
+
+0bb. 🚧 In Progress: Add 5 compound groups to compounds.py (PPD, cobalt, chromium, cetyl/stearyl/cetearyl alcohols, colophonium); verify each INCI name and CAS against EU CosIng before inserting; confirm import-time key-uniqueness assertion passes after adding.
 
 0c. Run Migration 1 (schema): add `label` field to `Allergen` — `makemigrations` output only,
     no data writes, no behavior change (see Active Work Items for full sequence)
@@ -90,6 +92,8 @@ Pre-Gate 4 Tasks (data foundation):
   - Updates category field: default=CATEGORY_CONTACT (was CATEGORY_OTHER)
   - Pure AddField operations — no RunPython, no data writes
   - Rollback is clean RemoveField with no data loss
+  - Update conftest.py: add label= and subcategory= to Allergen.objects.create() calls
+    (use display_label/subcategory values from the corresponding CompoundEntry rows)
 
 0d. Run Migration 2 (data/seed): `RunPython` reads `ALL_COMPOUNDS`, creates `Allergen`
     rows, populates `label` on every row — depends on Migration 1
@@ -194,7 +198,7 @@ These are the specific tasks to complete **right now**, in order:
 
 ### Pre-Gate 4 Tasks (data foundation) — start here
 
-See Gate 4 Detail above — start with Pre-Gate 4 Task 0 (compounds.py).
+See Gate 4 Detail above — start with Pre-Gate 4 Task 0b (compounds.py).
 
 ---
 
@@ -229,6 +233,89 @@ These cannot be started until the gates above are done:
 
 - **Product lookup** — A second input method alongside text paste. The user searches for a product by name instead of pasting an ingredient list. Requires a product database (either sourced from an external dataset or built via an external API integration such as Open Beauty Facts). The matching pipeline is unchanged — product lookup resolves a product name to an ingredient string, which feeds the same check_ingredients() function in allergies/services.py. This is an input method, not a matching change. Text paste remains available as a fallback for products not in the database.
 
+- **Compound catalog expansion (Tier 2 & Tier 3)** — Additional allergen entries deferred post-seed migration. Not MVP-blocking; add via a follow-up data migration after the seed lands. Tier 2 candidates: BHT, BHA, propyl gallate, triclosan, triethanolamine (TEA), ethylhexylglycerin, aloe vera. Tier 3 candidates: TBD. Verify each against EU CosIng before inserting; follow the one-entry-per-CAS-distinct-substance rule.
+
+---
+
+## Compound Catalog Design Decisions
+
+Decisions recorded here govern the structure of `allergies/constants/compounds.py`.
+They are intentional and should not be "fixed" without revisiting the rationale.
+
+### Reference source
+
+All INCI names and CAS numbers in the catalog are verified against the EU CosIng
+(Cosmetic Ingredient) database maintained by the European Commission:
+https://ec.europa.eu/growth/tools-databases/cosing/
+
+INCIDecoder (incidecoder.com) is used as a secondary cross-reference to confirm
+which INCI names appear on real product labels. See the module docstring in
+`compounds.py` for the full reference policy.
+
+### One CompoundEntry per chemically distinct substance
+
+The compound catalog is a chemistry-level data layer. Each entry represents one
+CAS-distinct substance with one primary INCI name. When multiple substances share
+an allergen concern for users (e.g. "soy"), they remain separate entries in the
+catalog. User-facing grouping is the responsibility of the planned AllergenAlias /
+Synonym Mapper layer, not the compound catalog.
+
+Merging entries that have different CAS numbers destroys information that may matter
+for regulatory tracking (eu_annex_iii, regulatory_ref) and for future integrations
+with external ingredient databases that key on CAS.
+
+### Soy: soy_protein + soy_extract kept as two entries
+
+- `soy_protein` (Hydrolyzed Soy Protein, CAS 68607-88-5) — subcategory Proteins & Extracts
+- `soy_extract` (Glycine Soja Extract, CAS 84776-91-0) — subcategory Food-Derived Ingredients
+
+Different CAS numbers, different INCI names, different manufacturing processes.
+Both are soy-derived and both matter to a user with a soy allergy. At Gate 4 MVP,
+both appear as separate checkboxes — display labels are distinct enough that users
+can identify and select both. When the AllergenAlias layer ships, a single "Soy"
+user-facing group will resolve to both allergen_keys.
+
+Note: the original soy_extract entry carried CAS 68153-28-6, which does not appear
+in CosIng or any INCI reference database. CosIng lists Glycine Soja Extract under
+CAS 84776-91-0 (CosIng Ref 34118). Corrected during Pre-Gate 4 data review.
+
+### Soy oil (Glycine Soja Oil) intentionally excluded
+
+Glycine Soja Oil (soybean oil, CAS 8001-22-7) is a CosIng-registered INCI name
+and is soy-derived, but it is not included in the catalog. Refined soybean oil has
+nearly all protein removed during processing and is generally considered
+non-allergenic for topical use. The CIR Expert Panel reviewed soy-derived cosmetic
+ingredients and concluded that skin reactions from cosmetic soy proteins were
+unlikely; soybean oil is even further removed from the allergenic protein fraction.
+
+Including it would generate false positives — a user with a soy contact allergy
+would see "UNSAFE" on products containing soybean oil that are almost certainly
+safe for them. For a safety-oriented tool, false positives erode trust.
+
+If future evidence or user demand warrants it, soybean oil can be added as either:
+(a) its own CompoundEntry, or (b) a tiered alias group in the AllergenAlias layer
+(e.g. "Soy — strict" vs "Soy — all derivatives including oil"). That is a UX
+decision for the alias layer, not a compound catalog decision.
+
+### Lemongrass: single entry, most common INCI as primary
+
+CosIng registers three valid Cymbopogon species as lemongrass-type oils, all sharing
+the generic CAS 8007-02-1:
+
+- Cymbopogon Citratus Leaf Oil (West Indian lemongrass) — most common on product labels
+- Cymbopogon Flexuosus Oil (East Indian lemongrass) — second most common
+- Cymbopogon Schoenanthus Oil (camel grass) — least common, but valid in CosIng
+
+Because all three share the same CAS and represent the same allergen concern, the
+catalog carries a single `lemongrass_oil` entry with `inci_name="Cymbopogon Citratus
+Leaf Oil"` (the most frequently encountered form). The other two species names are
+stored in `common_names` for future alias resolution. If a future regulatory or
+chemical distinction emerges between species, split into separate entries at that time.
+
+Note: the original entry used `inci_name="Cymbopogon Schoenanthus Oil"`, which is
+valid in CosIng but is the least common of the three on product labels. Corrected
+during Pre-Gate 4 data review to maximize matching coverage at the MVP stage.
+
 ---
 
 ## Verification Protocol
@@ -248,4 +335,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/27/2026 1:04 AM — Updated Pre-Gate 4 work and aligned all docs with allergies/constants/compounds.py delivered as checkbox with subcategories (fragrances, botanicals, parabens, etc.)*
+*Last updated: 3/27/2026 11:28 PM — updated STATUS.md with Task 0bb incomplete thorough review; only a single pass so the data could be incorrect; double check*
