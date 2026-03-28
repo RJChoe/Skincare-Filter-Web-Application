@@ -59,7 +59,7 @@ exists with domain exception classes.
 **No hard blockers.** Gates 2 and 3 are effectively unblocked — the only open Gate 2 item (`allergies/views.py` POST logging) resolves within this gate, not before it.
 
 Pre-Gate 4 Tasks (data foundation):
-0. Complete `allergies/constants/compounds.py` — all `CompoundEntry`
+0. ✅ Complete: Complete `allergies/constants/compounds.py` — all `CompoundEntry`
    rows migrated from `choices.py`; no stubs
   - Create CompoundEntry NamedTuple with fields: key, inci_name, display_label, category, subcategory, common_names, cas_number, eu_annex_iii, regulatory_ref
   - Migrate every entry from choices.py to CompoundEntry rows, applying locked decisions:
@@ -75,7 +75,7 @@ Pre-Gate 4 Tasks (data foundation):
   - Import-time validation: assert unique keys, assert well-formed entries
   - No imports from choices.py
 
-0b. Delete choices.py, update all imports
+0b. 🚧 In Progress: Delete choices.py, update all imports
   - Update imports in models.py, conftest.py, views.py to point to allergies.constants.compounds
   - Remove CATEGORY_OTHER, CATEGORY_FOOD, CATEGORY_INHALANT from all files
   - Update conftest.py: remove food_allergen fixture, replace with a second contact-category fixture, expand allergen_key="sls" to "sodium_lauryl_sulfate", add label= and subcategory= to .create() calls once those fields exist
@@ -194,7 +194,7 @@ These are the specific tasks to complete **right now**, in order:
 
 ### Pre-Gate 4 Tasks (data foundation) — start here
 
-See Gate 4 Detail above — start with Pre-Gate 4 Task 0 (compounds.py).
+See Gate 4 Detail above — start with Pre-Gate 4 Task 0b (compounds.py).
 
 ---
 

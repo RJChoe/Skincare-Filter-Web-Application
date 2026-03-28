@@ -11,7 +11,7 @@ from django.db import transaction
 from django.utils import timezone
 from PIL import Image
 
-from allergies.constants.choices import CATEGORY_CONTACT
+from allergies.constants.compounds import CATEGORY_CONTACT
 from allergies.models import Allergen, UserAllergy
 from users._log_utils import email_token
 from users.models import CustomUser

@@ -12,9 +12,9 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
-from .constants.choices import (
+from .constants.compounds import (
     CATEGORY_CHOICES,
-    CATEGORY_OTHER,
+    CATEGORY_CONTACT,
     FLAT_ALLERGEN_LABEL_MAP,
 )
 
@@ -42,7 +42,7 @@ class Allergen(models.Model):
     category = models.CharField(
         max_length=15,
         choices=CATEGORY_CHOICES,
-        default=CATEGORY_OTHER,
+        default=CATEGORY_CONTACT,
         db_index=True,
         help_text="Generic allergen category",
     )

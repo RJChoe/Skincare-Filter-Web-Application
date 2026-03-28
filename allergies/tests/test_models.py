@@ -1,9 +1,8 @@
 import pytest
 
-from allergies.constants.choices import (
+from allergies.constants.compounds import (
     CATEGORY_CONTACT,
-    CATEGORY_FOOD,
-    CATEGORY_TO_ALLERGENS_MAP,
+    FLAT_ALLERGEN_LABEL_MAP,
 )
 from allergies.models import Allergen
 
@@ -11,62 +10,41 @@ from allergies.models import Allergen
 @pytest.fixture
 def contact_allergen(db):
     """Fixture for contact allergen.
-    Assumes 'sls' key maps to 'Sodium Lauryl Sulfate (SLS)' label.
+    Assumes 'sodium_lauryl_sulfate' key maps to 'Sodium Lauryl Sulfate (SLS)' label.
     """
-    return Allergen.objects.create(category=CATEGORY_CONTACT, allergen_key="sls")
-
-
-@pytest.fixture
-def food_allergen(db):
-    """Fixture for food allergen. Using 'peanut' to match constant test."""
-    return Allergen.objects.create(category=CATEGORY_FOOD, allergen_key="peanut")
+    return Allergen.objects.create(
+        category=CATEGORY_CONTACT, allergen_key="sodium_lauryl_sulfate"
+    )
 
 
 @pytest.mark.django_db
 class TestAllergenModel:
     """Tests for the Allergen model constants and representations."""
 
-    # Assumption: The AllergenExposure.__str__ method is implemented like this:
-    # def __str__(self):
-    #     return f"{self.get_category_display()} - {self.get_allergen_name_display()}"
-
-    def test_allergen_str_representation(self, contact_allergen, food_allergen):
+    def test_allergen_str_representation(self, contact_allergen):
         """Verify that __str__ returns formatted category and allergen labels."""
         # Expected for Contact:
         # Category label: 'Contact/Topical Allergens' (from CATEGORY_CHOICES)
-        # Allergen label: 'Sodium Lauryl Sulfate (SLS)' (from SURFACTANT_ALLERGENS)
+        # Allergen label: 'Sodium Lauryl Sulfate (SLS)' (from FLAT_ALLERGEN_LABEL_MAP)
         assert (
             str(contact_allergen)
             == "Contact/Topical Allergens: Sodium Lauryl Sulfate (SLS)"
         )
 
-        # Expected for Food:
-        # Category label: 'Food Allergens' (from CATEGORY_CHOICES)
-        # Allergen label: 'Peanut' (from FOOD_ALLERGENS)
-        assert str(food_allergen) == "Food Allergens: Peanut"
-
-    # No model instances are needed for this test, as it only checks constants
-    def test_category_to_allergens_map(self):
-        """Ensure the global map contains the expected specific allergen choices."""
-        # CATEGORY_TO_ALLERGENS_MAP should contain all specific choices under the key
-        contact_allergens = CATEGORY_TO_ALLERGENS_MAP.get(CATEGORY_CONTACT, [])
-        food_allergens = CATEGORY_TO_ALLERGENS_MAP.get(CATEGORY_FOOD, [])
-
-        # These assertions check if the keys
-        # and labels are correctly
-        # packed into the map
-        assert ("sls", "Sodium Lauryl Sulfate (SLS)") in contact_allergens
-        assert ("peanut", "Peanut") in food_allergens
-
-        # Ensure the list is not empty
-        assert len(contact_allergens) > 1, (
-            "Contact allergens map is empty or too small."
+    def test_flat_allergen_label_map_contains_expected_key(self):
+        """Ensure FLAT_ALLERGEN_LABEL_MAP contains the expected allergen key."""
+        assert "sodium_lauryl_sulfate" in FLAT_ALLERGEN_LABEL_MAP
+        assert (
+            FLAT_ALLERGEN_LABEL_MAP["sodium_lauryl_sulfate"]
+            == "Sodium Lauryl Sulfate (SLS)"
         )
-        assert len(food_allergens) > 1, "Food allergens map is empty or too small."
+
+    def test_flat_allergen_label_map_is_non_empty(self):
+        """FLAT_ALLERGEN_LABEL_MAP must contain more than one entry."""
+        assert len(FLAT_ALLERGEN_LABEL_MAP) > 1, (
+            "FLAT_ALLERGEN_LABEL_MAP is empty or too small."
+        )
 
 
 # TODO :
 # create tests for UserAllergy model linking users to allergens
-
-# Add more tests for edge cases, such as invalid category/allergen combinations,
-# uniqueness constraints, and inactive allergens if needed.
