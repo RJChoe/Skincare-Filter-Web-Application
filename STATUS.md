@@ -75,10 +75,10 @@ Pre-Gate 4 Tasks (data foundation):
   - Import-time validation: assert unique keys, assert well-formed entries
   - No imports from choices.py
 
-0b. 🚧 In Progress: Delete choices.py, update all imports
+0b. ✅ Complete: Delete choices.py, update all imports
   - Update imports in models.py, conftest.py, views.py to point to allergies.constants.compounds
   - Remove CATEGORY_OTHER, CATEGORY_FOOD, CATEGORY_INHALANT from all files
-  - Update conftest.py: remove food_allergen fixture, replace with a second contact-category fixture, expand allergen_key="sls" to "sodium_lauryl_sulfate", add label= and subcategory= to .create() calls once those fields exist
+  - Update conftest.py: remove food_allergen fixture, replace with a second contact-category fixture, expand allergen_key="sls" to "sodium_lauryl_sulfate"
   - Delete allergies/constants/choices.py
   - Run existing tests — they should pass with import path and fixture key updates
 
@@ -90,6 +90,8 @@ Pre-Gate 4 Tasks (data foundation):
   - Updates category field: default=CATEGORY_CONTACT (was CATEGORY_OTHER)
   - Pure AddField operations — no RunPython, no data writes
   - Rollback is clean RemoveField with no data loss
+  - Update conftest.py: add label= and subcategory= to Allergen.objects.create() calls
+    (use display_label/subcategory values from the corresponding CompoundEntry rows)
 
 0d. Run Migration 2 (data/seed): `RunPython` reads `ALL_COMPOUNDS`, creates `Allergen`
     rows, populates `label` on every row — depends on Migration 1
@@ -329,4 +331,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/27/2026 10:25 PM — updated collision on common names damascenone. Created compounds.py and updated SATTUS.md with design decisions on multiple INCI common names*
+*Last updated: 3/27/2026 10:58 PM — updated STATUS.md with Task 0b complete*
