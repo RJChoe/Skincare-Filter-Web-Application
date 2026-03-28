@@ -231,6 +231,87 @@ These cannot be started until the gates above are done:
 
 ---
 
+## Compound Catalog Design Decisions
+
+Decisions recorded here govern the structure of `allergies/constants/compounds.py`.
+They are intentional and should not be "fixed" without revisiting the rationale.
+
+### Reference source
+
+All INCI names and CAS numbers in the catalog are verified against the EU CosIng
+(Cosmetic Ingredient) database maintained by the European Commission:
+https://ec.europa.eu/growth/tools-databases/cosing/
+
+INCIDecoder (incidecoder.com) is used as a secondary cross-reference to confirm
+which INCI names appear on real product labels. See the module docstring in
+`compounds.py` for the full reference policy.
+
+### One CompoundEntry per chemically distinct substance
+
+The compound catalog is a chemistry-level data layer. Each entry represents one
+CAS-distinct substance with one primary INCI name. When multiple substances share
+an allergen concern for users (e.g. "soy"), they remain separate entries in the
+catalog. User-facing grouping is the responsibility of the planned AllergenAlias /
+Synonym Mapper layer, not the compound catalog.
+
+Merging entries that have different CAS numbers destroys information that may matter
+for regulatory tracking (eu_annex_iii, regulatory_ref) and for future integrations
+with external ingredient databases that key on CAS.
+
+### Soy: soy_protein + soy_extract kept as two entries
+
+- `soy_protein` (Hydrolyzed Soy Protein, CAS 68607-88-5) — subcategory Proteins & Extracts
+- `soy_extract` (Glycine Soja Extract, CAS 84776-91-0) — subcategory Food-Derived Ingredients
+
+Different CAS numbers, different INCI names, different manufacturing processes.
+Both are soy-derived and both matter to a user with a soy allergy. At Gate 4 MVP,
+both appear as separate checkboxes — display labels are distinct enough that users
+can identify and select both. When the AllergenAlias layer ships, a single "Soy"
+user-facing group will resolve to both allergen_keys.
+
+Note: the original soy_extract entry carried CAS 68153-28-6, which does not appear
+in CosIng or any INCI reference database. CosIng lists Glycine Soja Extract under
+CAS 84776-91-0 (CosIng Ref 34118). Corrected during Pre-Gate 4 data review.
+
+### Soy oil (Glycine Soja Oil) intentionally excluded
+
+Glycine Soja Oil (soybean oil, CAS 8001-22-7) is a CosIng-registered INCI name
+and is soy-derived, but it is not included in the catalog. Refined soybean oil has
+nearly all protein removed during processing and is generally considered
+non-allergenic for topical use. The CIR Expert Panel reviewed soy-derived cosmetic
+ingredients and concluded that skin reactions from cosmetic soy proteins were
+unlikely; soybean oil is even further removed from the allergenic protein fraction.
+
+Including it would generate false positives — a user with a soy contact allergy
+would see "UNSAFE" on products containing soybean oil that are almost certainly
+safe for them. For a safety-oriented tool, false positives erode trust.
+
+If future evidence or user demand warrants it, soybean oil can be added as either:
+(a) its own CompoundEntry, or (b) a tiered alias group in the AllergenAlias layer
+(e.g. "Soy — strict" vs "Soy — all derivatives including oil"). That is a UX
+decision for the alias layer, not a compound catalog decision.
+
+### Lemongrass: single entry, most common INCI as primary
+
+CosIng registers three valid Cymbopogon species as lemongrass-type oils, all sharing
+the generic CAS 8007-02-1:
+
+- Cymbopogon Citratus Leaf Oil (West Indian lemongrass) — most common on product labels
+- Cymbopogon Flexuosus Oil (East Indian lemongrass) — second most common
+- Cymbopogon Schoenanthus Oil (camel grass) — least common, but valid in CosIng
+
+Because all three share the same CAS and represent the same allergen concern, the
+catalog carries a single `lemongrass_oil` entry with `inci_name="Cymbopogon Citratus
+Leaf Oil"` (the most frequently encountered form). The other two species names are
+stored in `common_names` for future alias resolution. If a future regulatory or
+chemical distinction emerges between species, split into separate entries at that time.
+
+Note: the original entry used `inci_name="Cymbopogon Schoenanthus Oil"`, which is
+valid in CosIng but is the least common of the three on product labels. Corrected
+during Pre-Gate 4 data review to maximize matching coverage at the MVP stage.
+
+---
+
 ## Verification Protocol
 
 Before marking any gate ✅ Complete in this file:
