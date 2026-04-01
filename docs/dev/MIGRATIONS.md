@@ -43,12 +43,12 @@ The canonical related names as of `0001_initial` are:
 
 ## Data Migrations (Allergen Catalog Seeding)
 
-Status: ⚠️ BLOCKED Data migrations for the allergen catalog are currently blocked by incomplete choice lists.
+Status: ⚠️ BLOCKED Pending DB reset (Pre-Gate 4 task 0c) and hand-written seed migration (task 0d).
 
-See [STATUS.md](../../STATUS.md) → Known Gaps (Item 6) for the current resolution status of `choices.py` stubs.
+See [STATUS.md](../../STATUS.md) → Gate 4 Pre-tasks 0c and 0d for current status.
 
 **WARNING**
-Do not run seeding migrations until the stubs in allergies/constants/choices.py are fully resolved. Running this against incomplete lists will result in a partial catalog without triggering a validation error.
+Do not run the seed migration until 0c (DB reset + `0001_initial`) is complete and all `conftest.py` fixtures include `label=` and `subcategory=`. Running the seed before the schema migration will fail.
 
 1. Finish writing your model tests and run `uv run pytest`. All tests must pass.
 2. Create the data migration: `uv run python manage.py makemigrations --empty allergies --name seed_allergens`
@@ -61,21 +61,24 @@ from django.db import migrations
 
 def seed_allergens(apps, schema_editor):
     Allergen = apps.get_model("allergies", "Allergen")
-    from allergies.constants.choices import FORM_ALLERGIES_CHOICES
+    from allergies.constants.compounds import COMPOUNDS
 
-    for category_key, _, choice_list in FORM_ALLERGIES_CHOICES:
-        for key, label in choice_list:
-            Allergen.objects.get_or_create(
-                category=category_key,
-                allergen_key=key,
-                defaults={"is_active": True},
-            )
+    for entry in COMPOUNDS:
+        Allergen.objects.get_or_create(
+            allergen_key=entry.key,
+            defaults={
+                "category": entry.category,
+                "label": entry.display_label,
+                "subcategory": entry.subcategory,
+                "is_active": True,
+            },
+        )
 
 
 def reverse_seed(apps, schema_editor):
     Allergen = apps.get_model("allergies", "Allergen")
-    from allergies.constants.choices import FORM_ALLERGIES_CHOICES
-    seeded_keys = [key for _, _, choices in FORM_ALLERGIES_CHOICES for key, _ in choices]
+    from allergies.constants.compounds import COMPOUNDS
+    seeded_keys = [entry.key for entry in COMPOUNDS]
     Allergen.objects.filter(allergen_key__in=seeded_keys).delete()
 
 

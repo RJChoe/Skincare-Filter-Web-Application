@@ -58,6 +58,22 @@ class Allergen(models.Model):
         help_text=("Specific allergen (choices filtered via category)"),
     )
 
+    label = models.CharField(
+        max_length=200,
+        blank=False,
+        default="",
+        help_text=(
+            "User-friendly label for this allergen. Optional, but recommended for display purposes. If left blank, the allergen_key will be used."
+        ),
+    )
+
+    subcategory = models.CharField(
+        max_length=100,
+        blank=False,
+        default="",
+        help_text=("Subcategory or further classification for this allergen."),
+    )
+
     is_active = models.BooleanField(
         default=True,
         db_index=False,

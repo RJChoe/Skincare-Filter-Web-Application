@@ -27,8 +27,8 @@
 │   ├── admin.py                 # Admin panel configuration
 │   ├── views.py                 # Filtering logic
 │   ├── urls.py                  # App-level routing
-│   ├── constants/choices.py     # Static mapping data
-│   ├── exceptions.py            # [!] NOT YET VERIFIED
+│   ├── constants/compounds.py     # Static mapping data
+│   ├── exceptions.py            # Exceptions
 │   ├── templates/allergies/     # List views & partials
 │   └── tests/
 │       ├── test_models.py       # [!] Incomplete (Ref: L59)
@@ -55,5 +55,22 @@
 │   └── product.html             # Product detail view
 │
 └── 📁 STATIC & ASSETS/
-    ├── css/main.css             # Global styles
-    └── assets/                  # Workflow diagrams & images
+│    ├── css/main.css             # Global styles
+│    └── assets/                  # Workflow diagrams & images
+│
+└── 📁 .github
+│   ├── pull_request_template.md  # Pull Request template
+│   │
+│   ├── workflows/
+│   │   ├── ci.yml                # copilot-instrcutions
+│   │   └── uv-export.yml         # uv-export file
+│   │
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md         # bug report instructions
+│   │   └── feature_request.md    # feature request
+│   │
+│   ├── scripts/
+│   │   └── annotate_safety.py     # annotate safety
+│   │
+│   └── instructions/
+│       └── copilot-instructions.md # copilot-instrcutions.md

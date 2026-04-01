@@ -82,23 +82,23 @@ Pre-Gate 4 Tasks (data foundation):
   - Delete allergies/constants/choices.py
   - Run existing tests — they should pass with import path and fixture key updates
 
-0bb. 🚧 In Progress: Add 5 compound groups to compounds.py (PPD, cobalt, chromium, cetyl/stearyl/cetearyl alcohols, colophonium); verify each INCI name and CAS against EU CosIng before inserting; confirm import-time key-uniqueness assertion passes after adding.
+0bb. ✅ Complete: Add 5 compound groups to compounds.py (PPD, cobalt, chromium, cetyl/stearyl/cetearyl alcohols, colophonium); verify each INCI name and CAS against EU CosIng before inserting; confirm import-time key-uniqueness assertion passes after adding.
 
-0c. Run Migration 1 (schema): add `label` field to `Allergen` — `makemigrations` output only,
-    no data writes, no behavior change (see Active Work Items for full sequence)
-  - uv run python manage.py makemigrations allergies --name add_label_and_subcategory_fields
-  - Adds label = CharField(max_length=200, blank=False, default="") to Allergen
-  - Adds subcategory = CharField(max_length=100, blank=False, default="") to Allergen
-  - Updates category field: default=CATEGORY_CONTACT (was CATEGORY_OTHER)
-  - Pure AddField operations — no RunPython, no data writes
-  - Rollback is clean RemoveField with no data loss
+0c. ✅ Complete: DB reset + new initial migration — adds label and subcategory to Allergen
+    from scratch; no additive migration needed since no seeded data exists
+  - Delete db.sqlite3
+  - Delete allergies/migrations/0001_initial.py
+  - Add label = CharField(max_length=200, blank=False, default="") to Allergen in models.py
+  - Add subcategory = CharField(max_length=100, blank=False, default="") to Allergen in models.py
+  - uv run python manage.py makemigrations allergies --name initial
+  - uv run python manage.py migrate
   - Update conftest.py: add label= and subcategory= to Allergen.objects.create() calls
     (use display_label/subcategory values from the corresponding CompoundEntry rows)
 
-0d. Run Migration 2 (data/seed): `RunPython` reads `ALL_COMPOUNDS`, creates `Allergen`
+0d. 🚧 In Progress Run Migration 2 (data/seed): `RunPython` reads `ALL_COMPOUNDS`, creates `Allergen`
     rows, populates `label` on every row — depends on Migration 1
   - Hand-write allergies/migrations/XXXX_seed_allergen_catalog.py with RunPython
-  - Dependencies must point to Migration 1
+  - Dependencies must point to `("allergies", "0001_initial")`
   - Reads COMPOUNDS from allergies.constants.compounds
   - Creates Allergen rows with category, allergen_key, label, subcategory, is_active=True
   - Provide reverse function that deletes seeded rows
@@ -110,6 +110,9 @@ Pre-Gate 4 Tasks (data foundation):
   - Delete the allergen_label property
   - Remove FLAT_ALLERGEN_LABEL_MAP import from models.py
   - After this step, models.py has zero runtime dependency on compounds.py
+  - Update ADMIN.md: rewrite the FLAT_ALLERGEN_LABEL_MAP bullet to reflect
+  that __str__ now uses self.label (no longer map-driven)
+
 
 Gate 4 Proper Tasks (forms, views, matching):
 1. Create `allergies/forms.py`
@@ -207,6 +210,7 @@ See Gate 4 Detail above — start with Pre-Gate 4 Task 0b (compounds.py).
 | Item | What Exists | What's Missing |
 |------|-------------|----------------|
 | `allergies/constants/choices.py` | Architecture in progress; map/lookup functions solid | `compounds.py` migration in progress — `ALL_COMPOUNDS` tuple being built. Two-migration sequence (schema then seed) not yet written. `choices.py` will be **deleted** after the seed migration lands — not split. `compounds.py` holds the canonical tuple only; no lookup tables at Gate 4. |
+| `CLAUDE.md` | Not started | Write after Gate 4 completes — patterns not yet stable |
 | `allergies/models.py` | `Allergen` and `UserAllergy` models; JSONField key validation in `clean()` | Unverified against actual file on disk — confirm matches uploaded version |
 | `allergies/views.py` | Error handling implemented; GET logging implemented | CREATE/UPDATE/DELETE logging and POST logic blocked until Gate 4 |
 | `skincare_project/views.py` | Logging complete; `home` and `product` GET views exist | `product` POST handler not implemented (Gate 4) |
@@ -234,6 +238,19 @@ These cannot be started until the gates above are done:
 - **Product lookup** — A second input method alongside text paste. The user searches for a product by name instead of pasting an ingredient list. Requires a product database (either sourced from an external dataset or built via an external API integration such as Open Beauty Facts). The matching pipeline is unchanged — product lookup resolves a product name to an ingredient string, which feeds the same check_ingredients() function in allergies/services.py. This is an input method, not a matching change. Text paste remains available as a fallback for products not in the database.
 
 - **Compound catalog expansion (Tier 2 & Tier 3)** — Additional allergen entries deferred post-seed migration. Not MVP-blocking; add via a follow-up data migration after the seed lands. Tier 2 candidates: BHT, BHA, propyl gallate, triclosan, triethanolamine (TEA), ethylhexylglycerin, aloe vera. Tier 3 candidates: TBD. Verify each against EU CosIng before inserting; follow the one-entry-per-CAS-distinct-substance rule.
+
+---
+
+## allergies/models.py Design Decisions
+
+### blank=False with default="" on Allergen.label and Allergen.subcategory
+
+Both fields use `blank=False, default=""`. This combination is intentional:
+- `blank=False` prevents saving an empty value through forms or admin.
+- `default=""` exists solely to let `makemigrations` run without interactive
+  prompts (it cannot know the table is empty at migration time).
+- The seed migration always provides real values from `CompoundEntry.display_label`
+  and `CompoundEntry.subcategory`. No row will ever have an empty string in practice.
 
 ---
 
@@ -316,6 +333,63 @@ Note: the original entry used `inci_name="Cymbopogon Schoenanthus Oil"`, which i
 valid in CosIng but is the least common of the three on product labels. Corrected
 during Pre-Gate 4 data review to maximize matching coverage at the MVP stage.
 
+### Cobalt and chromium: contaminant allergens without CosIng INCI entries
+
+Cobalt (CAS 7440-48-4) and potassium dichromate (CAS 7778-50-9) are not
+cosmetic ingredients — they are contact allergens that appear in cosmetics as
+contaminants or trace impurities. Neither has a formal CosIng INCI name
+assigned for cosmetic use. The catalog uses the chemical compound name as the
+`inci_name` value, following the same pattern as the existing `nickel` entry
+(CAS 7440-02-0, `inci_name="Nickel"`).
+
+Potassium dichromate is the standard patch-test reference compound for
+chromium allergy. The display_label includes "(Chromium)" and common_names
+includes "chromium" and "chromate" so users searching by the metal name will
+find it through the future AllergenAlias layer. `eu_annex_iii` is False for
+both because they are regulated under REACH Annex XVII (restrictions on
+metals), not under the Cosmetics Regulation Annex III.
+
+### Fatty alcohols: 3 separate entries (cetyl, stearyl, cetearyl)
+
+- `cetyl_alcohol` (Cetyl Alcohol, CAS 36653-82-4, CosIng Ref 32596)
+- `stearyl_alcohol` (Stearyl Alcohol, CAS 112-92-5, CosIng Ref 38319)
+- `cetearyl_alcohol` (Cetearyl Alcohol, CAS 67762-27-0, CosIng Ref 75132)
+
+Three distinct CAS numbers, three distinct CosIng entries, three separate
+INCI names. Cetearyl alcohol is a defined C16-18 mixture with its own CAS —
+not merely the other two combined. Per the "one CompoundEntry per chemically
+distinct substance" rule, all three are kept separate. A new subcategory
+"Fatty Alcohols" groups them for checkbox display.
+
+Fatty alcohol contact allergy is uncommon but well-documented in dermatology
+literature. Users who react to cetearyl alcohol may not react to cetyl alcohol
+alone (or vice versa), so individual selection matters. When the AllergenAlias
+layer ships, a "Fatty Alcohols" user-facing group can resolve to all three
+keys for users who want blanket coverage.
+
+### Colophonium (rosin): General Contact Allergens, not Fragrances
+
+Colophonium (CAS 8050-09-7, INCI "Colophonium", CosIng Ref 33012) is placed
+in "General Contact Allergens" rather than "Fragrances" even though CosIng
+lists it with film-forming and binding functions. It is classified as Skin
+Sens. 1 (H317) under CLP, and is one of the standard allergens in the
+European baseline patch-test series. Its primary allergenic exposure routes
+are adhesives (medical plasters, wax strips), not fragrance use. Placing it
+alongside nickel, cobalt, and chromium reflects how dermatologists categorize
+it in clinical practice.
+
+### p-Phenylenediamine (PPD): new "Hair Dye Allergens" subcategory
+
+p-Phenylenediamine (CAS 106-50-3, INCI "p-Phenylenediamine", CosIng Ref
+37249) is the most common cause of hair dye allergy and is restricted under
+EU Annex III/8a (max 2% as free base in oxidative hair dyes). A new
+subcategory "Hair Dye Allergens" was created rather than placing PPD in
+"General Contact Allergens" or "Colorants & Dyes" because hair dye allergens
+form a distinct clinical and regulatory group — the EU regulates them
+separately from general colorants (Annex IV) and from general contact
+restrictions. If additional hair dye allergens are added later (e.g.
+toluene-2,5-diamine, p-aminophenol), they belong in this subcategory.
+
 ---
 
 ## Verification Protocol
@@ -335,4 +409,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/27/2026 11:28 PM — updated STATUS.md with Task 0bb incomplete thorough review; only a single pass so the data could be incorrect; double check*
+*Last updated: 3/31/2026 10:44 PM — 0c complete; 0d in progress (seed migration); added ADMIN.md update step to 0e*
