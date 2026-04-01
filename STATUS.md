@@ -84,24 +84,22 @@ Pre-Gate 4 Tasks (data foundation):
 
 0bb. ✅ Complete: Add 5 compound groups to compounds.py (PPD, cobalt, chromium, cetyl/stearyl/cetearyl alcohols, colophonium); verify each INCI name and CAS against EU CosIng before inserting; confirm import-time key-uniqueness assertion passes after adding.
 
-0c. ✅ Complete: DB reset + new initial migration — adds label and subcategory to Allergen
-    from scratch; no additive migration needed since no seeded data exists
+0c. ✅ Complete: DB reset + single combined initial migration — schema and seed in one file
   - Delete db.sqlite3
   - Delete allergies/migrations/0001_initial.py
   - Add label = CharField(max_length=200, blank=False, default="") to Allergen in models.py
   - Add subcategory = CharField(max_length=100, blank=False, default="") to Allergen in models.py
   - uv run python manage.py makemigrations allergies --name initial
+  - Add RunPython at the end of 0001_initial.py to seed Allergen rows from COMPOUNDS
   - uv run python manage.py migrate
   - Update conftest.py: add label= and subcategory= to Allergen.objects.create() calls
     (use display_label/subcategory values from the corresponding CompoundEntry rows)
 
-0d. 🚧 In Progress Run Migration 2 (data/seed): `RunPython` reads `ALL_COMPOUNDS`, creates `Allergen`
-    rows, populates `label` on every row — depends on Migration 1
-  - Hand-write allergies/migrations/XXXX_seed_allergen_catalog.py with RunPython
-  - Dependencies must point to `("allergies", "0001_initial")`
-  - Reads COMPOUNDS from allergies.constants.compounds
+0d. ✅ Complete: Seed migration folded into 0001_initial.py — no separate migration needed
+  - RunPython in 0001_initial.py reads COMPOUNDS from allergies.constants.compounds
   - Creates Allergen rows with category, allergen_key, label, subcategory, is_active=True
-  - Provide reverse function that deletes seeded rows
+  - Reverse function deletes seeded rows
+  - No 0002 migration exists or is needed
 
 0e. Immediately after both migrations land (same PR): update `Allergen.__str__()` to use
     `self.label`, delete `allergen_label` property, remove `FLAT_ALLERGEN_LABEL_MAP`
@@ -409,4 +407,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/31/2026 10:44 PM — 0c complete; 0d in progress (seed migration); added ADMIN.md update step to 0e*
+*Last updated: 3/31/2026 11:42 PM — collapsed 0d seed into 0001_initial; DB reset planned; no separate seed migration*
