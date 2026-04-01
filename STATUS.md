@@ -95,7 +95,7 @@ Pre-Gate 4 Tasks (data foundation):
   - Update conftest.py: add label= and subcategory= to Allergen.objects.create() calls
     (use display_label/subcategory values from the corresponding CompoundEntry rows)
 
-0d. Run Migration 2 (data/seed): `RunPython` reads `ALL_COMPOUNDS`, creates `Allergen`
+0d. 🚧 In Progress Run Migration 2 (data/seed): `RunPython` reads `ALL_COMPOUNDS`, creates `Allergen`
     rows, populates `label` on every row — depends on Migration 1
   - Hand-write allergies/migrations/XXXX_seed_allergen_catalog.py with RunPython
   - Dependencies must point to `("allergies", "0001_initial")`
@@ -110,6 +110,9 @@ Pre-Gate 4 Tasks (data foundation):
   - Delete the allergen_label property
   - Remove FLAT_ALLERGEN_LABEL_MAP import from models.py
   - After this step, models.py has zero runtime dependency on compounds.py
+  - Update ADMIN.md: rewrite the FLAT_ALLERGEN_LABEL_MAP bullet to reflect
+  that __str__ now uses self.label (no longer map-driven)
+
 
 Gate 4 Proper Tasks (forms, views, matching):
 1. Create `allergies/forms.py`
@@ -406,4 +409,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/31/2026 10:24 PM — 0c complete; reset DB and generated fresh 0001_initial migration; updated conftest.py fixtures with label, subcategory, and corrected allergen keys*
+*Last updated: 3/31/2026 10:44 PM — 0c complete; 0d in progress (seed migration); added ADMIN.md update step to 0e*

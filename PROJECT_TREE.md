@@ -27,7 +27,7 @@
 │   ├── admin.py                 # Admin panel configuration
 │   ├── views.py                 # Filtering logic
 │   ├── urls.py                  # App-level routing
-│   ├── constants/choices.py     # Static mapping data
+│   ├── constants/compounds.py     # Static mapping data
 │   ├── exceptions.py            # Exceptions
 │   ├── templates/allergies/     # List views & partials
 │   └── tests/
