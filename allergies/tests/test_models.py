@@ -1,20 +1,8 @@
 import pytest
 
 from allergies.constants.compounds import (
-    CATEGORY_CONTACT,
     FLAT_ALLERGEN_LABEL_MAP,
 )
-from allergies.models import Allergen
-
-
-@pytest.fixture
-def contact_allergen(db):
-    """Fixture for contact allergen.
-    Assumes 'sodium_lauryl_sulfate' key maps to 'Sodium Lauryl Sulfate (SLS)' label.
-    """
-    return Allergen.objects.create(
-        category=CATEGORY_CONTACT, allergen_key="sodium_lauryl_sulfate"
-    )
 
 
 @pytest.mark.django_db
