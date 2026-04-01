@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 @login_required
 def allergy_list(request: HttpRequest) -> HttpResponse:
     """Display user's allergen profile and the add-allergen form."""
+    assert request.user.is_authenticated
     try:
         logger.info(f"User {request.user.pk} accessed allergen profile")
         user_allergies = (
@@ -59,6 +60,7 @@ def allergy_list(request: HttpRequest) -> HttpResponse:
 @login_required
 def create_allergies(request: HttpRequest) -> HttpResponse:
     """Create UserAllergy rows for each selected allergen."""
+    assert request.user.is_authenticated
     try:
         with transaction.atomic():
             form = AllergenSelectForm(request.POST)
@@ -109,6 +111,7 @@ def create_allergies(request: HttpRequest) -> HttpResponse:
 @login_required
 def edit_allergy(request: HttpRequest, pk: int) -> HttpResponse:
     """Edit detail fields on a single UserAllergy."""
+    assert request.user.is_authenticated
     user_allergy = get_object_or_404(UserAllergy, pk=pk, user=request.user)
 
     if request.method == "GET":
@@ -175,6 +178,7 @@ def edit_allergy(request: HttpRequest, pk: int) -> HttpResponse:
 @login_required
 def delete_allergy(request: HttpRequest, pk: int) -> HttpResponse:
     """Remove a UserAllergy entry."""
+    assert request.user.is_authenticated
     user_allergy = get_object_or_404(UserAllergy, pk=pk, user=request.user)
     try:
         with transaction.atomic():

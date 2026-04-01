@@ -6,6 +6,7 @@ UserAllergyEditForm — edit detail fields on a single UserAllergy row
 
 import logging
 from itertools import groupby
+from typing import cast
 
 from django import forms
 
@@ -36,7 +37,10 @@ class AllergenSelectForm(forms.Form):
             List of (subcategory_name, [Allergen, ...]) tuples, in subcategory
             order. Relies on the queryset already being ordered by subcategory.
         """
-        qs = self.fields["allergens"].queryset
+        qs = cast(
+            forms.ModelMultipleChoiceField[Allergen], self.fields["allergens"]
+        ).queryset
+        assert qs is not None
         result: list[tuple[str, list[Allergen]]] = []
         for subcategory, group in groupby(qs, key=lambda a: a.subcategory):
             result.append((subcategory, list(group)))
