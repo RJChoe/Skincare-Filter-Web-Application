@@ -95,7 +95,7 @@ Pre-Gate 4 Tasks (data foundation):
   - Update conftest.py: add label= and subcategory= to Allergen.objects.create() calls
     (use display_label/subcategory values from the corresponding CompoundEntry rows)
 
-0d. Immediately after both migrations land (same PR): update `Allergen.__str__()` to use
+0d. Immediately after migrations land (same PR): update `Allergen.__str__()` to use
     `self.label`, delete `allergen_label` property, remove `FLAT_ALLERGEN_LABEL_MAP`
     import from `models.py`
   - Update Allergen.__str__(): replace FLAT_ALLERGEN_LABEL_MAP.get(...) with self.label
