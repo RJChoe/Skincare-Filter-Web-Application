@@ -84,7 +84,7 @@ Pre-Gate 4 Tasks (data foundation):
 
 0bb. ✅ Complete: Add 5 compound groups to compounds.py (PPD, cobalt, chromium, cetyl/stearyl/cetearyl alcohols, colophonium); verify each INCI name and CAS against EU CosIng before inserting; confirm import-time key-uniqueness assertion passes after adding.
 
-0c. 🚧 In Progress: DB reset + new initial migration — adds label and subcategory to Allergen
+0c. ✅ Complete: DB reset + new initial migration — adds label and subcategory to Allergen
     from scratch; no additive migration needed since no seeded data exists
   - Delete db.sqlite3
   - Delete allergies/migrations/0001_initial.py
@@ -207,6 +207,7 @@ See Gate 4 Detail above — start with Pre-Gate 4 Task 0b (compounds.py).
 | Item | What Exists | What's Missing |
 |------|-------------|----------------|
 | `allergies/constants/choices.py` | Architecture in progress; map/lookup functions solid | `compounds.py` migration in progress — `ALL_COMPOUNDS` tuple being built. Two-migration sequence (schema then seed) not yet written. `choices.py` will be **deleted** after the seed migration lands — not split. `compounds.py` holds the canonical tuple only; no lookup tables at Gate 4. |
+| `CLAUDE.md` | Not started | Write after Gate 4 completes — patterns not yet stable |
 | `allergies/models.py` | `Allergen` and `UserAllergy` models; JSONField key validation in `clean()` | Unverified against actual file on disk — confirm matches uploaded version |
 | `allergies/views.py` | Error handling implemented; GET logging implemented | CREATE/UPDATE/DELETE logging and POST logic blocked until Gate 4 |
 | `skincare_project/views.py` | Logging complete; `home` and `product` GET views exist | `product` POST handler not implemented (Gate 4) |
@@ -405,4 +406,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 3/28/2026 5:12 PM — updated STATUS.md 0c with DB reset since no seeded data; 0bb complete; design decisions added allergies/models.py default="", Potassium dichromate, Fatty alcohols, rosin, PPD; updated PROEJCT_TREE.md to include .github*
+*Last updated: 3/31/2026 10:24 PM — 0c complete; reset DB and generated fresh 0001_initial migration; updated conftest.py fixtures with label, subcategory, and corrected allergen keys*
