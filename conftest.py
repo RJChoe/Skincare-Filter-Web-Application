@@ -88,30 +88,39 @@ def contact_allergen(db):
         Allergen: Contact allergen with category='contact',
                   allergen_key='sodium_lauryl_sulfate', is_active=True
     """
-    return Allergen.objects.create(
+    # get_or_create: seed migration pre-populates this key; create() would
+    # raise IntegrityError in transaction=True tests where flush doesn't run
+    allergen, _ = Allergen.objects.get_or_create(
         category=CATEGORY_CONTACT,
         allergen_key="sodium_lauryl_sulfate",
-        label="Sodium Lauryl Sulfate (SLS)",
-        subcategory="Surfactants & Emulsifiers",
-        is_active=True,
+        defaults={
+            "label": "Sodium Lauryl Sulfate (SLS)",
+            "subcategory": "Surfactants & Emulsifiers",
+            "is_active": True,
+        },
     )
+    return allergen
 
 
 @pytest.fixture
 def second_contact_allergen(db):
-    """Create a second contact allergen: Methylparaben.
+    """Create a contact allergen: Methylparaben.
 
     Returns:
         Allergen: Contact allergen with category='contact',
                   allergen_key='methylparaben', is_active=True
     """
-    return Allergen.objects.create(
+    # get_or_create: same reason as contact_allergen above
+    allergen, _ = Allergen.objects.get_or_create(
         category=CATEGORY_CONTACT,
         allergen_key="methylparaben",
-        label="Methylparaben",
-        subcategory="Preservatives",
-        is_active=True,
+        defaults={
+            "label": "Methylparaben",
+            "subcategory": "Preservatives",
+            "is_active": True,
+        },
     )
+    return allergen
 
 
 # ============================================================================

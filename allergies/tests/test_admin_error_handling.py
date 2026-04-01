@@ -5,6 +5,7 @@ from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory
 
 from allergies.admin import AllergenAdmin
+from allergies.constants.compounds import CATEGORY_CONTACT
 from allergies.models import Allergen
 from users.models import CustomUser
 
@@ -40,10 +41,10 @@ class TestAllergenAdminActions:
     def test_deactivate_allergens_success(self, caplog):
         """Test successful bulk deactivation and privacy-aware logging."""
         allergen1 = Allergen.objects.create(
-            category="fragrance", allergen_key="lavender", is_active=True
+            category=CATEGORY_CONTACT, allergen_key="t1", is_active=True
         )
         allergen2 = Allergen.objects.create(
-            category="fragrance", allergen_key="rose", is_active=True
+            category=CATEGORY_CONTACT, allergen_key="t2", is_active=True
         )
 
         request = self._prepare_request()
@@ -66,28 +67,10 @@ class TestAllergenAdminActions:
         assert "deactivating 2" in log_text.lower()
         assert "successfully deactivated 2" in log_text.lower()
 
-    def test_deactivate_allergens_logs_admin_id(self, caplog):
-        """Focus purely on log content integrity and PII exclusion."""
-        Allergen.objects.create(category="fragrance", allergen_key="t1", is_active=True)
-        Allergen.objects.create(category="fragrance", allergen_key="t2", is_active=True)
-
-        request = self._prepare_request()
-        queryset = Allergen.objects.all()
-
-        with caplog.at_level("INFO", logger="allergies.admin"):
-            self.admin.deactivate_allergens(request, queryset)
-
-        assert str(self.superuser.id) in caplog.text
-        assert self.superuser.email not in caplog.text
-
-        log_output_lower = caplog.text.lower()
-        assert "deactivating 2" in log_output_lower
-        assert "successfully deactivated 2" in log_output_lower
-
     def test_activate_allergens_success(self):
         """Test functional bulk activation of allergens."""
         allergen = Allergen.objects.create(
-            category="preservative", allergen_key="parabens", is_active=False
+            category=CATEGORY_CONTACT, allergen_key="t3", is_active=False
         )
 
         request = self._prepare_request()

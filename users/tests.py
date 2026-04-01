@@ -344,7 +344,9 @@ class TestAllergySignalBatching:
     def test_batch_update_multiple_allergies(self, test_user, contact_allergen):
         """Test that multiple allergy changes in one transaction batch correctly."""
         allergen2 = Allergen.objects.create(
-            category=CATEGORY_CONTACT, allergen_key="fragrance", is_active=True
+            category=CATEGORY_CONTACT,
+            allergen_key="test_allergen_batch",
+            is_active=True,
         )
 
         # Create multiple allergies in one transaction

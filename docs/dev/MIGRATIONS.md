@@ -43,9 +43,9 @@ The canonical related names as of `0001_initial` are:
 
 ## Data Migrations (Allergen Catalog Seeding)
 
-Status: ⚠️ BLOCKED Pending DB reset (Pre-Gate 4 task 0c) and hand-written seed migration (task 0d).
+Status: ⚠️ BLOCKED Pending DB reset (Pre-Gate 4 task 0c) and hand-written seed migration.
 
-See [STATUS.md](../../STATUS.md) → Gate 4 Pre-tasks 0c and 0d for current status.
+See [STATUS.md](../../STATUS.md) → Gate 4 Pre-tasks 0c
 
 **WARNING**
 Do not run the seed migration until 0c (DB reset + `0001_initial`) is complete and all `conftest.py` fixtures include `label=` and `subcategory=`. Running the seed before the schema migration will fail.

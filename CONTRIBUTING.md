@@ -53,11 +53,26 @@ uv run pre-commit install
 ### 3. Create Feature Branch
 
 ```bash
-# Create a new branch from main
-git checkout -b feature/your-feature-name
+# Create a new branch following the naming convention:
+# <type>/<scope>-<short-description>
+git checkout -b feat/models-add-label-subcategory
+```
 
-# Or for bug fixes
-git checkout -b fix/issue-description
+### Branch Naming Convention
+
+Format: `<type>/<scope>-<short-description>`
+
+- **type** — same as commit types (`feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`)
+- **scope** — the area of the codebase affected (e.g., `models`, `migrations`, `compounds`, `users`)
+- **short-description** — kebab-case summary of the change
+
+**Examples:**
+```
+chore/migrations-seed-allergen-catalog     # seeding migration data
+feat/models-add-label-subcategory          # adding fields to a model
+chore/compounds-add-fatty-alcohols         # expanding allergen catalog
+fix/users-prevent-duplicate-email          # bug fix in users app
+docs/readme-update-install-instructions   # documentation update
 ```
 
 ### 4. Make Changes
@@ -80,7 +95,7 @@ git commit -m "feat: add user allergy validation"
 
 ```bash
 # Push to your fork
-git push origin feature/your-feature-name
+git push origin feat/models-add-label-subcategory
 
 # Create Pull Request on GitHub
 # Use the PR template and fill in all required sections
