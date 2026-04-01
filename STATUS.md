@@ -154,7 +154,7 @@ Gate 4 Proper Tasks (forms, views, matching):
 6. Wire URL routes
   - Add allergen profile URLs to allergies/urls.py (create, edit, delete, list)
   - Add product check URL to skincare_project/urls.py or appropriate location
-  - Ensure allergies/urls.py is included in root URL config (STATUS.md notes users/urls.py is not yet included — verify allergies/urls.py is)
+  - Ensure allergies/urls.py is included in root URL config (verified ✅ — both allergies/urls.py and users/urls.py are already included in skincare_project/urls.py)
 
 7. Write tests (80% coverage for new code)
   - Test AllergenSelectForm and UserAllergyEditForm validation
@@ -206,6 +206,7 @@ See Gate 4 Detail above — start with Pre-Gate 4 Task 0b (compounds.py).
 | `allergies/constants/choices.py` | Architecture in progress; map/lookup functions solid | `compounds.py` migration in progress — `ALL_COMPOUNDS` tuple being built. Two-migration sequence (schema then seed) not yet written. `choices.py` will be **deleted** after the seed migration lands — not split. `compounds.py` holds the canonical tuple only; no lookup tables at Gate 4. |
 | `CLAUDE.md` | Not started | Write after Gate 4 completes — patterns not yet stable |
 | `allergies/models.py` | `Allergen` and `UserAllergy` models; JSONField key validation in `clean()` | Unverified against actual file on disk — confirm matches uploaded version |
+| `LOGIN_URL` in `settings.py` | Currently `"admin:login"` — placeholder | Update to `"users:login"` (or equivalent named route) when the user-facing login view is added in Gate 4 task 6 |
 | `allergies/views.py` | Error handling implemented; GET logging implemented | CREATE/UPDATE/DELETE logging and POST logic blocked until Gate 4 |
 | `skincare_project/views.py` | Logging complete; `home` and `product` GET views exist | `product` POST handler not implemented (Gate 4) |
 | `allergies/tests/test_models.py` | Some `Allergen` tests exist | `UserAllergy` tests missing — confirmed TODO at L59 |
@@ -403,4 +404,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 4/1/2026 — 0d complete: __str__ now uses self.label, allergen_label property deleted, FLAT_ALLERGEN_LABEL_MAP import removed from models.py; ADMIN.md updated*
+*Last updated: 4/1/2026 2:21 PM — gate 4 pre-flight complete; stale users/urls.py note corrected in STATUS.md; LOGIN_URL known gap documented*
