@@ -15,7 +15,6 @@ from django.utils import timezone
 from .constants.compounds import (
     CATEGORY_CHOICES,
     CATEGORY_CONTACT,
-    FLAT_ALLERGEN_LABEL_MAP,
 )
 
 # Python 3.13 type aliases (PEP 695) — used as return/parameter annotations
@@ -34,7 +33,7 @@ class Allergen(models.Model):
     (INCI names, common names, abbreviations) to this key.
 
     Do not treat allergen_key as a display value —
-    use allergen_label for display and
+    use label for display and
     allergen_key as the stable matching target.
     """
 
@@ -104,22 +103,8 @@ class Allergen(models.Model):
         category_display = self.get_category_display()
 
         if self.allergen_key:
-            allergen_label = FLAT_ALLERGEN_LABEL_MAP.get(
-                self.allergen_key, self.allergen_key
-            )
-            return f"{category_display}: {allergen_label}"
+            return f"{category_display}: {self.label or self.allergen_key}"
         return f"{category_display}: [No Allergen Selected]"
-
-    @property
-    def allergen_label(self) -> str:
-        """Return user-friendly label for this allergen."""
-        if not self.allergen_key:
-            # Keep behavior consistent with __str__ by never returning None
-            return ""
-        return FLAT_ALLERGEN_LABEL_MAP.get(
-            self.allergen_key,
-            self.allergen_key,
-        )
 
 
 class UserAllergy(models.Model):

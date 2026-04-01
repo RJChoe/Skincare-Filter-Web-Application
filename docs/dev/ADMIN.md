@@ -59,7 +59,7 @@ def activate_allergens(modeladmin, request, queryset):
 
 ```python
 class AllergenAdmin(admin.ModelAdmin):
-    list_display = ["allergen_label", "category", "allergen_key", "is_active"]
+    list_display = ["label", "category", "allergen_key", "is_active"]
     list_filter = ["category", "is_active"]
     search_fields = ["allergen_key"]
     ordering = ["category", "allergen_key"]
@@ -70,22 +70,18 @@ class AllergenAdmin(admin.ModelAdmin):
 
 Adding a novel `allergen_key` via the admin panel will create a database row
 but the allergen **will not appear** in:
-- `FLAT_ALLERGEN_LABEL_MAP` (used by `Allergen.__str__` and `allergen_label`)
 - `CATEGORY_TO_ALLERGENS_MAP` (used by form rendering)
 - `FORM_ALLERGIES_CHOICES` (used by the user-facing allergy selection form)
 
 These maps are built from static tuples in `compounds.py` at import time, not
-from the database. Any key not in those tuples will display its raw key string
-instead of a human-readable label, and will be invisible to users in the form.
+from the database.
 
-**Until the seed migration lands and the display layer is database-driven,
-treat this admin as seed-only.** Use it to manage the seeded catalog
-(activate/deactivate, audit), not to introduce new allergen keys.
+`Allergen.__str__` now reads `self.label` directly — any row created via the
+admin panel will display its label field immediately, with no map dependency.
 
-This gap closes automatically when:
-1. `Allergen.label` field is added in the seed migration
-2. `__str__` and `allergen_label` switch to `self.label`
-3. Form choices are queried from the DB instead of `compounds.py`
+**Until form choices are queried from the DB (Gate 4), treat this admin as
+seed-only.** Use it to manage the seeded catalog (activate/deactivate, audit),
+not to introduce new allergen keys.
 
 ## GDPR Note
 

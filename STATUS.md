@@ -98,9 +98,8 @@ Pre-Gate 4 Tasks (data foundation):
     conftest.py fixture is sufficient; local fixture was shadowing it with missing fields
   - Remove unused CATEGORY_CONTACT import from allergies/tests/test_models.py
 
-0d. 🚧 In Progress Immediately after migrations land (same PR): update `Allergen.__str__()` to use
-    `self.label`, delete `allergen_label` property, remove `FLAT_ALLERGEN_LABEL_MAP`
-    import from `models.py`
+0d. ✅ Complete: Update `Allergen.__str__()` to use `self.label`, delete `allergen_label`
+    property, remove `FLAT_ALLERGEN_LABEL_MAP` import from `models.py`
   - Update Allergen.__str__(): replace FLAT_ALLERGEN_LABEL_MAP.get(...) with self.label
   - Delete the allergen_label property
   - Remove FLAT_ALLERGEN_LABEL_MAP import from models.py
@@ -404,4 +403,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 4/1/2026 2:15 PM — fixed integrity errors from seeded allergen collision; conftest fixtures switched to get_or_create; test_admin_error_handling.py category values and queryset scope corrected*
+*Last updated: 4/1/2026 — 0d complete: __str__ now uses self.label, allergen_label property deleted, FLAT_ALLERGEN_LABEL_MAP import removed from models.py; ADMIN.md updated*
