@@ -89,7 +89,11 @@ def contact_allergen(db):
                   allergen_key='sodium_lauryl_sulfate', is_active=True
     """
     return Allergen.objects.create(
-        category=CATEGORY_CONTACT, allergen_key="sodium_lauryl_sulfate", is_active=True
+        category=CATEGORY_CONTACT,
+        allergen_key="sodium_lauryl_sulfate",
+        label="Sodium Lauryl Sulfate (SLS)",
+        subcategory="Surfactants & Emulsifiers",
+        is_active=True,
     )
 
 
@@ -102,7 +106,11 @@ def second_contact_allergen(db):
                   allergen_key='methylparaben', is_active=True
     """
     return Allergen.objects.create(
-        category=CATEGORY_CONTACT, allergen_key="methylparaben", is_active=True
+        category=CATEGORY_CONTACT,
+        allergen_key="methylparaben",
+        label="Methylparaben",
+        subcategory="Preservatives",
+        is_active=True,
     )
 
 
