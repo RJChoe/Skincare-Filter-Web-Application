@@ -123,7 +123,7 @@ Gate 4 Proper Tasks (forms, views, matching):
     - Fields: severity_level, is_confirmed, source_info, symptom_onset_date, user_reaction_details
     - All fields optional (visible but not required)
 
-2. 🚧 In Progress: Create allergen profile views in allergies/views.py
+2. ✅ Complete: Create allergen profile views in allergies/views.py
   - create_allergies view (POST): receives checked allergen IDs, creates UserAllergy rows with defaults, redirects to profile list
   - edit_allergy view (GET/POST): renders and processes UserAllergyEditForm for a single UserAllergy
   - delete_allergy view (POST): removes a UserAllergy entry
@@ -136,7 +136,7 @@ Gate 4 Proper Tasks (forms, views, matching):
     `{"FORM_ALLERGIES_CHOICES": FORM_ALLERGIES_CHOICES}` from all `render()`
     calls in this file
 
-3. Create allergies/services.py (matching pipeline)
+3. 🚧 In Progress: Create allergies/services.py (matching pipeline)
   - check_ingredients(ingredient_text: str, user: CustomUser) -> list[MatchResult]
   - Sanitize input: remove special characters, formatting
   - Tokenize: split on commas
@@ -412,4 +412,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 4/1/2026 5:23 PM — gate 4 Task 1 complete*
+*Last updated: 4/1/2026 5:32 PM — gate 4 Task 2 complete*
