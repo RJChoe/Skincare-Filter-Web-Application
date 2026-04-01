@@ -114,6 +114,9 @@ Gate 4 Proper Tasks (forms, views, matching):
     - ModelMultipleChoiceField with CheckboxSelectMultiple widget
     - queryset=Allergen.objects.filter(is_active=True).order_by('subcategory', 'label')
     - Template groups checkboxes by subcategory
+    - Add `get_grouped_allergens(self) -> list[tuple[str, list[Allergen]]]` method
+    to group allergens by subcategory for template rendering; call from view
+    context, not from a custom widget
 
   - UserAllergyEditForm: individual allergy detail editing
     - ModelForm for UserAllergy
@@ -127,6 +130,11 @@ Gate 4 Proper Tasks (forms, views, matching):
   - allergy_list view (GET): displays user's current allergen profile
   - All views: @login_required, @transaction.atomic on writes, logging at INFO for create/update/delete
   - This completes the deferred Gate 2 item (POST logging in allergies/views.py)
+  - Remove `FORM_ALLERGIES_CHOICES` module-level constant and its imports
+    (`CATEGORY_CHOICES`, `COMPOUNDS`) from `allergies/views.py` — dead code
+    once `AllergenSelectForm` uses a DB-backed queryset; also remove
+    `{"FORM_ALLERGIES_CHOICES": FORM_ALLERGIES_CHOICES}` from all `render()`
+    calls in this file
 
 3. Create allergies/services.py (matching pipeline)
   - check_ingredients(ingredient_text: str, user: CustomUser) -> list[MatchResult]
@@ -404,4 +412,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 4/1/2026 2:21 PM — gate 4 pre-flight complete; stale users/urls.py note corrected in STATUS.md; LOGIN_URL known gap documented*
+*Last updated: 4/1/2026 4:57 PM — gate 4 pre-flight complete; stale users/urls.py note corrected in STATUS.md; LOGIN_URL known gap documented*
