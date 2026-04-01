@@ -94,6 +94,9 @@ Pre-Gate 4 Tasks (data foundation):
   - uv run python manage.py migrate
   - Update conftest.py: add label= and subcategory= to Allergen.objects.create() calls
     (use display_label/subcategory values from the corresponding CompoundEntry rows)
+  - Delete local contact_allergen fixture from allergies/tests/test_models.py — root
+    conftest.py fixture is sufficient; local fixture was shadowing it with missing fields
+  - Remove unused CATEGORY_CONTACT import from allergies/tests/test_models.py
 
 0d. Immediately after migrations land (same PR): update `Allergen.__str__()` to use
     `self.label`, delete `allergen_label` property, remove `FLAT_ALLERGEN_LABEL_MAP`
@@ -401,4 +404,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 4/1/2026 12:05 PM — DB reset complete; 0001_initial.py finalized with schema + seed; pre-Gate 4 data foundation done; task 0e renumbered to 0d*
+*Last updated: 4/1/2026 12:05 PM — 0c complete; deleted local contact_allergen fixture from test_models.py; removed unused CATEGORY_CONTACT import*
