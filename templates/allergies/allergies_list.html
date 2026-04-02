@@ -1,0 +1,57 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+My Allergen Profile — Allergies Filter App
+{% endblock %}
+
+{% block content %}
+<h2>My Allergen Profile</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Allergen</th>
+            <th>Severity</th>
+            <th>Confirmed</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ua in user_allergies %}
+        <tr>
+            <td>{{ ua.allergen.label }}</td>
+            <td>{{ ua.severity_level|default:"-" }}</td>
+            <td>{{ ua.is_confirmed|yesno:"Yes,No" }}</td>
+            <td>
+                <a href="{% url 'allergies:edit' ua.pk %}">Edit</a>
+                <form method="post" action="{% url 'allergies:delete' ua.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No allergens in your profile yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Add Allergens</h3>
+<form method="post" action="{% url 'allergies:create' %}">
+    {% csrf_token %}
+    {% for subcategory, allergens in grouped_allergens %}
+    <fieldset>
+        <legend>{{ subcategory }}</legend>
+        {% for allergen in allergens %}
+        <div>
+            <input type="checkbox" name="allergens" value="{{ allergen.pk }}" id="allergen_{{ allergen.pk }}">
+            <label for="allergen_{{ allergen.pk }}">{{ allergen.label }}</label>
+        </div>
+        {% endfor %}
+    </fieldset>
+    {% endfor %}
+    <button type="submit">Add Selected Allergens</button>
+</form>
+{% endblock %}
