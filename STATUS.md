@@ -159,12 +159,12 @@ Gate 4 Proper Tasks (forms, views, matching):
   - Product check template: <textarea> input form + result display
   - All templates extend layout.html
 
-6. Wire URL routes
+6. ✅ Complete: Wire URL routes
   - Add allergen profile URLs to allergies/urls.py (create, edit, delete, list)
   - Add product check URL to skincare_project/urls.py or appropriate location
   - Ensure allergies/urls.py is included in root URL config (verified ✅ — both allergies/urls.py and users/urls.py are already included in skincare_project/urls.py)
 
-7. Write tests (80% coverage for new code)
+7. ✅ Complete: Write tests (80% coverage for new code)
   - Test AllergenSelectForm and UserAllergyEditForm validation
   - Test check_ingredients() service function: exact match, no match, multiple matches, case insensitivity, whitespace handling
   - Test allergen profile views: GET, POST, auth redirect, error cases
@@ -412,4 +412,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 4/1/2026 11:45 PM — gate 4 Task 5 complete*
+*Last updated: 4/2/2026 — gate 4 Task 7 complete*
