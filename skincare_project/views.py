@@ -1,17 +1,15 @@
 import logging
 
-from django.core.exceptions import ValidationError
-from django.db import transaction
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
 from allergies.exceptions import InvalidIngredientError
+from allergies.services import check_ingredients
 
 # Module-level logger setup
 logger = logging.getLogger(__name__)
-
-# from allergies.models import UserAllergy  # uncomment in Gate 4
 
 
 def home(request: HttpRequest) -> HttpResponse:
@@ -19,101 +17,56 @@ def home(request: HttpRequest) -> HttpResponse:
     return render(request, "home.html")
 
 
+@login_required
 @require_http_methods(["GET", "POST"])
 def product(request: HttpRequest) -> HttpResponse:
-    """Product ingredient checker with error handling.
+    """Product ingredient checker.
 
     GET: Display product input form
-    POST: Check ingredients against user allergies (future implementation)
+    POST: Check ingredients against user allergies
     """
 
     if request.method == "GET":
-        try:
-            logger.info(
-                f"User {request.user.id if request.user.is_authenticated else 'anonymous'} accessed product page"
-            )
-            return render(request, "product.html")
-        except Exception as e:
-            logger.error(
-                f"Unexpected error in product GET for user {request.user.id if request.user.is_authenticated else 'anonymous'}: {e}",
-                exc_info=True,
-            )
-            return JsonResponse(
-                {"error": "An unexpected error occurred. Please try again later."},
-                status=500,
-            )
+        logger.info(f"User {request.user.id} accessed product page")
+        return render(request, "product.html")
 
-    # POST request - check ingredients (FUTURE IMPLEMENTATION after Gate 4)
+    # POST — check ingredients
+    ingredient_text = request.POST.get("ingredients", "")
     try:
-        with transaction.atomic():
-            logger.info(
-                f"User {request.user.id if request.user.is_authenticated else 'anonymous'} checking product ingredients"
-            )
-
-            # Validate user is authenticated
-            if not request.user.is_authenticated:
-                logger.warning("Unauthenticated user attempted product check")
-                return JsonResponse(
-                    {"error": "Authentication required"},
-                    status=401,
-                )
-
-            # TODO: Implement ingredient parsing and allergen checking
-            # This will be completed in Gate 4 (Forms & Validation)
-            logger.warning("POST handler not yet fully implemented")
-            return JsonResponse(
-                {"error": "Feature coming soon"},
-                status=501,  # Not Implemented
-            )
-
-            # FUTURE: Ingredient checking logic will go here
-            # ingredients = request.POST.get("ingredients", "").strip()
-            # if not ingredients:
-            #     raise InvalidIngredientError("Ingredient list cannot be empty")
-            #
-            # ingredient_list = [i.strip().lower() for i in ingredients.split(",")]
-            #
-            # user_allergies = UserAllergy.objects.select_related('allergen').filter(
-            #     user=request.user,
-            #     is_active=True
-            # )
-            #
-            # matches = []
-            # for allergy in user_allergies:
-            #     allergen_label = allergy.allergen.allergen_label.lower()
-            #     if any(allergen_label in ingredient for ingredient in ingredient_list):
-            #         matches.append({
-            #             'allergen': allergy.allergen.allergen_label,
-            #             'severity': allergy.severity_level,
-            #             'category': allergy.allergen.get_category_display(),
-            #         })
-            #         logger.info(
-            #             f"Match found: User {request.user.id} allergen '{allergen_label}' "
-            #             f"in ingredients (severity: {allergy.severity_level})"
-            #         )
-            #
-            # return JsonResponse({
-            #     'success': True,
-            #     'matches': matches,
-            #     'total_checked': len(ingredient_list)
-            # })
-
+        matches = check_ingredients(ingredient_text, request.user)
+        logger.info(
+            f"User {request.user.id} product check complete: {len(matches)} match(es)"
+        )
+        return render(
+            request,
+            "product.html",
+            {
+                "checked": True,
+                "matches": matches,
+                "ingredients": ingredient_text,
+            },
+        )
     except InvalidIngredientError as e:
-        logger.warning(
-            f"InvalidIngredientError for user {request.user.id if request.user.is_authenticated else 'anonymous'}: {e}"
+        logger.warning(f"InvalidIngredientError for user {request.user.id}: {e}")
+        return render(
+            request,
+            "product.html",
+            {
+                "error": str(e),
+                "ingredients": ingredient_text,
+            },
         )
-        return JsonResponse({"error": str(e)}, status=400)
-    except ValidationError as e:
-        logger.warning(
-            f"ValidationError for user {request.user.id if request.user.is_authenticated else 'anonymous'}: {e}"
-        )
-        return JsonResponse({"error": str(e)}, status=400)
     except Exception as e:
         logger.error(
-            f"Unexpected error in product check for user {request.user.id if request.user.is_authenticated else 'anonymous'}: {e}",
+            f"Unexpected error in product check for user {request.user.id}: {e}",
             exc_info=True,
         )
-        return JsonResponse(
-            {"error": "An unexpected error occurred. Please try again later."},
+        return render(
+            request,
+            "product.html",
+            {
+                "error": "An unexpected error occurred. Please try again later.",
+                "ingredients": ingredient_text,
+            },
             status=500,
         )

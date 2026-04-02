@@ -1,78 +1,73 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
-from django.core.exceptions import ValidationError
 from django.urls import reverse
 
-from allergies.exceptions import InvalidIngredientError
+from allergies.services import MatchResult
 
 
 @pytest.mark.django_db
 class TestProductViewErrorHandling:
     """Test error handling in skincare_project product view."""
 
-    def test_get_returns_200(self, client):
+    def test_get_unauthenticated_redirects(self, client):
         response = client.get(reverse("product"))
+        assert response.status_code == 302
+
+    def test_get_authenticated_returns_200(self, authenticated_client):
+        response = authenticated_client.get(reverse("product"))
         assert response.status_code == 200
 
-    def test_get_unexpected_error_returns_500(self, client):
-        """Unexpected exceptions in GET handler must return 500."""
-        with patch(
-            "skincare_project.views.logger.info",
-            side_effect=Exception("unexpected boom"),
-        ):
-            response = client.get(reverse("product"))
-        assert response.status_code == 500
-        assert (
-            response.json()["error"]
-            == "An unexpected error occurred. Please try again later."
+    def test_post_unauthenticated_redirects(self, client):
+        response = client.post(reverse("product"), {"ingredients": "water, glycerin"})
+        assert response.status_code == 302
+
+    def test_post_empty_ingredients_shows_error(self, authenticated_client):
+        """Empty ingredient input renders an inline error, not a 4xx JSON response."""
+        response = authenticated_client.post(reverse("product"), {"ingredients": ""})
+        assert response.status_code == 200
+        assert "error" in response.context
+        assert response.context["error"] != ""
+
+    def test_post_safe_result(self, authenticated_client):
+        """When check_ingredients returns no matches, the template gets checked=True and empty matches."""
+        with patch("skincare_project.views.check_ingredients", return_value=[]):
+            response = authenticated_client.post(
+                reverse("product"), {"ingredients": "water, glycerin"}
+            )
+        assert response.status_code == 200
+        assert response.context["checked"] is True
+        assert response.context["matches"] == []
+
+    def test_post_unsafe_result(self, authenticated_client):
+        """When check_ingredients returns matches, the template gets the match list."""
+        match = MatchResult(
+            allergen_key="nickel",
+            display_label="Nickel",
+            severity_level="moderate",
+            is_confirmed=True,
         )
-
-    def test_post_unauthenticated_returns_401_json(self, client):
-        """Unauthenticated POST must return 401 JSON, not 500."""
-        response = client.post(reverse("product"))
-        assert response.status_code == 401
-        assert response.json()["error"] == "Authentication required"
-
-    def test_post_authenticated_returns_501(self, authenticated_client):
-        """Authenticated POST to unimplemented handler must return 501."""
-        response = authenticated_client.post(reverse("product"))
-        assert response.status_code == 501
-
-    def test_post_invalid_ingredient_returns_400_json(self, authenticated_client):
-        """InvalidIngredientError must return 400 JSON, not 500."""
-        with patch("skincare_project.views.logger") as mock_logger:
-            mock_logger.info = MagicMock()
-            # Raise on the first call (inside try block); return normally on the
-            # second call (inside the except handler's logger.warning).
-            mock_logger.warning = MagicMock(
-                side_effect=[InvalidIngredientError("bad ingredient"), None]
+        with patch("skincare_project.views.check_ingredients", return_value=[match]):
+            response = authenticated_client.post(
+                reverse("product"), {"ingredients": "nickel, water"}
             )
-            response = authenticated_client.post(reverse("product"))
-        assert response.status_code == 400
-        assert "error" in response.json()
-
-    def test_post_validation_error_returns_400_json(self, authenticated_client):
-        """Django ValidationError must return 400 JSON, not 500."""
-        with patch("skincare_project.views.logger") as mock_logger:
-            mock_logger.info = MagicMock()
-            mock_logger.warning = MagicMock(
-                side_effect=[ValidationError("model validation failed"), None]
-            )
-            response = authenticated_client.post(reverse("product"))
-        assert response.status_code == 400
-        assert "error" in response.json()
+        assert response.status_code == 200
+        assert response.context["checked"] is True
+        assert len(response.context["matches"]) == 1
+        assert response.context["matches"][0].display_label == "Nickel"
 
     def test_post_unexpected_error_returns_500(self, authenticated_client):
-        """Unexpected exceptions in POST handler must return 500."""
-        with patch("skincare_project.views.logger") as mock_logger:
-            mock_logger.info = MagicMock()
-            mock_logger.warning = MagicMock(
-                side_effect=[Exception("unexpected boom"), None]
+        """Unexpected exceptions in POST handler must return 500 HTML."""
+        with patch(
+            "skincare_project.views.check_ingredients",
+            side_effect=Exception("unexpected boom"),
+        ):
+            response = authenticated_client.post(
+                reverse("product"), {"ingredients": "water"}
             )
-            response = authenticated_client.post(reverse("product"))
         assert response.status_code == 500
+        assert "error" in response.context
         assert (
-            response.json()["error"]
+            response.context["error"]
             == "An unexpected error occurred. Please try again later."
         )

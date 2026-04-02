@@ -9,9 +9,25 @@ Product Input — Allergies Filter App
     <form method="post">
         {% csrf_token %}
         <label for="ingredients">Enter product ingredients:</label>
-        <textarea id="ingredients" name="ingredients" rows="4" cols="50"></textarea>
+        <textarea id="ingredients" name="ingredients" rows="4" cols="50">{{ ingredients }}</textarea>
         <button type="submit">Filter Products</button>
     </form>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% elif checked %}
+        {% if matches %}
+            <p><strong>Unsafe</strong> — contains allergens:</p>
+            <ul>
+                {% for match in matches %}
+                    <li>{{ match.display_label }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p><strong>Safe</strong> — no allergens detected.</p>
+        {% endif %}
+    {% endif %}
+
     <p>Go back to <a href="{% url 'home' %}">Home Page</a></p>
 
     <footer>
