@@ -37,9 +37,7 @@ class AllergenSelectForm(forms.Form):
             List of (subcategory_name, [Allergen, ...]) tuples, in subcategory
             order. Relies on the queryset already being ordered by subcategory.
         """
-        qs = cast(
-            forms.ModelMultipleChoiceField[Allergen], self.fields["allergens"]
-        ).queryset
+        qs = cast(forms.ModelMultipleChoiceField, self.fields["allergens"]).queryset
         assert qs is not None
         result: list[tuple[str, list[Allergen]]] = []
         for subcategory, group in groupby(qs, key=lambda a: a.subcategory):
