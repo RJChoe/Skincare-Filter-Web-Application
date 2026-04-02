@@ -146,7 +146,7 @@ Gate 4 Proper Tasks (forms, views, matching):
   - Collect all matches (do not fail-fast at the service layer)
   - Return list of matches, each including the allergen key, label, and severity level from UserAllergy
 
-4. Create product check view in skincare_project/views.py
+4. ✅ Complete: Create product check view in skincare_project/views.py
   - product_check view (GET): renders form with <textarea> for ingredient list
   - product_check view (POST): calls check_ingredients(), renders result
   - MVP template: if matches list is empty → "Safe"; if not empty → "Unsafe — contains: [list of matched ingredient labels]"
@@ -412,4 +412,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 4/1/2026 6:50 PM — gate 4 Task 3 complete*
+*Last updated: 4/1/2026 11:07 PM — gate 4 Task 4 complete*
