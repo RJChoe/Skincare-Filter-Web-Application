@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+
+{% block title %}Edit Allergy — {{ user_allergy.allergen.label }}{% endblock %}
+
+{% block content %}
+<h1>Edit: {{ user_allergy.allergen.label }}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+    <a href="{% url 'allergies:list' %}">Cancel</a>
+</form>
+{% endblock %}

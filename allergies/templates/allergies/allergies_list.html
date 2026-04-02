@@ -1,19 +1,59 @@
-{% extends 'layout.html'%}
+{% extends 'layout.html' %}
 
-{% block title%}
-Allergies List
-{% endblock %}
+{% block title %}Allergen Profile{% endblock %}
 
 {% block content %}
-    <h1>Allergies List</h1>
-    {% for generic_key, group_label, allergen_list in FORM_ALLERGIES_CHOICES %}
-    <h2>{{ group_label }}</h2>
-        <ul>
-        {% for allergen in allergen_list %}
-            <li>{{ allergen.1 }}</li>
+<h1>Your Allergen Profile</h1>
+
+{% if user_allergies %}
+<table>
+    <thead>
+        <tr>
+            <th>Allergen</th>
+            <th>Subcategory</th>
+            <th>Severity</th>
+            <th>Confirmed</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ua in user_allergies %}
+        <tr>
+            <td>{{ ua.allergen.label }}</td>
+            <td>{{ ua.allergen.subcategory }}</td>
+            <td>{{ ua.get_severity_level_display|default:"—" }}</td>
+            <td>{{ ua.is_confirmed|yesno:"Yes,No" }}</td>
+            <td>
+                <a href="{% url 'allergies:edit' ua.pk %}">Edit</a>
+                <form method="post" action="{% url 'allergies:delete' ua.pk %}" style="display:inline">
+                    {% csrf_token %}
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
         {% endfor %}
-        </ul>
+    </tbody>
+</table>
+{% else %}
+<p>You have no allergens in your profile yet.</p>
+{% endif %}
+
+<h2>Add Allergens</h2>
+<form method="post" action="{% url 'allergies:create' %}">
+    {% csrf_token %}
+    {% for subcategory, allergens in grouped_allergens %}
+    <fieldset>
+        <legend>{{ subcategory }}</legend>
+        {% for allergen in allergens %}
+        <label>
+            <input type="checkbox" name="allergens" value="{{ allergen.pk }}">
+            {{ allergen.label }}
+        </label><br>
+        {% endfor %}
+    </fieldset>
     {% empty %}
-        <p>No allergies found.</p>
+    <p>No allergens available.</p>
     {% endfor %}
+    <button type="submit">Add Selected</button>
+</form>
 {% endblock %}
