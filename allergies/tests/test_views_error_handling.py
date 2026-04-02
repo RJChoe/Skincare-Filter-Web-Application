@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+from django.core.exceptions import ValidationError
 from django.test import Client
 from django.urls import reverse
 
@@ -73,3 +74,80 @@ class TestAllergiesListErrorHandling:
 
         assert response.status_code == 500
         assert "allergies/allergies_list.html" in [t.name for t in response.templates]
+
+
+@pytest.mark.django_db
+class TestCreateAllergiesErrorHandling:
+    """Test error handling in create_allergies view."""
+
+    def test_unexpected_error_redirects_to_list(
+        self, authenticated_client, contact_allergen
+    ):
+        with patch(
+            "allergies.views.AllergenSelectForm",
+            side_effect=Exception("unexpected boom"),
+        ):
+            response = authenticated_client.post(
+                reverse("allergies:create"),
+                {"allergens": [contact_allergen.pk]},
+            )
+        assert response.status_code == 302
+        assert response["Location"] == reverse("allergies:list")
+
+
+@pytest.mark.django_db
+class TestEditAllergyErrorHandling:
+    """Test error handling in edit_allergy view."""
+
+    def test_get_unexpected_error_redirects_to_list(
+        self, authenticated_client, user_allergy
+    ):
+        url = reverse("allergies:edit", kwargs={"pk": user_allergy.pk})
+        with patch(
+            "allergies.views.UserAllergyEditForm",
+            side_effect=Exception("unexpected boom"),
+        ):
+            response = authenticated_client.get(url)
+        assert response.status_code == 302
+        assert response["Location"] == reverse("allergies:list")
+
+    def test_post_validation_error_rerenders_form(
+        self, authenticated_client, user_allergy
+    ):
+        url = reverse("allergies:edit", kwargs={"pk": user_allergy.pk})
+        with patch(
+            "allergies.models.UserAllergy.save",
+            side_effect=ValidationError("forced"),
+        ):
+            response = authenticated_client.post(url, {"severity_level": "severe"})
+        assert response.status_code == 200
+        assert "allergies/edit_allergy.html" in [t.name for t in response.templates]
+
+    def test_post_unexpected_error_redirects_to_list(
+        self, authenticated_client, user_allergy
+    ):
+        url = reverse("allergies:edit", kwargs={"pk": user_allergy.pk})
+        with patch(
+            "allergies.models.UserAllergy.save",
+            side_effect=Exception("unexpected boom"),
+        ):
+            response = authenticated_client.post(url, {"severity_level": "severe"})
+        assert response.status_code == 302
+        assert response["Location"] == reverse("allergies:list")
+
+
+@pytest.mark.django_db
+class TestDeleteAllergyErrorHandling:
+    """Test error handling in delete_allergy view."""
+
+    def test_unexpected_error_redirects_to_list(
+        self, authenticated_client, user_allergy
+    ):
+        url = reverse("allergies:delete", kwargs={"pk": user_allergy.pk})
+        with patch(
+            "allergies.models.UserAllergy.delete",
+            side_effect=Exception("unexpected boom"),
+        ):
+            response = authenticated_client.post(url)
+        assert response.status_code == 302
+        assert response["Location"] == reverse("allergies:list")
