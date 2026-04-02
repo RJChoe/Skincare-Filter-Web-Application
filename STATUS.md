@@ -152,7 +152,7 @@ Gate 4 Proper Tasks (forms, views, matching):
   - MVP template: if matches list is empty → "Safe"; if not empty → "Unsafe — contains: [list of matched ingredient labels]"
   - @login_required, logging at INFO
 
-5. Create/update templates
+5. ✅ Complete: Create/update templates
   - Allergen selection template: grouped checkboxes by subcategory, {% csrf_token %}
   - Allergen edit template: individual detail form, {% csrf_token %}
   - Allergen list template: user's profile with edit/delete links per entry
@@ -412,4 +412,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 4/1/2026 11:07 PM — gate 4 Task 4 complete*
+*Last updated: 4/1/2026 11:45 PM — gate 4 Task 5 complete*
