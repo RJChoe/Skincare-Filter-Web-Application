@@ -136,7 +136,7 @@ Gate 4 Proper Tasks (forms, views, matching):
     `{"FORM_ALLERGIES_CHOICES": FORM_ALLERGIES_CHOICES}` from all `render()`
     calls in this file
 
-3. 🚧 In Progress: Create allergies/services.py (matching pipeline)
+3. ✅ Complete: Create allergies/services.py (matching pipeline)
   - check_ingredients(ingredient_text: str, user: CustomUser) -> list[MatchResult]
   - Sanitize input: remove special characters, formatting
   - Tokenize: split on commas
@@ -412,4 +412,4 @@ Before marking any gate ✅ Complete in this file:
 and test files — attach per-chat as needed for relevant tasks.
 
 ---
-*Last updated: 4/1/2026 5:32 PM — gate 4 Task 2 complete*
+*Last updated: 4/1/2026 6:50 PM — gate 4 Task 3 complete*
