@@ -80,3 +80,103 @@ class TestAllergenAdminActions:
 
         allergen.refresh_from_db()
         assert allergen.is_active
+
+    def test_deactivate_allergens_error_path(self, caplog):
+        """Test that exceptions in deactivate are caught and logged."""
+        from unittest.mock import MagicMock
+
+        request = self._prepare_request()
+        mock_qs = MagicMock()
+        mock_qs.count.return_value = 1
+        mock_qs.update.side_effect = Exception("DB error")
+
+        with caplog.at_level("ERROR", logger="allergies.admin"):
+            self.admin.deactivate_allergens(request, mock_qs)
+
+        assert "error deactivating" in caplog.text.lower()
+
+    def test_activate_allergens_error_path(self, caplog):
+        """Test that exceptions in activate are caught and logged."""
+        from unittest.mock import MagicMock
+
+        request = self._prepare_request()
+        mock_qs = MagicMock()
+        mock_qs.count.return_value = 1
+        mock_qs.update.side_effect = Exception("DB error")
+
+        with caplog.at_level("ERROR", logger="allergies.admin"):
+            self.admin.activate_allergens(request, mock_qs)
+
+        assert "error activating" in caplog.text.lower()
+
+
+@pytest.mark.django_db
+@pytest.mark.usefixtures("enable_allergies_logging")
+class TestUserAllergyAdminActions:
+    """Test mark_as_confirmed and mark_as_unconfirmed admin actions."""
+
+    def setup_method(self):
+        from allergies.admin import UserAllergyAdmin
+        from allergies.models import UserAllergy
+
+        self.factory = RequestFactory()
+        self.admin = UserAllergyAdmin(UserAllergy, AdminSite())
+        self.superuser = CustomUser.objects.create_superuser(
+            username="ua_admin",
+            password="admin123",
+            email="ua_admin@test.com",
+            date_of_birth="1990-01-01",
+        )
+
+    def _prepare_request(self):
+        request = self.factory.get("/")
+        request.user = self.superuser
+        middleware = SessionMiddleware(lambda x: None)
+        middleware.process_request(request)
+        request.session.save()
+        request._messages = FallbackStorage(request)
+        return request
+
+    def test_mark_as_confirmed_success(self, user_allergy):
+        user_allergy.is_confirmed = False
+        user_allergy.save()
+        request = self._prepare_request()
+        from allergies.models import UserAllergy
+
+        qs = UserAllergy.objects.filter(pk=user_allergy.pk)
+        self.admin.mark_as_confirmed(request, qs)
+        user_allergy.refresh_from_db()
+        assert user_allergy.is_confirmed is True
+
+    def test_mark_as_unconfirmed_success(self, user_allergy):
+        user_allergy.is_confirmed = True
+        user_allergy.save()
+        request = self._prepare_request()
+        from allergies.models import UserAllergy
+
+        qs = UserAllergy.objects.filter(pk=user_allergy.pk)
+        self.admin.mark_as_unconfirmed(request, qs)
+        user_allergy.refresh_from_db()
+        assert user_allergy.is_confirmed is False
+
+    def test_mark_as_confirmed_error_path(self, caplog):
+        from unittest.mock import MagicMock
+
+        request = self._prepare_request()
+        mock_qs = MagicMock()
+        mock_qs.count.return_value = 1
+        mock_qs.update.side_effect = Exception("DB error")
+        with caplog.at_level("ERROR", logger="allergies.admin"):
+            self.admin.mark_as_confirmed(request, mock_qs)
+        assert "error confirming" in caplog.text.lower()
+
+    def test_mark_as_unconfirmed_error_path(self, caplog):
+        from unittest.mock import MagicMock
+
+        request = self._prepare_request()
+        mock_qs = MagicMock()
+        mock_qs.count.return_value = 1
+        mock_qs.update.side_effect = Exception("DB error")
+        with caplog.at_level("ERROR", logger="allergies.admin"):
+            self.admin.mark_as_unconfirmed(request, mock_qs)
+        assert "error unconfirming" in caplog.text.lower()
