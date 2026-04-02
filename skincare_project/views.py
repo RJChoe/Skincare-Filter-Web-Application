@@ -7,6 +7,7 @@ from django.views.decorators.http import require_http_methods
 
 from allergies.exceptions import InvalidIngredientError
 from allergies.services import check_ingredients
+from users.models import CustomUser
 
 # Module-level logger setup
 logger = logging.getLogger(__name__)
@@ -31,6 +32,7 @@ def product(request: HttpRequest) -> HttpResponse:
         return render(request, "product.html")
 
     # POST — check ingredients
+    assert isinstance(request.user, CustomUser)
     ingredient_text = request.POST.get("ingredients", "")
     try:
         matches = check_ingredients(ingredient_text, request.user)
